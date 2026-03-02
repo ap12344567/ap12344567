@@ -2171,6 +2171,11 @@ const KEYWORD_MAP = [
            'Denied Claims','Compare Healthcare Costs','Review my Medical Bills','Pre-Appointment Questions',
            'Medical Care Coordination','General Healthcare Resources','Check For Prescriptions (Rx) Savings',
            'Find Generic Rx Options','Connect With a Healthcare Concierge'],
+    taskVendors:['Transcarent','Accolade','Quantum Health','Included Health','Rightway','HealthJoy',
+                 'Health Advocate','Collective Health','Sharecare','Wellnecity','Healthee',
+                 'Nava Benefits','Garner Health','Grand Rounds','Eden Health','Alight Solutions',
+                 'GoodRx','RxSavings Solutions','Cost Plus Drugs','Amazon Pharmacy','Capsule Pharmacy',
+                 'CVS Caremark','Express Scripts','OptumRx','GoodRx (employer)','Rightway Rx'],
     keys:['healthcare navigation','health navigation','nurse navigator','care navigator','care navigation',
           'concierge health','health concierge','clinical concierge','healthcare advocate','health advocate',
           'second opinion','second medical opinion','care coordinator','care management','utilization management',
@@ -2191,11 +2196,19 @@ const KEYWORD_MAP = [
           'mental health coverage','mental health sessions','mental health visits','telehealth mental health'],
     strong:['unlimited therapy','free therapy sessions','comprehensive mental health','employer-paid therapy',
             'no copay therapy','covered therapy sessions','mental health parity'],
+    taskVendors:['Talkspace','BetterHelp','Lyra','Lyra Health','Spring Health','Modern Health',
+                 'Headspace','Headspace Health','Calm','ComPsych','BetterUp','Brightline',
+                 'Brightside Health','SonderMind','Unmind','Big Health','Ginger','Cerebral',
+                 'Alma','Grow Therapy','Resilience Lab','Quartet Health','Kyan Health','Samata Health'],
   },
   {
     names:['Self Care & Preventive Care','Find a Personal Trainer','Build a Nutrition Plan','Find a Nutritionist',
            'Learn about Weight Loss','Learn about GLP-1s for Weight Loss','Find a Gym','Find a Health App',
            'Understand my Wellness Benefits','Find Yoga / Pilates Classes','Book a Massage or Spa Appointment'],
+    taskVendors:['Noom','Omada','Omada Health','Virta Health','Hinge Health','Sword Health','Kaia Health',
+                 'Lark Health','Dario Health','Vida Health','Wondr Health','Calibrate','Found','Ro',
+                 'ClassPass','Gympass','Wellhub','Peloton','Wellable','WellRight','Virgin Pulse',
+                 'Headspace','Calm','BetterUp','Vitality','FitOn','Burnalong'],
     keys:['self care','preventive care','prevention','annual physical','preventive screening','mammogram','colonoscopy',
           'nutrition','nutritionist','registered dietitian','nutrition counseling','nutrition program',
           'personal trainer','weight management','weight loss','obesity','bmi','body mass index',
@@ -2211,6 +2224,9 @@ const KEYWORD_MAP = [
            'Family Planning Guidance','Fertility Navigation (IVF, Egg Freezing, IUI)',
            'Adoption and Surrogacy Support','Plan my Parental Leave','Lactation and Feeding Support',
            'Sleep Training Guidance','NICU & High-Risk Infant Support','Postpartum Mental Health'],
+    taskVendors:['Progyny','Carrot','Carrot Fertility','Maven','Maven Clinic','Kindbody','Stork Club',
+                 'WIN Fertility','WINFertility','Cleo','Ovia Health','ARC Fertility','Cofertility','Lilia',
+                 'The Lactation Network','Bright Horizons','Care.com','Brightline','Spring Health'],
     keys:['fertility','ivf','egg freezing','embryo freezing','egg banking','surrogacy','gestational carrier',
           'adoption','adoption assistance','adoption reimbursement','family planning','reproductive health',
           'parental leave','maternity leave','paternity leave','paid leave','family leave','fmla','bonding leave',
@@ -2495,21 +2511,35 @@ function parseBenefitsText(text) {
     const expMap  = {'Best-in-Class':4,'Partial':3,'Basic':3,'Minimal':2,'No Support':0};
 
     // ── Apply to all named items (only upgrade, never downgrade)
-    rule.names.forEach(name => {
+    rule.names.forEach((name, nameIdx) => {
       const item = itemIndex[name];
       if (!item) return;
+
+      // Task-level items (idx > 0) use taskVendors if defined — prevents carriers
+      // like Cigna/Prudential appearing under "Find a Virtual Therapist"
+      const isTask = nameIdx > 0;
+      const vendorsForItem = (isTask && rule.taskVendors && rule.taskVendors.length)
+        ? uniqueVendors.filter(v =>
+            rule.taskVendors.some(tv =>
+              v.toLowerCase() === tv.toLowerCase() ||
+              v.toLowerCase().includes(tv.toLowerCase()) ||
+              tv.toLowerCase().includes(v.toLowerCase())
+            )
+          )
+        : uniqueVendors;
+
       const currentLevel = supportLevel(item.support);
       const newLevel     = supportLevel(support);
       if (newLevel > currentLevel) {
         item.support     = support;
-        item.solutions   = uniqueVendors.join(', ');
+        item.solutions   = vendorsForItem.join(', ');
         item.util        = utilMap[support];
         item.exp         = expMap[support];
         item._confScore  = confScore;
         item._confLabel  = confLabel;
         item._autoFilled = true;
-      } else if (uniqueVendors.length && !item.solutions) {
-        item.solutions = uniqueVendors.join(', ');
+      } else if (vendorsForItem.length && !item.solutions) {
+        item.solutions = vendorsForItem.join(', ');
         if (!item._confScore) { item._confScore = confScore; item._confLabel = confLabel; item._autoFilled = true; }
       }
     });
