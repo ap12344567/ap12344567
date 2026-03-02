@@ -1777,6 +1777,160 @@ function vendorHits(text) {
   return m ? [...new Set(m.map(v => v.trim()))].length : 0;
 }
 
+// Vendor affinity map — each vendor is pinned to the rule categories it belongs to.
+// Vendors NOT listed here are treated as "generic" and can match any rule.
+// This prevents e.g. Fidelity showing up under Mental Health just because it appeared nearby.
+const VENDOR_AFFINITY = {
+  // Medical carriers
+  'BCBS':                   ['Medical & Prescription Plans','Dental & Vision'],
+  'Blue Cross Blue Shield': ['Medical & Prescription Plans','Dental & Vision'],
+  'Blue Cross':             ['Medical & Prescription Plans','Dental & Vision'],
+  'Blue Shield':            ['Medical & Prescription Plans','Dental & Vision'],
+  'Anthem':                 ['Medical & Prescription Plans','Dental & Vision'],
+  'Aetna':                  ['Medical & Prescription Plans','Dental & Vision','Life, Disability & Accident'],
+  'Cigna':                  ['Medical & Prescription Plans','Dental & Vision','Mental Health','EAP','Life, Disability & Accident'],
+  'UnitedHealthcare':       ['Medical & Prescription Plans','Dental & Vision'],
+  'UHC':                    ['Medical & Prescription Plans'],
+  'Humana':                 ['Medical & Prescription Plans','Dental & Vision'],
+  'Kaiser':                 ['Medical & Prescription Plans'],
+  'Oscar':                  ['Medical & Prescription Plans'],
+  'Collective Health':      ['Medical & Prescription Plans'],
+  'Surest':                 ['Medical & Prescription Plans'],
+  'Highmark':               ['Medical & Prescription Plans','Dental & Vision'],
+  'Premera':                ['Medical & Prescription Plans','Dental & Vision'],
+  'Regence':                ['Medical & Prescription Plans','Dental & Vision'],
+  'CareFirst':              ['Medical & Prescription Plans','Dental & Vision'],
+  'Tufts Health':           ['Medical & Prescription Plans'],
+  'Harvard Pilgrim':        ['Medical & Prescription Plans'],
+  'CDPHP':                  ['Medical & Prescription Plans'],
+  'HealthPartners':         ['Medical & Prescription Plans'],
+  // PBM / Rx
+  'CVS Caremark':           ['Medical & Prescription Plans'],
+  'Express Scripts':        ['Medical & Prescription Plans'],
+  'OptumRx':                ['Medical & Prescription Plans'],
+  'GoodRx':                 ['Medical & Prescription Plans'],
+  // Dental-specific
+  'Delta Dental':           ['Dental & Vision'],
+  'MetLife':                ['Dental & Vision','Life, Disability & Accident'],
+  'Guardian':               ['Dental & Vision','Life, Disability & Accident'],
+  'Ameritas':               ['Dental & Vision'],
+  'Beam':                   ['Dental & Vision'],
+  'Cigna Dental':           ['Dental & Vision'],
+  // Vision-specific
+  'VSP':                    ['Dental & Vision'],
+  'EyeMed':                 ['Dental & Vision'],
+  'Davis Vision':           ['Dental & Vision'],
+  'Spectera':               ['Dental & Vision'],
+  // Retirement
+  'Fidelity':               ['Retirement & 401k'],
+  'Vanguard':               ['Retirement & 401k'],
+  'Empower':                ['Retirement & 401k'],
+  'Transamerica':           ['Retirement & 401k','Life, Disability & Accident'],
+  'Principal':              ['Retirement & 401k','Life, Disability & Accident'],
+  'Lincoln Financial':      ['Retirement & 401k','Life, Disability & Accident'],
+  'TIAA':                   ['Retirement & 401k'],
+  'Voya':                   ['Retirement & 401k'],
+  'T. Rowe Price':          ['Retirement & 401k'],
+  'Schwab':                 ['Retirement & 401k'],
+  'John Hancock':           ['Retirement & 401k','Life, Disability & Accident'],
+  'Nationwide':             ['Retirement & 401k','Life, Disability & Accident'],
+  // Life / Disability
+  'Unum':                   ['Life, Disability & Accident'],
+  'Prudential':             ['Life, Disability & Accident','Retirement & 401k'],
+  'The Hartford':           ['Life, Disability & Accident'],
+  'Hartford':               ['Life, Disability & Accident'],
+  'Sun Life':               ['Life, Disability & Accident'],
+  'Aflac':                  ['Life, Disability & Accident'],
+  'Mutual of Omaha':        ['Life, Disability & Accident'],
+  'Allstate':               ['Life, Disability & Accident'],
+  'Colonial Life':          ['Life, Disability & Accident'],
+  'Reliance Standard':      ['Life, Disability & Accident'],
+  // Mental Health / EAP
+  'Lyra':                   ['Mental Health','EAP'],
+  'Spring Health':          ['Mental Health','EAP'],
+  'Modern Health':          ['Mental Health','EAP'],
+  'Talkspace':              ['Mental Health'],
+  'BetterHelp':             ['Mental Health'],
+  'Headspace':              ['Mental Health','Wellness Programs','Self Care & Preventive Care'],
+  'Calm':                   ['Mental Health','Wellness Programs','Self Care & Preventive Care'],
+  'ComPsych':               ['EAP','Mental Health'],
+  'Magellan':               ['EAP','Mental Health'],
+  'Brightline':             ['Mental Health','Childcare — Baby & Family Planning'],
+  'Ginger':                 ['Mental Health','EAP'],
+  'Cerebral':               ['Mental Health'],
+  // MSK / Physical therapy
+  'Hinge Health':           ['Musculoskeletal & Physical Therapy','Self Care & Preventive Care'],
+  'Sword Health':           ['Musculoskeletal & Physical Therapy'],
+  'Kaia Health':            ['Musculoskeletal & Physical Therapy'],
+  // Specialty health / weight
+  'Virta Health':           ['Self Care & Preventive Care'],
+  'Noom':                   ['Self Care & Preventive Care'],
+  'Omada':                  ['Self Care & Preventive Care'],
+  'Livongo':                ['Self Care & Preventive Care'],
+  // Telehealth
+  'Teladoc':                ['Medical & Prescription Plans','Mental Health'],
+  'MDLive':                 ['Medical & Prescription Plans'],
+  'Doctor on Demand':       ['Medical & Prescription Plans'],
+  // Fertility
+  'Progyny':                ['Fertility & Family Planning'],
+  'Carrot':                 ['Fertility & Family Planning'],
+  'WINFertility':           ['Fertility & Family Planning'],
+  'Ovia':                   ['Fertility & Family Planning','Childcare — Baby & Family Planning'],
+  'Maven':                  ['Fertility & Family Planning','Childcare — Baby & Family Planning'],
+  'Kindbody':               ['Fertility & Family Planning'],
+  // Childcare / caregiving
+  'Bright Horizons':        ['Childcare — Baby & Family Planning','Eldercare & Senior Care','Pet Care'],
+  'Care.com':               ['Childcare — Baby & Family Planning','Eldercare & Senior Care','Pet Care'],
+  'KinderCare':             ['Childcare — Baby & Family Planning'],
+  'Sittercity':             ['Childcare — Baby & Family Planning'],
+  'Torchlight':             ['Eldercare & Senior Care'],
+  // Fitness
+  'ClassPass':              ['Wellness Programs','Self Care & Preventive Care'],
+  'Gympass':                ['Wellness Programs','Self Care & Preventive Care'],
+  'Wellhub':                ['Wellness Programs','Self Care & Preventive Care'],
+  'Peloton':                ['Wellness Programs'],
+  // Financial wellness / student loans
+  'SoFi':                   ['Financial Wellness & Student Loan Support'],
+  'Gradifi':                ['Financial Wellness & Student Loan Support'],
+  'Laurel Road':            ['Financial Wellness & Student Loan Support'],
+  'LearnLux':               ['Financial Wellness & Student Loan Support'],
+  'Enrich':                 ['Financial Wellness & Student Loan Support'],
+  // Legal
+  'LegalShield':            ['Legal & Financial Services'],
+  'Hyatt Legal':            ['Legal & Financial Services'],
+  'ARAG':                   ['Legal & Financial Services'],
+  // Identity / security
+  'LifeLock':               ['Identity Theft & Cybersecurity'],
+  'Experian':               ['Identity Theft & Cybersecurity'],
+  // Pet insurance
+  'Trupanion':              ['Pet Care'],
+  'Figo':                   ['Pet Care'],
+  'Pumpkin':                ['Pet Care'],
+  // Commuter
+  'WageWorks':              ['Commuter Benefits & Transportation'],
+  'Edenred':                ['Commuter Benefits & Transportation'],
+  'Luum':                   ['Commuter Benefits & Transportation'],
+  // HSA / FSA
+  'HealthEquity':           ['HSA & FSA'],
+  'WEX':                    ['HSA & FSA','Commuter Benefits & Transportation'],
+  'Optum Bank':             ['HSA & FSA'],
+  // Generic navigators (intentionally NOT listed here — they match any rule):
+  // HealthJoy, Accolade, Included Health, Transcarent, Garner Health, Nava Benefits
+};
+
+// Returns true if a vendor should be included for a given rule.
+// Vendors not in the affinity map are generic and always return true.
+function vendorFitsRule(vendorName, ruleNames) {
+  const affinity = VENDOR_AFFINITY[vendorName.trim()];
+  if (!affinity) return true; // generic vendor — allow anywhere
+  return ruleNames.some(ruleName =>
+    affinity.some(a =>
+      ruleName.toLowerCase().includes(a.toLowerCase()) ||
+      a.toLowerCase().includes(ruleName.toLowerCase())
+    )
+  );
+}
+
 // Strength signals that bump support level up
 const STRONG_SIGNALS = [
   'employer match','matching contribution','company match','100% match',
@@ -2061,8 +2215,10 @@ function parseBenefitsText(text) {
     }
   }
 
-  // ── Split document into sections
+  // ── Split document into sections and paragraphs
   const docSections = splitIntoSections(text);
+  // Paragraphs: split on blank lines for fine-grained vendor co-location
+  const paragraphs  = text.split(/\n\s*\n+/).map(p => p.trim()).filter(p => p.length > 15);
 
   // ── Build a flat name→item lookup
   const itemIndex = {};
@@ -2089,16 +2245,9 @@ function parseBenefitsText(text) {
 
     const distinctKeysMatched = rule.keys.filter(k => lower.includes(k.toLowerCase())).length;
 
-    // ── Section-aware vendor extraction
-    // For each match position, determine which document section it falls in.
-    // If that section's header is related to this rule, weight vendors highly;
-    // otherwise still collect them but at lower confidence.
-    const localVendors    = new Set();
-    const sectionVendors  = new Set(); // vendors found in a matching section
-    let inSectionMatches  = 0;
-
-    matchPositions.forEach(({ pos, key }) => {
-      // Find which section this position is in
+    // ── Section relevance check (unchanged — used for confidence scoring)
+    let inSectionMatches = 0;
+    matchPositions.forEach(({ pos }) => {
       let matchSection = docSections[0];
       for (const sec of docSections) {
         const secStart = text.indexOf(sec.text.slice(0, 40) || sec.header);
@@ -2107,21 +2256,33 @@ function parseBenefitsText(text) {
       const isRelevantSection = matchSection.ruleNames &&
         rule.names.some(n => matchSection.ruleNames.includes(n));
       if (isRelevantSection) inSectionMatches++;
-
-      // Generous context window around each match
-      const chunk = text.substring(Math.max(0, pos - 300), pos + 500);
-      const found = chunk.match(VENDOR_RE);
-      if (found) {
-        found.forEach(v => {
-          localVendors.add(v.trim());
-          if (isRelevantSection) sectionVendors.add(v.trim());
-        });
-      }
     });
 
-    // Prefer section-specific vendors; fall back to all local vendors
-    const bestVendors   = sectionVendors.size > 0 ? [...sectionVendors] : [...localVendors];
-    const uniqueVendors = bestVendors;
+    // ── Paragraph-level vendor extraction with affinity filtering ──────────
+    // Step 1: find paragraphs that contain any keyword from this rule
+    const hitParas = paragraphs.filter(para => {
+      const pl = para.toLowerCase();
+      return rule.keys.some(k => pl.includes(k.toLowerCase()));
+    });
+    // Step 2: extract and affinity-filter vendors from those paragraphs
+    const paraText       = hitParas.join('\n');
+    const paraCandidates = [...new Set((paraText.match(VENDOR_RE) || []).map(v => v.trim()))];
+    let uniqueVendors    = paraCandidates.filter(v => vendorFitsRule(v, rule.names));
+
+    // Step 3: tight-window fallback for dense / single-block PDFs
+    // (where paragraph splitting doesn't help because the whole doc is one block)
+    if (uniqueVendors.length === 0 && matchPositions.length > 0) {
+      const windowSet = new Set();
+      matchPositions.forEach(({ pos }) => {
+        const chunk = text.substring(Math.max(0, pos - 150), pos + 250);
+        (chunk.match(VENDOR_RE) || []).map(v => v.trim())
+          .filter(v => vendorFitsRule(v, rule.names))
+          .forEach(v => windowSet.add(v));
+      });
+      uniqueVendors = [...windowSet];
+    }
+
+    const bestVendors = uniqueVendors;
 
     // ── Count strong/weak signals
     let strongCount = 0;
