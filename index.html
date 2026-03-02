@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overalls — Benefits Gap Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prata&family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- PDF.js for client-side PDF text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- PptxGenJS for PowerPoint export -->
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <style>
+    /* ─────────────────────────────────────────
+       OVERALLS BRAND TOKENS
+       Primary Palette (p.19 of style guide)
+    ───────────────────────────────────────── */
+    :root {
+      --teal:        #0A5C5E;
+      --teal-dark:   #013748;
+      --teal-mid:    #197577;
+      --mustard:     #CEB72C;
+      --amber:       #DF9C26;
+      --berry:       #CD2C5C;
+      --offwhite:    #FAFAFA;
+      --teal-50:     #F6FBFA;
+      --teal-100:    #BCE7E8;
+      --teal-200:    #5BBBBD;
+      --teal-300:    #197577;
+      --mustard-100: #FCFAEA;
+      --warn-bg:     #FEFBE8;
+      --red-bg:      #FDEEF3;
+      --blue-bg:     #EAF5F5;
+      --bg:          #FAFAFA;
+      --bg-mint:     #F6FBFA;
+      --border:      #E8EFEF;
+      --border-dark: #C8D8D8;
+      --text-primary:  #013748;
+      --text-body:     #203847;
+      --text-muted:    #5A7A80;
+      --text-light:    #8AABAF;
+      --green:   #04494A;
+      --green-bg:#E8F5F5;
+      --warn:    #CEB72C;
+      --red:     #CD2C5C;
+      --blue:    #197577;
+      --font-display: 'Prata', Georgia, serif;
+      --font-body:    'Open Sans', system-ui, sans-serif;
+      --radius-sm: 6px;
+      --radius:    10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(1,55,72,.08), 0 1px 2px rgba(1,55,72,.05);
+      --shadow:    0 4px 16px rgba(1,55,72,.10);
+      --shadow-lg: 0 12px 40px rgba(1,55,72,.14);
+      --col: 28px 1fr 150px 130px 110px 110px 100px 120px 100px 80px 32px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-body); font-size: 14px; line-height: 1.6; color: var(--text-body); background: var(--bg); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    header { background: var(--teal); color: #fff; height: 68px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 200; box-shadow: var(--shadow); }
+    .logomark { width: 36px; height: 36px; border-radius: 50%; background: var(--teal-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .logomark svg { width: 18px; height: 12px; }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-wordmark { font-family: var(--font-body); font-weight: 800; font-size: 20px; letter-spacing: -.3px; color: #fff; }
+    .logo-wordmark span { font-weight: 400; opacity: .7; font-size: 13px; margin-left: 6px; letter-spacing: 0; }
+    .header-right { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+
+    /* ── PAGE ── */
+    .page { max-width: 1440px; margin: 0 auto; padding: 32px 32px 64px; }
+    .overline { font-family: var(--font-body); font-weight: 600; font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--teal); }
+    h1, h2, h3, .prata { font-family: var(--font-display); font-weight: 400; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: var(--teal-dark); color: #fff;
+      padding: 12px 24px; border-radius: var(--radius);
+      font-size: 13px; font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000; opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+      display: flex; align-items: center; gap: 10px;
+      max-width: 520px; text-align: center;
+    }
+    #toast.show { opacity: 1; pointer-events: auto; }
+    #toast .toast-close { cursor: pointer; opacity: .6; font-size: 16px; line-height: 1; }
+    #toast .toast-close:hover { opacity: 1; }
+
+    /* ── SETUP CARD ── */
+    .setup-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border); padding: 32px 36px; margin-bottom: 28px; }
+    .setup-card .overline { margin-bottom: 4px; }
+    .setup-card h2 { font-family: var(--font-display); font-size: 26px; color: var(--teal); margin-bottom: 24px; line-height: 1.2; }
+    .setup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .field label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); margin-bottom: 6px; }
+    .field input, .field select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px; color: var(--text-primary); background: var(--bg-mint); transition: border-color .15s, background .15s; }
+    .field input:focus, .field select:focus { outline: none; border-color: var(--teal); background: #fff; }
+    .field input::placeholder { color: var(--text-light); }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn { font-family: var(--font-body); font-weight: 600; font-size: 13px; letter-spacing: .02em; padding: 10px 22px; border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal-mid); }
+    .btn-outline { background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
+    .btn-outline:hover { background: var(--teal-50); }
+    .btn-ghost { background: var(--bg-mint); color: var(--text-muted); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { background: var(--border); color: var(--text-primary); }
+    .btn-ai { background: linear-gradient(135deg, var(--teal) 0%, #197577 100%); color: #fff; border: none; }
+    .btn-ai:hover { opacity: .88; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* Upload drop zone */
+    #dropZone {
+      border: 2px dashed var(--border-dark);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      text-align: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .2s;
+      margin-bottom: 20px;
+      background: var(--bg-mint);
+    }
+    #dropZone:hover, #dropZone.drag-over { border-color: var(--teal); background: var(--teal-50); color: var(--teal); }
+    #dropZone .dz-icon { font-size: 28px; margin-bottom: 8px; }
+    #dropZone .dz-label { font-size: 14px; font-weight: 600; }
+    #dropZone .dz-sub { font-size: 12px; opacity: .7; margin-top: 4px; }
+    #dropZone.loading { border-color: var(--teal); }
+    #dropZone .spinner { display: none; width: 24px; height: 24px; border: 3px solid var(--teal-100); border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 8px; }
+    #dropZone.loading .spinner { display: block; }
+    #dropZone.loading .dz-icon { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── AI KEY MODAL ── */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(1,55,72,.45); z-index: 500; align-items: center; justify-content: center; }
+    .modal-backdrop.open { display: flex; }
+    .modal { background: #fff; border-radius: var(--radius-lg); padding: 32px 36px; max-width: 500px; width: 90%; box-shadow: var(--shadow-lg); }
+    .modal .overline { margin-bottom: 4px; }
+    .modal h3 { font-family: var(--font-display); font-size: 22px; color: var(--teal); margin-bottom: 12px; }
+    .modal p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.6; }
+    .modal .field { margin-bottom: 14px; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+    /* ── SUMMARY STRIP ── */
+    .summary-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); padding: 20px 22px; }
+    .stat-card .overline { margin-bottom: 8px; }
+    .stat-card .stat-value { font-family: var(--font-display); font-size: 32px; color: var(--teal-dark); line-height: 1; }
+    .stat-card .stat-unit { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+    .stat-card.accent-teal  .stat-value { color: var(--teal); }
+    .stat-card.accent-warn  .stat-value { color: var(--amber); }
+    .stat-card.accent-red   .stat-value { color: var(--berry); }
+    .stat-card.accent-lift  { border-left: 3px solid var(--teal); }
+    .stat-card.accent-lift .stat-value { color: var(--teal); }
+
+    /* ── SUMMARY PANEL ── */
+    .summary-panel {
+      background: var(--teal-dark);
+      border-radius: var(--radius-lg);
+      margin-bottom: 28px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Header */
+    .sp-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 28px 32px 20px;
+      background: linear-gradient(135deg, var(--teal-dark) 0%, #0d4a4c 100%);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .sp-company {
+      font-family: var(--font-display); font-size: 30px; color: #fff;
+      line-height: 1.15; margin: 6px 0 4px;
+    }
+    .sp-meta { font-size: 12px; color: rgba(255,255,255,.5); }
+    .sp-prepared { font-size: 11px; color: rgba(255,255,255,.4); text-align: right; padding-top: 4px; }
+    .sp-prepared strong { color: rgba(255,255,255,.7); }
+
+    /* Stat row */
+    .sp-stats {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      background: rgba(0,0,0,.18);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .sp-stat {
+      padding: 18px 24px; border-right: 1px solid rgba(255,255,255,.07);
+    }
+    .sp-stat:last-child { border-right: none; }
+    .sp-stat-label {
+      font-size: 9px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 6px;
+    }
+    .sp-stat-value {
+      font-family: var(--font-display); font-size: 28px; line-height: 1;
+      color: #fff; margin-bottom: 3px;
+    }
+    .sp-stat-sub { font-size: 10px; color: rgba(255,255,255,.35); }
+    .sp-stat.accent-amber .sp-stat-value  { color: var(--amber); }
+    .sp-stat.accent-teal  .sp-stat-value  { color: var(--teal-100); }
+    .sp-stat.accent-berry .sp-stat-value  { color: #F0809A; }
+    .sp-stat.accent-green .sp-stat-value  { color: #6DDADC; }
+
+    /* Two-col body */
+    .sp-body {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      background: #fff;
+    }
+    .sp-col { padding: 24px 28px; }
+    .sp-col:first-child { border-right: 1px solid var(--border); }
+    .sp-section-label {
+      font-size: 9px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 14px;
+    }
+
+    /* Top gaps list */
+    .sp-gap-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .sp-gap-item:last-child { border-bottom: none; }
+    .sp-gap-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .sp-gap-dot.critical    { background: var(--berry); }
+    .sp-gap-dot.opportunity { background: var(--amber); }
+    .sp-gap-name {
+      flex: 1; font-size: 12px; font-weight: 600; color: var(--text-primary);
+      line-height: 1.3;
+    }
+    .sp-gap-cat  { font-size: 10px; color: var(--text-light); margin-top: 1px; }
+    .sp-gap-badge { flex-shrink: 0; }
+    .sp-no-gaps {
+      font-size: 13px; color: var(--text-muted);
+      padding: 20px 0; text-align: center;
+    }
+    .sp-no-gaps-icon { font-size: 28px; margin-bottom: 6px; }
+
+    /* Category breakdown */
+    .sp-cat-row { margin-bottom: 13px; }
+    .sp-cat-row:last-child { margin-bottom: 0; }
+    .sp-cat-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .sp-cat-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+    .sp-cat-right { display: flex; align-items: center; gap: 8px; }
+    .sp-cat-pct  { font-size: 11px; font-weight: 700; min-width: 32px; text-align: right; }
+    .sp-cat-bar-bg {
+      height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+    }
+    .sp-cat-bar-fill { height: 100%; border-radius: 3px; transition: width .4s; }
+
+    /* Footer */
+    .sp-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px;
+      background: var(--teal-50);
+      border-top: 1px solid var(--teal-100);
+      flex-wrap: wrap; gap: 12px;
+    }
+    .sp-footer-left {
+      font-size: 12px; color: var(--text-muted); line-height: 1.6; flex: 1;
+    }
+    .sp-overalls-pill {
+      display: inline-block; background: var(--teal); color: #fff;
+      padding: 1px 8px; border-radius: 20px; font-weight: 700; font-size: 11px;
+      margin-right: 2px;
+    }
+    .sp-footer-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .sp-lift-badge {
+      font-family: var(--font-display); font-size: 32px; color: var(--teal); line-height: 1;
+    }
+    .sp-lift-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+    @media (max-width: 800px) {
+      .sp-body { grid-template-columns: 1fr; }
+      .sp-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+      .sp-stats { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ── LEGEND ── */
+    .legend { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .legend .overline { white-space: nowrap; }
+    .legend-group { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-muted); }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .legend-divider { width: 1px; height: 20px; background: var(--border); }
+
+    /* ── CONTROLS ── */
+    .controls { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 20px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; }
+    .filter-group { display: flex; align-items: center; gap: 8px; }
+    .filter-group .overline { white-space: nowrap; }
+    .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { font-family: var(--font-body); font-size: 12px; font-weight: 600; padding: 5px 13px; border-radius: 20px; border: 1.5px solid var(--border); background: #fff; color: var(--text-muted); cursor: pointer; transition: all .15s; letter-spacing: .01em; }
+    .chip:hover:not(.active) { border-color: var(--teal); color: var(--teal); }
+    .chip.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .search-input { font-family: var(--font-body); font-size: 13px; padding: 8px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-mint); color: var(--text-primary); min-width: 220px; transition: border-color .15s; }
+    .search-input:focus { outline: none; border-color: var(--teal); background: #fff; }
+    .search-input::placeholder { color: var(--text-light); }
+    .controls-right { margin-left: auto; display: flex; gap: 8px; }
+
+    /* ── ANALYSIS SECTIONS ── */
+    .analysis-section { margin-bottom: 20px; }
+    .category-header { display: flex; align-items: center; gap: 12px; padding: 14px 24px; background: var(--teal-dark); color: #fff; border-radius: var(--radius) var(--radius) 0 0; cursor: pointer; user-select: none; transition: background .15s; }
+    .category-header:hover { background: var(--teal); }
+    .category-header.collapsed { border-radius: var(--radius); }
+    .cat-icon { font-size: 18px; }
+    .cat-title { font-family: var(--font-display); font-size: 16px; color: #fff; flex: 1; letter-spacing: .01em; }
+    .cat-score-wrap { display: flex; align-items: center; gap: 10px; }
+    .cat-bar-bg { width: 90px; height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; overflow: hidden; }
+    .cat-bar-fill { height: 100%; border-radius: 2px; background: var(--teal-100); }
+    .cat-pct { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.7); min-width: 34px; text-align: right; }
+    .collapse-chevron { font-size: 11px; color: rgba(255,255,255,.5); transition: transform .2s; }
+    .category-header.collapsed .collapse-chevron { transform: rotate(-90deg); }
+    .section-body { background: #fff; border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+    .col-headers { display: grid; grid-template-columns: var(--col); padding: 9px 24px; background: var(--bg-mint); border-bottom: 2px solid var(--border); }
+    .col-headers > div { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-light); }
+
+    /* ── ROWS ── */
+    .subcat-row { display: grid; grid-template-columns: var(--col); align-items: center; padding: 11px 24px; background: var(--bg-mint); border-bottom: 1px solid var(--border); transition: background .1s; }
+    .subcat-row:hover { background: var(--teal-50); }
+    .subcat-name { font-family: var(--font-body); font-weight: 700; font-size: 13px; color: var(--teal-dark); }
+    .data-row { display: grid; grid-template-columns: var(--col); align-items: center; padding: 9px 24px; border-bottom: 1px solid #F2F7F7; transition: background .1s; font-size: 13px; }
+    .data-row:last-child { border-bottom: none; }
+    .data-row:hover { background: var(--teal-50); }
+    .data-row.row-gap { background: #FFFBEE; }
+    .data-row.row-gap:hover { background: #FFF7D6; }
+    .data-row.row-critical { background: #FDF4F7; }
+    .data-row.row-critical:hover { background: #FAEAF0; }
+    .task-name { padding-left: 20px; color: var(--text-muted); font-size: 13px; }
+    .col-solutions { font-size: 11px; color: var(--text-light); }
+
+    /* ── INLINE EDITING ── */
+    /* Editable cells get a subtle edit-hint on hover */
+    .editable-cell {
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 2px 4px;
+      margin: -2px -4px;
+      transition: background .12s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+    }
+    .editable-cell:hover { background: rgba(10,92,94,.08); }
+    .editable-cell::after {
+      content: '✎';
+      font-size: 9px;
+      opacity: 0;
+      color: var(--teal);
+      transition: opacity .12s;
+    }
+    .editable-cell:hover::after { opacity: .5; }
+
+    /* Inline text input */
+    .inline-input {
+      font-family: var(--font-body);
+      font-size: 12px;
+      border: 1.5px solid var(--teal);
+      border-radius: 4px;
+      padding: 3px 8px;
+      background: #fff;
+      color: var(--text-primary);
+      width: 100%;
+      min-width: 80px;
+    }
+    .inline-input:focus { outline: none; }
+
+    /* Inline select */
+    .inline-select {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 700;
+      border: 1.5px solid var(--teal);
+      border-radius: 20px;
+      padding: 3px 8px;
+      background: #fff;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+    .inline-select:focus { outline: none; }
+
+    /* Clickable stars */
+    .star-editor {
+      display: inline-flex;
+      gap: 1px;
+      cursor: pointer;
+    }
+    .star-editor .s {
+      font-size: 13px;
+      color: var(--border-dark);
+      opacity: .4;
+      transition: color .1s, opacity .1s;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .star-editor .s.on { color: var(--amber); opacity: 1; }
+    .star-editor .s.hover-on { color: var(--amber); opacity: .75; }
+
+    /* ── PILLS ── */
+    .pill { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .01em; white-space: nowrap; }
+    .pill-best    { background: var(--green-bg); color: var(--green); }
+    .pill-partial { background: var(--warn-bg);  color: #7A6000; }
+    .pill-basic   { background: var(--blue-bg);  color: var(--teal); }
+    .pill-minimal { background: var(--red-bg);   color: var(--berry); }
+    .pill-none    { background: var(--bg-mint);  color: var(--text-light); border: 1px solid var(--border); }
+    .pill-overalls{ background: var(--green-bg); color: var(--green); }
+    .pill-na      { background: var(--bg-mint);  color: var(--text-light); }
+
+    /* Stars display */
+    .stars { font-size: 11px; letter-spacing: 1.5px; white-space: nowrap; color: var(--amber); }
+    .star-empty { color: var(--border-dark); opacity: .5; }
+
+    /* Score bar */
+    .score-wrap { display: flex; align-items: center; gap: 6px; }
+    .score-bar  { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 3px; transition: width .3s; }
+    .fill-high { background: var(--teal); }
+    .fill-mid  { background: var(--teal-200); }
+    .fill-low  { background: var(--amber); }
+    .fill-none { background: var(--berry); }
+    .score-pct { font-size: 11px; font-weight: 700; min-width: 30px; text-align: right; }
+    .pct-high { color: var(--teal); }
+    .pct-mid  { color: var(--teal-200); }
+    .pct-low  { color: var(--amber); }
+    .pct-none { color: var(--berry); }
+
+    /* Gap badges */
+    .gap-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; white-space: nowrap; }
+    .gap-critical    { background: var(--red-bg);   color: var(--berry); }
+    .gap-opportunity { background: var(--warn-bg);  color: #7A6000; }
+    .gap-covered     { background: var(--green-bg); color: var(--green); }
+    .gap-na          { background: var(--bg-mint);  color: var(--text-light); }
+
+    .expand-btn { background: none; border: none; cursor: pointer; color: var(--teal); font-size: 11px; padding: 0; line-height: 1; }
+
+    /* ── EMPTY ── */
+    .empty { padding: 56px 24px; text-align: center; color: var(--text-light); }
+    .empty-icon { font-size: 36px; margin-bottom: 12px; }
+    .empty p { font-family: var(--font-display); font-size: 16px; color: var(--text-muted); }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 3px; }
+
+    [data-tip] { position: relative; }
+    [data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--teal-dark); color: #fff; font-size: 11px; padding: 4px 10px; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 999; font-family: var(--font-body); }
+
+    @media (max-width: 960px) {
+      :root { --col: 20px 1fr 100px 90px 70px 70px 55px 60px 60px 0 0; }
+    }
+
+    /* ── VERSION HISTORY DRAWER ── */
+    .vh-fab {
+      position: fixed; bottom: 28px; right: 28px; z-index: 300;
+      background: var(--teal); color: #fff;
+      border: none; border-radius: 50px;
+      padding: 12px 20px; font-family: var(--font-body); font-weight: 700; font-size: 13px;
+      cursor: pointer; box-shadow: var(--shadow-lg);
+      display: flex; align-items: center; gap: 8px;
+      transition: background .15s, transform .15s;
+    }
+    .vh-fab:hover { background: var(--teal-mid); transform: translateY(-2px); }
+
+    .vh-drawer {
+      position: fixed; top: 0; right: -400px; width: 380px; height: 100vh;
+      background: #fff; box-shadow: -4px 0 32px rgba(1,55,72,.14);
+      z-index: 400; transition: right .28s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .vh-drawer.open { right: 0; }
+    .vh-drawer-header {
+      background: var(--teal-dark); color: #fff;
+      padding: 20px 24px 16px; flex-shrink: 0;
+    }
+    .vh-drawer-header .overline { color: var(--teal-100); margin-bottom: 2px; }
+    .vh-drawer-header h3 { font-family: var(--font-display); font-size: 20px; color: #fff; margin-bottom: 12px; }
+    .vh-save-row { display: flex; gap: 8px; }
+    .vh-name-input {
+      flex: 1; padding: 8px 12px;
+      border: 1.5px solid rgba(255,255,255,.2); border-radius: var(--radius-sm);
+      background: rgba(255,255,255,.1); color: #fff;
+      font-family: var(--font-body); font-size: 13px;
+    }
+    .vh-name-input::placeholder { color: rgba(255,255,255,.45); }
+    .vh-name-input:focus { outline: none; border-color: var(--teal-100); background: rgba(255,255,255,.15); }
+    .vh-save-btn {
+      padding: 8px 16px; border: none; border-radius: var(--radius-sm);
+      background: var(--teal-100); color: var(--teal-dark);
+      font-family: var(--font-body); font-weight: 700; font-size: 12px;
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    }
+    .vh-save-btn:hover { background: #fff; }
+
+    .vh-drawer-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; color: rgba(255,255,255,.6);
+      font-size: 18px; cursor: pointer; line-height: 1; padding: 4px;
+    }
+    .vh-drawer-close:hover { color: #fff; }
+
+    .vh-list { flex: 1; overflow-y: auto; padding: 12px 16px; }
+    .vh-empty { text-align: center; padding: 48px 20px; color: var(--text-light); }
+    .vh-empty-icon { font-size: 32px; margin-bottom: 10px; }
+    .vh-empty p { font-size: 13px; line-height: 1.6; }
+
+    .vh-item {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 12px 14px; margin-bottom: 10px;
+      background: var(--bg-mint); transition: border-color .12s;
+    }
+    .vh-item:hover { border-color: var(--teal-200); }
+    .vh-item-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+    .vh-item-name {
+      flex: 1; font-weight: 700; font-size: 13px; color: var(--teal-dark);
+      cursor: pointer; word-break: break-word;
+    }
+    .vh-item-name:hover { color: var(--teal); text-decoration: underline; }
+    .vh-item-del {
+      background: none; border: none; color: var(--text-light);
+      font-size: 14px; cursor: pointer; padding: 0; line-height: 1; flex-shrink: 0;
+    }
+    .vh-item-del:hover { color: var(--berry); }
+    .vh-item-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+    .vh-item-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+    .vh-stat { background: #fff; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 600; color: var(--text-muted); }
+    .vh-stat.stat-score { color: var(--teal); }
+    .vh-stat.stat-gaps  { color: var(--berry); }
+    .vh-item-actions { display: flex; gap: 6px; margin-top: 10px; }
+    .vh-btn-restore {
+      flex: 1; padding: 6px 0; border: 1.5px solid var(--teal); border-radius: var(--radius-sm);
+      background: transparent; color: var(--teal); font-family: var(--font-body);
+      font-weight: 700; font-size: 11px; cursor: pointer;
+    }
+    .vh-btn-restore:hover { background: var(--teal); color: #fff; }
+    .vh-btn-dl {
+      padding: 6px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: transparent; color: var(--text-muted); font-family: var(--font-body);
+      font-size: 11px; cursor: pointer; white-space: nowrap;
+    }
+    .vh-btn-dl:hover { border-color: var(--teal); color: var(--teal); }
+
+    .vh-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(1,55,72,.3); z-index: 399;
+    }
+    .vh-overlay.open { display: block; }
+
+    /* ── CONFIDENCE BADGES ── */
+    .conf-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 7px; border-radius: 20px;
+      font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .conf-high   { background: var(--green-bg);  color: var(--green); }
+    .conf-medium { background: var(--warn-bg);   color: #7A6000; }
+    .conf-low    { background: var(--red-bg);    color: var(--berry); }
+    .conf-auto   { background: var(--bg-mint);   color: var(--text-light); border: 1px solid var(--border); }
+
+    /* ── PPTX / SAVE-LOAD MODAL ── */
+    .export-modal .modal { max-width: 420px; }
+    .export-option { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .export-option:last-child { border-bottom: none; }
+    .export-option .eo-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+    .export-option .eo-title { font-weight: 700; font-size: 13px; color: var(--teal-dark); margin-bottom: 2px; }
+    .export-option .eo-sub   { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+    .export-option:hover .eo-title { color: var(--teal); }
+
+    /* ── Upload area + AI strip ── */
+    .ai-strip {
+      display: none;
+      background: linear-gradient(135deg, var(--teal-50) 0%, #fff 100%);
+      border: 1px solid var(--teal-100);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .ai-strip.show { display: flex; }
+    .ai-strip-text { flex: 1; font-size: 13px; color: var(--text-muted); }
+    .ai-strip-text strong { color: var(--teal-dark); }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">
+    <div class="logomark">
+      <svg viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6" cy="7" r="5.5" fill="white"/>
+        <polygon points="13,1.5 20,12.5 6,12.5" fill="white"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-wordmark">Overalls <span>Benefits Gap Analysis</span></div>
+    </div>
+  </div>
+  <div class="header-right">Life. Simplified.</div>
+</header>
+
+<!-- ── TOAST ── -->
+<div id="toast">
+  <span id="toastMsg"></span>
+  <span class="toast-close" onclick="hideToast()">✕</span>
+</div>
+
+<!-- ── AI KEY MODAL ── -->
+<div class="modal-backdrop" id="aiModal">
+  <div class="modal">
+    <div class="overline">Improve with AI</div>
+    <h3>Claude API Key</h3>
+    <p>Enter your Anthropic API key to use Claude to intelligently re-parse the uploaded benefits document. Your key is used only for this request and never stored.</p>
+    <div class="field">
+      <label>Anthropic API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAiModal()">Cancel</button>
+      <button class="btn btn-ai" onclick="runClaudeEnrich()">✨ Analyze with Claude</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXPORT MODAL ── -->
+<div class="modal-backdrop export-modal" id="exportModal">
+  <div class="modal">
+    <div class="overline">Export</div>
+    <h3>Export Analysis</h3>
+    <div class="export-option" onclick="closeExportModal();exportCSV()">
+      <div class="eo-icon">📊</div>
+      <div><div class="eo-title">CSV Spreadsheet</div><div class="eo-sub">Full data table — open in Excel, Google Sheets, or Numbers.</div></div>
+    </div>
+    <div class="export-option" onclick="closeExportModal();exportPPTX()">
+      <div class="eo-icon">📑</div>
+      <div><div class="eo-title">PowerPoint Deck</div><div class="eo-sub">Branded slide deck — cover, summary, and one slide per category. Ready to present.</div></div>
+    </div>
+    <div class="export-option" onclick="closeExportModal();openVersionDrawer()">
+      <div class="eo-icon">🕐</div>
+      <div><div class="eo-title">Save Version (in-app)</div><div class="eo-sub">Save a named snapshot to browser history. Restore any version instantly — no files needed.</div></div>
+    </div>
+    <div class="export-option" onclick="closeExportModal();saveSession()">
+      <div class="eo-icon">💾</div>
+      <div><div class="eo-title">Download Session (.json)</div><div class="eo-sub">Download a backup file you can share or reload later.</div></div>
+    </div>
+    <div class="export-option" onclick="closeExportModal();window.print()">
+      <div class="eo-icon">🖨</div>
+      <div><div class="eo-title">Print / Save as PDF</div><div class="eo-sub">Print the current view or save as PDF using your browser.</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeExportModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <!-- Setup -->
+  <div class="setup-card">
+    <div class="overline">Configure</div>
+    <h2>Gap Analysis</h2>
+
+    <!-- Drop Zone -->
+    <div id="dropZone" onclick="document.getElementById('benefitsUpload').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+      <div class="spinner"></div>
+      <div class="dz-icon">📄</div>
+      <div class="dz-label">Upload Benefits Document</div>
+      <div class="dz-sub">Drag & drop or click to browse — PDF or plain text (.txt)</div>
+    </div>
+    <input type="file" id="benefitsUpload" accept=".pdf,.txt,text/plain,application/pdf" style="display:none" onchange="handleUpload(event)" />
+
+    <div class="setup-grid">
+      <div class="field">
+        <label>Company Name</label>
+        <input type="text" id="companyName" placeholder="Enter prospect company name" />
+      </div>
+      <div class="field">
+        <label>Industry / Vertical</label>
+        <input type="text" id="industry" placeholder="e.g. Healthtech, Finance" />
+      </div>
+      <div class="field">
+        <label>Employee Count</label>
+        <input type="number" id="empCount" placeholder="e.g. 10,000" />
+      </div>
+      <div class="field">
+        <label>Analysis Title</label>
+        <input type="text" id="analysisTitle" placeholder="e.g. Q1 2025 Proposal" />
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="startBlank()">Start Blank</button>
+      <button class="btn btn-ghost" onclick="exportCSV()">↓ Export CSV</button>
+      <button class="btn btn-ghost" onclick="openExportModal()">↓ Export Deck / JSON</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('loadSessionInput').click()">↑ Load Saved Session</button>
+      <button class="btn btn-ghost" onclick="window.print()">⎙ Print / PDF</button>
+    </div>
+    <input type="file" id="loadSessionInput" accept=".json" style="display:none" onchange="loadSession(event)" />
+  </div>
+
+  <!-- AI Strip (shown after upload) -->
+  <div class="ai-strip" id="aiStrip">
+    <div class="ai-strip-text" id="aiStripText"><strong>Document parsed.</strong> Review the grid below and edit any fields. Cells with a pencil icon are editable.</div>
+    <button class="btn btn-ai" onclick="openAiModal()">✨ Improve with Claude AI</button>
+    <button class="btn btn-ghost" onclick="document.getElementById('aiStrip').classList.remove('show')">✕</button>
+  </div>
+
+  <!-- Summary Panel -->
+  <div class="summary-panel" id="summaryStrip" style="display:none">
+
+    <!-- Panel header -->
+    <div class="sp-header">
+      <div class="sp-header-left">
+        <div class="overline" style="color:var(--teal-100)">Gap Analysis Summary</div>
+        <div class="sp-company" id="sumCompany">—</div>
+        <div class="sp-meta" id="sumMeta"></div>
+      </div>
+      <div class="sp-header-right">
+        <div class="sp-prepared">Prepared by <strong>Overalls</strong> · <span id="sumDate"></span></div>
+      </div>
+    </div>
+
+    <!-- Stat row -->
+    <div class="sp-stats" id="spStats"></div>
+
+    <!-- Two-column body -->
+    <div class="sp-body">
+
+      <!-- Left: Top Gaps -->
+      <div class="sp-col">
+        <div class="sp-section-label">Priority Gaps</div>
+        <div id="spTopGaps"></div>
+      </div>
+
+      <!-- Right: Category Breakdown -->
+      <div class="sp-col">
+        <div class="sp-section-label">Coverage by Category</div>
+        <div id="spCatBreakdown"></div>
+      </div>
+
+    </div>
+
+    <!-- Footer CTA -->
+    <div class="sp-footer">
+      <div class="sp-footer-left">
+        <span class="sp-overalls-pill">Overalls</span>
+        closes every gap identified above — medical navigation, mental health, caregiving, financial wellness, and more, all in one platform.
+      </div>
+      <div class="sp-footer-right">
+        <span id="sumLift" class="sp-lift-badge">+—</span>
+        <span class="sp-lift-label">projected score lift</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" id="legendBar" style="display:none">
+    <div class="overline">Score Key</div>
+    <div class="legend-group">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div> 70%+ Strong</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--teal-200)"></div> 40–69% Moderate</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> 20–39% Weak</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--berry)"></div> &lt;20% Critical</div>
+    </div>
+    <div class="legend-divider"></div>
+    <div class="legend-group">
+      <div class="legend-item"><span class="pill pill-best">Best-in-Class</span></div>
+      <div class="legend-item"><span class="pill pill-partial">Partial</span></div>
+      <div class="legend-item"><span class="pill pill-basic">Basic</span></div>
+      <div class="legend-item"><span class="pill pill-minimal">Minimal</span></div>
+      <div class="legend-item"><span class="pill pill-none">No Support</span></div>
+    </div>
+    <div class="legend-divider"></div>
+    <div class="legend-item" style="font-size:11px;color:var(--text-light)">✎ Click cells to edit</div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls" id="controlBar" style="display:none">
+    <div class="filter-group">
+      <div class="overline">Show:</div>
+      <div class="filter-chips">
+        <div class="chip active" data-filter="all"       onclick="setFilter('all',this)">All</div>
+        <div class="chip"        data-filter="gaps"      onclick="setFilter('gaps',this)">Gaps Only</div>
+        <div class="chip"        data-filter="nosupport" onclick="setFilter('nosupport',this)">No Support</div>
+        <div class="chip"        data-filter="overalls"  onclick="setFilter('overalls',this)">Overalls Wins</div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="overline">Category:</div>
+      <div class="filter-chips" id="catChips"></div>
+    </div>
+    <input type="text" class="search-input" id="searchInput" placeholder="Search capabilities…" oninput="applyFilters()" />
+    <div class="controls-right">
+      <button class="btn btn-ghost" onclick="expandAll()">Expand All</button>
+      <button class="btn btn-ghost" onclick="collapseAll()">Collapse All</button>
+    </div>
+  </div>
+
+  <!-- Analysis Grid -->
+  <div id="analysisGrid"></div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   PDF.js WORKER SETUP
+═══════════════════════════════════════════ */
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+/* ═══════════════════════════════════════════
+   BLANK TEMPLATE — full category structure,
+   all items zeroed out (no support / no vendor)
+═══════════════════════════════════════════ */
+const BLANK_TEMPLATE = {
+  company: '', industry: '', empCount: '',
+  categories: [
+    {
+      name: 'Core Benefits Suite',
+      items: [
+        { name:'Medical & Prescription Plans', solutions:'', support:'No Support', util:0, exp:0, overalls:'N/A' },
+        { name:'Dental & Vision',              solutions:'', support:'No Support', util:0, exp:0, overalls:'N/A' },
+        { name:'Retirement & 401k',            solutions:'', support:'No Support', util:0, exp:0, overalls:'N/A' },
+        { name:'Life, Disability & Accident',  solutions:'', support:'No Support', util:0, exp:0, overalls:'N/A' },
+        { name:'Wellness Programs',            solutions:'', support:'No Support', util:0, exp:0, overalls:'N/A' },
+        { name:'EAP',                          solutions:'', support:'No Support', util:0, exp:0, overalls:'N/A' },
+      ]
+    },
+    {
+      name: 'Life Navigation & Support Benefits',
+      items: [
+        { name:'Healthcare Navigation', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Medical Navigation',                    solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Recommend a Doctor',                    solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Book Doctors Appointment',              solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Denied Claims',                         solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Compare Healthcare Costs',              solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Review my Medical Bills',               solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Pre-Appointment Questions',             solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Medical Care Coordination',             solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'General Healthcare Resources',          solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Check For Prescriptions (Rx) Savings', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find Generic Rx Options',               solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Connect With a Healthcare Concierge',   solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+        { name:'Mental Health', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Find an In-Person Therapist',   solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Virtual Therapist',      solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Learn to Meditate',             solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Compare Therapy Apps',          solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Improve my Sleep',              solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Local Support Group',    solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Life Coach',             solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Learn about Anxiety',           solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Learn about Stress',            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Learn about Depression',        solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Compare Meditation Apps',       solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Learn about Mindfulness',       solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Book Couples Therapy',          solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Learn about Managing ADHD',     solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+        { name:'Self Care & Preventive Care', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Find a Personal Trainer',            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Build a Nutrition Plan',             solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Nutritionist',                solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Learn about Weight Loss',            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Learn about GLP-1s for Weight Loss', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Gym',                         solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Health App',                  solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Understand my Wellness Benefits',    solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find Yoga / Pilates Classes',        solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Book a Massage or Spa Appointment',  solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+      ]
+    },
+    {
+      name: 'Caregiving',
+      items: [
+        { name:'Childcare — Baby & Family Planning', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Plan for Pregnancy',                            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find an OB/GYN and Care Team',                  solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Family Planning Guidance',                      solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Fertility Navigation (IVF, Egg Freezing, IUI)', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Adoption and Surrogacy Support',                solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Plan my Parental Leave',                        solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Lactation and Feeding Support',                 solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Sleep Training Guidance',                       solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'NICU & High-Risk Infant Support',               solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Postpartum Mental Health',                      solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+        { name:'Childcare — Child & Teen Care', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Childcare Planning (Nanny, Daycare)',      solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Neurodivergence Support',                  solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Children Nutrition Guidance',              solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Teenage Mental Health Support',            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Customized Education & Content Resources', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+        { name:'Adult & Eldercare', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Find and Vet Assisted Living / Skilled Nursing', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find Memory Care or Hospice Options',             solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Explore In-Home Care Options',                    solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Help Plan Financial & Legal Needs for Family',    solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Arrange Transportation for Elderly Family',       solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Long-Distance Caregiving Support',                solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Review Care Options & Costs for Elderly Parents', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Mental Health Support for Caregivers',            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+        { name:'Common Family & Parenting Support', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:"Plan a Baby Shower",           solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:"Find Newborn & Baby Supplies", solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:"Recurring Diaper Delivery",    solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:"Find Children's Activities",   solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:"Find a Tutor",                 solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:"Find Summer Camps",            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+      ]
+    },
+    {
+      name: 'Home Care',
+      items: [
+        { name:'Home Services', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Find a Plumber',               solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Get Help with a Move',         solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find Lawn Care / Landscaper',  solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Compare Home/Rental Insurance',solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Contractor',            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a House Painter',         solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Schedule a Gutter Cleaning',   solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find an Electrician',          solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find HVAC Services',           solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Housekeeper',           solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Handyman',              solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Repair an Appliance',          solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+        { name:'Home Life', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Research Rental Homes / Apartments', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Plan Weekly Meal Prep',              solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Local Farmers Market',        solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Schedule a Donation Pickup',         solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Arrange Temporary Housing',          solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+      ]
+    },
+    {
+      name: 'Life Care',
+      items: [
+        { name:'Car & Auto', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Find a Rental Car',              solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Compare Car Insurance Quotes',   solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Schedule an Oil Change',         solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Mechanic',                solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Get Help Buying or Selling a Car',solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Submit Auto Claims',             solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+        { name:'Pet Care', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Find a Pet Boarding Service',  solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find/Schedule a Groomer',      solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Schedule a Pet Walker',        solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Pet Sitter',            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Explore Pet Insurance Options',solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Book a Vet Appointment',       solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+        { name:'Travel', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Research Vacation Destinations', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Book Flights and Hotels',        solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Plan Excursions',                solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Create Travel Itinerary',        solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Get Travel Insurance',           solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+      ]
+    },
+    {
+      name: 'Financial Wellness',
+      items: [
+        { name:'Financial Wellness', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★',
+          tasks:[
+            { name:'Find an Accountant or Tax Pro',         solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a High-Yield Savings Account',     solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Get Help Creating a Will',              solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Rollover a 401(k)',                     solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Get Help Managing Debt',                solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Setup Emergency Savings Account',       solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Explain How HSAs, HRAs & FSAs Work',    solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Help Me Build a Budget',                solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Plan for Retirement',                   solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Open an Investment Account',            solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Build Plan To Improve my Credit Score', solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Enroll in Pre-Tax Commuter Benefits',   solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+            { name:'Find a Good Credit Card',               solutions:'', support:'No Support', util:0, exp:0, overalls:'★★★★★' },
+          ]
+        },
+      ]
+    },
+  ]
+};
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let currentData     = null;
+let activeFilter    = 'all';
+let activeCatFilter = 'all';
+let collapsedCats   = new Set();
+let collapsedSubs   = new Set();
+let lastUploadedText = '';  // stored for Claude re-parse
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg, duration = 5000) {
+  const el = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  if (duration > 0) toastTimer = setTimeout(hideToast, duration);
+}
+function hideToast() { document.getElementById('toast').classList.remove('show'); }
+
+/* ═══════════════════════════════════════════
+   FILE UPLOAD & TEXT EXTRACTION
+═══════════════════════════════════════════ */
+function onDragOver(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag-over'); }
+function onDragLeave(e) { document.getElementById('dropZone').classList.remove('drag-over'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+
+function handleUpload(event) {
+  const file = event.target.files[0];
+  if (file) processFile(file);
+  event.target.value = ''; // reset so same file can be re-uploaded
+}
+
+async function processFile(file) {
+  const dz = document.getElementById('dropZone');
+  dz.classList.add('loading');
+  dz.querySelector('.dz-label').textContent = 'Reading document…';
+  dz.querySelector('.dz-sub').textContent = file.name;
+
+  try {
+    let text = '';
+    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      text = await extractPdfText(file);
+    } else {
+      text = await extractTxtText(file);
+    }
+
+    if (!text.trim()) throw new Error('No text could be extracted from this file.');
+
+    lastUploadedText = text;
+    const parsed = parseBenefitsText(text);
+    // Merge company name from field if parser didn't find one
+    if (!parsed.company) parsed.company = document.getElementById('companyName').value || '';
+    if (!parsed.industry) parsed.industry = document.getElementById('industry').value || '';
+    if (!parsed.empCount) parsed.empCount = document.getElementById('empCount').value || '';
+
+    render(parsed);
+
+    const filled = countFilled(parsed);
+    document.getElementById('aiStripText').innerHTML =
+      `<strong>${file.name}</strong> parsed — <strong>${filled}</strong> benefit areas auto-filled. Review and click any cell to edit.`;
+    document.getElementById('aiStrip').classList.add('show');
+    showToast(`✓ Parsed ${filled} benefit areas from "${file.name}"`);
+  } catch (err) {
+    showToast(`⚠ ${err.message}`, 8000);
+  } finally {
+    dz.classList.remove('loading');
+    dz.querySelector('.dz-label').textContent = 'Upload Benefits Document';
+    dz.querySelector('.dz-sub').textContent = 'Drag & drop or click to browse — PDF or plain text (.txt)';
+  }
+}
+
+function countFilled(data) {
+  let n = 0;
+  data.categories.forEach(c => c.items.forEach(i => {
+    if (i.support && i.support !== 'No Support') n++;
+    if (i.tasks) i.tasks.forEach(t => { if (t.support && t.support !== 'No Support') n++; });
+  }));
+  return n;
+}
+
+async function extractTxtText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = () => reject(new Error('Failed to read text file.'));
+    reader.readAsText(file);
+  });
+}
+
+async function extractPdfText(file) {
+  if (typeof pdfjsLib === 'undefined') throw new Error('PDF.js not loaded. Please check your internet connection.');
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let text = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(item => item.str).join(' ') + '\n';
+  }
+  return text;
+}
+
+/* ═══════════════════════════════════════════
+   KEYWORD PARSER
+   Maps benefit text → BLANK_TEMPLATE fields
+═══════════════════════════════════════════ */
+
+// Known vendor names — regex matched case-insensitively
+const VENDORS = [
+  // Medical carriers
+  'BCBS','Blue Cross Blue Shield','Blue Cross','Blue Shield','Anthem','Aetna','Cigna','UnitedHealthcare','UnitedHealth','United Health','UHC','Humana','Kaiser','Oscar','Collective Health','Centene','Molina','Highmark','HCSC','Premera','Regence','CareFirst','Tufts Health','Harvard Pilgrim','CDPHP','HealthPartners','Sanford Health','Medica','PreferredOne','AllSaints','Garner Health','Nava Benefits','Bind','Surest',
+  // Dental / Vision
+  'Delta Dental','Guardian','MetLife','Ameritas','Cigna Dental','Humana Dental','VSP','EyeMed','Davis Vision','Superior Vision','Spectera','Avesis','National Vision','Warby Parker Benefits',
+  // Rx / Pharmacy PBM
+  'CVS Caremark','Express Scripts','OptumRx','MedImpact','Navitus','Capital Rx','Magellan Rx','Elixir','RxSense','GoodRx',
+  // Retirement / 401k
+  'Fidelity','Vanguard','Schwab','Charles Schwab','TIAA','Empower','Principal','Lincoln Financial','T. Rowe Price','BlackRock','Transamerica','John Hancock','MassMutual','Mass Mutual','Nationwide','ADP Retirement','Paychex',
+  // Life / Disability
+  'Hartford','Prudential','Sun Life','Unum','Allstate','Reliance Standard','Securian','Standard Insurance','The Standard','Mutual of Omaha','Symetra',
+  // Telemedicine / Navigation
+  'Teladoc','MDLive','Doctor on Demand','Included Health','Accolade','Quantum Health','Health Advocate','Castlight','Transcarent','Hinge Health','Sword Health','Virta Health','Carrum Health','Calibrate','Found','Chapter','Grand Rounds','Eden Health',
+  // Mental Health
+  'Headspace','Calm','BetterHelp','Talkspace','Lyra','Spring Health','Modern Health','ComPsych','Beacon Health','Optum Mental Health','Magellan Health','LifeWorks','Ulliance','Ginger','Brightline','Alma','Grow Therapy',
+  // Childcare / Family
+  'Bright Horizons','Care.com','Sittercity','UrbanSitter','Kindercare','WeeCare','Wonderschool','LifeCare',
+  // Fertility / Family Planning
+  'Carrot','Progyny','Maven','Ovia','Pomelo','WINFertility','Conceive','Path Fertility',
+  // Financial / Student Loans
+  'SoFi','Voya','Betterment','LearnLux','SmartDollar','Financial Engines','Edchoice','Gradifi','Candidly','Peanut Butter','Fidelity Student Debt','Vault','HoneyBee',
+  // Wellness / Fitness
+  'Noom','Omada','WeightWatchers','WW','Rally','Virgin Pulse','Wellable','Gympass','ClassPass','FitOn','EGYM','Burnalong','Wellhub','Wondr Health',
+  // Benefits Admin / HR Tech
+  'Alight','Mercer','Willis Towers Watson','WTW','Buck','NFP','Sequoia','Businessolver','bswift','ALEX','Jellyvision','Picwell','Benefitfocus','Benefytt','PlanSource','Employee Navigator','Namely',
+  // Perks / Discounts
+  'PerkSpot','Fond','Reward Gateway','LifeMart','Working Advantage','BenefitHub','Perks at Work',
+  // Pet
+  'Nationwide Pet','Figo','Trupanion','Embrace','ASPCA Pet','Pumpkin','Lemonade Pet',
+  // Legal / ID
+  'LegalShield','ARAG','MetLaw','IdentityForce','LifeLock','Experian IdentityWorks',
+  // EAP specific
+  'LifeWorks','ComPsych','Optum EAP','Magellan EAP','Beacon EAP','AllOne Health',
+  // Commuter
+  'WageWorks','Commuter Check','Edenred','TransitChek','Luum','Parkway',
+];
+
+const VENDOR_RE = new RegExp('\\b(' + VENDORS.map(v => v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|') + ')\\b', 'gi');
+
+// Helper: count how many distinct vendor hits exist in a text block
+function vendorHits(text) {
+  const m = text.match(VENDOR_RE);
+  return m ? [...new Set(m.map(v => v.trim()))].length : 0;
+}
+
+// Strength signals that bump support level up
+const STRONG_SIGNALS = [
+  'employer match','matching contribution','company match','100% match',
+  'fully covered','fully paid','100% employer','employer paid','employer-paid','company paid','company-paid',
+  'comprehensive','unlimited','full coverage','premium coverage','gold plan','platinum plan',
+  'dedicated','24/7','around the clock',
+  'subsidized','reimbursed','stipend','allowance',
+];
+
+// Weak signals — presence alone is weak (like "information session", "learn about")
+const WEAK_SIGNALS = ['information','seminar','learn about','webinar','education','resource','guide','overview','faq','information session'];
+
+// Keywords → which item name(s) to update, and which field
+const KEYWORD_MAP = [
+  // ── Core Benefits Suite ──────────────────────────────────────────────────
+  {
+    names:['Medical & Prescription Plans'],
+    keys:['medical plan','medical insurance','health plan','health insurance','health coverage','medical coverage',
+          'ppo','hmo','epo','hdhp','high deductible','health maintenance','preferred provider',
+          'prescription','rx coverage','pharmacy benefits','prescription drug','drug coverage',
+          'prescription plan','formulary','specialty drug','mail order pharmacy','drug card',
+          'medical benefit','health benefit','group health','employee health','telemedicine'],
+    strong:['comprehensive medical','full medical','premium health','platinum plan','gold plan','employer-paid premium','fully covered medical'],
+  },
+  {
+    names:['Dental & Vision'],
+    keys:['dental','dental plan','dental coverage','dental insurance','orthodontic','braces','cleanings',
+          'vision','vision plan','vision coverage','vision insurance','eye care','optical','glasses','contacts','contact lenses','frames','eyewear',
+          'dental and vision','dental/vision','dental & vision','oral health','eye exam','annual eye'],
+    strong:['comprehensive dental','orthodontic coverage','full dental','fully paid dental','employer dental','no copay dental'],
+  },
+  {
+    names:['Retirement & 401k'],
+    keys:['401k','401(k)','403b','403(b)','retirement plan','retirement savings','retirement benefit',
+          'pension','defined benefit','deferred compensation','profit sharing','esop','employee stock',
+          'employer match','matching contribution','company match','vesting','ira','roth 401','roth ira',
+          'retirement contribution','savings plan','thrift savings','tsp'],
+    strong:['100% match','full match','generous match','immediate vesting','employer match','company match','profit sharing'],
+  },
+  {
+    names:['Life, Disability & Accident'],
+    keys:['life insurance','group life','term life','supplemental life','basic life',
+          'disability insurance','disability coverage','disability benefit','std','ltd',
+          'short-term disability','long-term disability','short term disability','long term disability',
+          'accident insurance','critical illness','hospital indemnity','ad&d','accidental death',
+          'disability pay','salary continuation','income protection'],
+    strong:['comprehensive disability','multiple times salary','2x salary','3x salary','employer-paid life','company-paid disability'],
+  },
+  {
+    names:['Wellness Programs'],
+    keys:['wellness program','wellness incentive','wellness reward','wellness benefit',
+          'fitness benefit','gym reimbursement','gym subsidy','gym membership','fitness membership',
+          'wellness stipend','fitness stipend','wellness allowance','fitness allowance','fitness reimbursement',
+          'healthy living','health coaching','biometric screening','health assessment','flu shot',
+          'wellness challenge','step challenge','wellness portal','wellness platform',
+          'on-site gym','fitness center','corporate gym','workout','classpass','gympass','wellhub'],
+    strong:['wellness champion','comprehensive wellness','full gym reimbursement','unlimited fitness','employer-paid gym'],
+  },
+  {
+    names:['EAP'],
+    keys:['eap','employee assistance','employee assistance program','counseling services','counseling sessions',
+          'mental health hotline','crisis line','crisis support','emotional support','work-life balance program',
+          'eap sessions','free counseling','confidential counseling','short-term counseling','eap services',
+          'employee assistance benefit','eap benefit','eap program','24/7 counseling'],
+    strong:['unlimited eap','comprehensive eap','10+ eap sessions','8 sessions','12 sessions','employer-paid eap'],
+  },
+
+  // ── Life Navigation ──────────────────────────────────────────────────────
+  {
+    names:['Healthcare Navigation','Medical Navigation','Recommend a Doctor','Book Doctors Appointment',
+           'Denied Claims','Compare Healthcare Costs','Review my Medical Bills','Pre-Appointment Questions',
+           'Medical Care Coordination','General Healthcare Resources','Check For Prescriptions (Rx) Savings',
+           'Find Generic Rx Options','Connect With a Healthcare Concierge'],
+    keys:['healthcare navigation','health navigation','nurse navigator','care navigator','care navigation',
+          'concierge health','health concierge','clinical concierge','healthcare advocate','health advocate',
+          'second opinion','second medical opinion','care coordinator','care management','utilization management',
+          'cost transparency','price transparency','find a doctor','doctor finder','provider search',
+          'prior authorization help','claims support','claims assistance','medical bill review','bill negotiation',
+          'rx savings','prescription savings','medication discount','drug pricing'],
+    strong:['dedicated navigator','24/7 nurse','dedicated care team','personal health advocate'],
+  },
+  {
+    names:['Mental Health','Find an In-Person Therapist','Find a Virtual Therapist','Learn to Meditate',
+           'Compare Therapy Apps','Improve my Sleep','Find a Local Support Group','Find a Life Coach',
+           'Learn about Anxiety','Learn about Stress','Learn about Depression','Compare Meditation Apps',
+           'Learn about Mindfulness','Book Couples Therapy','Learn about Managing ADHD'],
+    keys:['mental health','mental health benefit','therapy','therapist','counseling','behavioral health',
+          'talkspace','betterhelp','lyra','spring health','modern health','headspace','calm','compsych',
+          'emotional wellbeing','emotional wellness','psychiatry','psychiatrist','substance use','addiction',
+          'sleep support','insomnia','meditation','mindfulness','stress management','anxiety support','depression support',
+          'mental health coverage','mental health sessions','mental health visits','telehealth mental health'],
+    strong:['unlimited therapy','free therapy sessions','comprehensive mental health','employer-paid therapy',
+            'no copay therapy','covered therapy sessions','mental health parity'],
+  },
+  {
+    names:['Self Care & Preventive Care','Find a Personal Trainer','Build a Nutrition Plan','Find a Nutritionist',
+           'Learn about Weight Loss','Learn about GLP-1s for Weight Loss','Find a Gym','Find a Health App',
+           'Understand my Wellness Benefits','Find Yoga / Pilates Classes','Book a Massage or Spa Appointment'],
+    keys:['self care','preventive care','prevention','annual physical','preventive screening','mammogram','colonoscopy',
+          'nutrition','nutritionist','registered dietitian','nutrition counseling','nutrition program',
+          'personal trainer','weight management','weight loss','obesity','bmi','body mass index',
+          'glp-1','semaglutide','ozempic','wegovy',
+          'yoga','pilates','massage','spa','acupuncture','chiropractic','alternative medicine',
+          'fitness app','health app','wearable','fitbit','apple watch'],
+    strong:['comprehensive wellness','holistic health','employer-paid trainer','fully covered preventive'],
+  },
+
+  // ── Caregiving ───────────────────────────────────────────────────────────
+  {
+    names:['Childcare — Baby & Family Planning','Plan for Pregnancy','Find an OB/GYN and Care Team',
+           'Family Planning Guidance','Fertility Navigation (IVF, Egg Freezing, IUI)',
+           'Adoption and Surrogacy Support','Plan my Parental Leave','Lactation and Feeding Support',
+           'Sleep Training Guidance','NICU & High-Risk Infant Support','Postpartum Mental Health'],
+    keys:['fertility','ivf','egg freezing','embryo freezing','egg banking','surrogacy','gestational carrier',
+          'adoption','adoption assistance','adoption reimbursement','family planning','reproductive health',
+          'parental leave','maternity leave','paternity leave','paid leave','family leave','fmla','bonding leave',
+          'lactation','breastfeeding','breast pump','nursing','postpartum','nicu','high-risk pregnancy',
+          'ob/gyn','obstetrics','prenatal','pregnancy support','midwife','doula','birth center',
+          'carrot','progyny','maven','winfertility'],
+    strong:['comprehensive fertility','unlimited ivf','full ivf coverage','full adoption reimbursement',
+            'paid parental leave','generous parental leave','16 weeks','20 weeks'],
+  },
+  {
+    names:['Childcare — Child & Teen Care','Childcare Planning (Nanny, Daycare)',
+           'Neurodivergence Support','Children Nutrition Guidance','Teenage Mental Health Support',
+           'Customized Education & Content Resources'],
+    keys:['childcare','child care','daycare','day care','nanny','au pair','dependent care',
+          'dcfsa','dependent care fsa','dependent care flexible spending','childcare subsidy','childcare stipend',
+          'backup care','back-up care','back up care','emergency childcare',
+          'bright horizons','care.com','sittercity',
+          'neurodivergent','autism','adhd','learning disability','special needs',
+          'tutoring','education benefit','529','tuition','college savings','scholarship'],
+    strong:['subsidized childcare','full backup care','employer-paid childcare','childcare center on-site'],
+  },
+  {
+    names:['Adult & Eldercare','Find and Vet Assisted Living / Skilled Nursing',
+           'Find Memory Care or Hospice Options','Explore In-Home Care Options',
+           'Help Plan Financial & Legal Needs for Family','Arrange Transportation for Elderly Family',
+           'Long-Distance Caregiving Support','Review Care Options & Costs for Elderly Parents',
+           'Mental Health Support for Caregivers'],
+    keys:['elder care','eldercare','senior care','aging parent','adult care','caregiving','caregiver support',
+          'long-term care','assisted living','nursing home','hospice','memory care','dementia','alzheimer',
+          'in-home care','home health aide','respite care','geriatric','senior housing','elder law'],
+    strong:['comprehensive eldercare','dedicated eldercare','employer-paid eldercare'],
+  },
+  {
+    names:['Common Family & Parenting Support','Plan a Baby Shower','Find Newborn & Baby Supplies',
+           'Recurring Diaper Delivery','Find Children\'s Activities',"Find a Tutor",'Find Summer Camps'],
+    keys:['parenting support','family support','baby registry','newborn supplies','baby supplies',
+          'diaper','summer camp','camp subsidy','kids activities','children activities',
+          'tutoring benefit','after school','extracurricular'],
+    strong:['comprehensive family support','employer-paid camp','subsidized activities'],
+  },
+
+  // ── Home Care ────────────────────────────────────────────────────────────
+  {
+    names:['Home Services','Find a Plumber','Get Help with a Move','Find Lawn Care / Landscaper',
+           'Compare Home/Rental Insurance','Find a Contractor','Find a House Painter',
+           'Schedule a Gutter Cleaning','Find an Electrician','Find HVAC Services',
+           'Find a Housekeeper','Find a Handyman','Repair an Appliance'],
+    keys:['home services','home assistance','household services','home maintenance','handyman',
+          'relocation assistance','relocation benefit','relocation package','moving assistance','moving stipend','moving allowance',
+          'home repair','plumber','electrician','hvac','landscaping','lawn care','housekeeper','house cleaning',
+          'home insurance','renters insurance','homeowners insurance'],
+    strong:['comprehensive home services','full relocation package','employer-paid relocation'],
+  },
+  {
+    names:['Home Life','Research Rental Homes / Apartments','Plan Weekly Meal Prep',
+           'Find a Local Farmers Market','Schedule a Donation Pickup','Arrange Temporary Housing'],
+    keys:['home life','housing assistance','rental assistance','housing benefit','temporary housing',
+          'corporate housing','meal planning','meal kit','food benefit','meal delivery'],
+    strong:['housing stipend','rent subsidy','employer housing'],
+  },
+
+  // ── Life Care ────────────────────────────────────────────────────────────
+  {
+    names:['Car & Auto','Find a Rental Car','Compare Car Insurance Quotes','Schedule an Oil Change',
+           'Find a Mechanic','Get Help Buying or Selling a Car','Submit Auto Claims'],
+    keys:['auto benefit','car benefit','car allowance','vehicle allowance','commuter benefit',
+          'transit benefit','parking benefit','commuter pass','pre-tax commuter','transportation benefit',
+          'auto insurance','car insurance','ride share','uber for work','lyft for work','company car',
+          'car lease','auto lease','vehicle lease','fleet vehicle'],
+    strong:['company car','car allowance','full auto benefit'],
+  },
+  {
+    names:['Pet Care','Find a Pet Boarding Service','Find/Schedule a Groomer','Schedule a Pet Walker',
+           'Find a Pet Sitter','Explore Pet Insurance Options','Book a Vet Appointment'],
+    keys:['pet insurance','pet care','pet benefit','pet health','veterinary','vet care','vet visit',
+          'pet wellness','pet coverage','dog','cat','animal','furry friend','pet friendly',
+          'nationwide pet','figo','trupanion','embrace','aspca pet','pumpkin','lemonade pet'],
+    strong:['comprehensive pet','employer-paid pet','free pet insurance','subsidized pet'],
+  },
+  {
+    names:['Travel','Research Vacation Destinations','Book Flights and Hotels','Plan Excursions',
+           'Create Travel Itinerary','Get Travel Insurance'],
+    keys:['travel benefit','travel assistance','travel support','vacation benefit','vacation stipend',
+          'travel insurance','travel health coverage','global travel','international travel',
+          'travel reimbursement','travel allowance','leisure travel','employee travel'],
+    strong:['travel stipend','vacation reimbursement','travel allowance','employer-paid travel'],
+  },
+
+  // ── Financial Wellness ───────────────────────────────────────────────────
+  {
+    names:['Financial Wellness','Find an Accountant or Tax Pro','Find a High-Yield Savings Account',
+           'Get Help Creating a Will','Rollover a 401(k)','Get Help Managing Debt',
+           'Setup Emergency Savings Account','Explain How HSAs, HRAs & FSAs Work',
+           'Help Me Build a Budget','Plan for Retirement','Open an Investment Account',
+           'Build Plan To Improve my Credit Score','Enroll in Pre-Tax Commuter Benefits','Find a Good Credit Card'],
+    keys:['financial wellness','financial wellbeing','financial planning','financial education','financial coaching',
+          'financial advisor','financial counseling','student loan','student loan repayment','student loan assistance',
+          'tuition reimbursement','tuition assistance','education assistance','education reimbursement',
+          'hsa','health savings account','hra','health reimbursement','fsa','flexible spending',
+          'savings account','emergency savings','529 plan','college savings',
+          'legal plan','legal assistance','legal services','will preparation','estate planning','identity theft',
+          'budgeting','debt management','credit counseling','financial literacy',
+          'sofi','learnlux','smartdollar','financial engines','gradifi','candidly','peanut butter'],
+    strong:['comprehensive financial','unlimited financial','employer-paid financial','full tuition',
+            'student loan match','free financial advisor','financial coaching included'],
+  },
+];
+
+// ── Section header patterns → which KEYWORD_MAP rule indices they relate to
+// Used for section-aware parsing: vendor hits inside a matching document section
+// get a bonus; vendors from unrelated sections are discounted.
+const SECTION_HEADERS = [
+  { re: /health\s*(insurance|benefits?|coverage|plan)|medical\s*(benefits?|plan|coverage)|insurance\s*benefits?/i,    ruleNames: ['Medical & Prescription Plans','Dental & Vision'] },
+  { re: /dental|vision|eye\s*care/i,           ruleNames: ['Dental & Vision'] },
+  { re: /retirement|401\s*k|403\s*b|pension/i, ruleNames: ['Retirement & 401k'] },
+  { re: /life\s*(insurance)?|disability|std|ltd/i, ruleNames: ['Life, Disability & Accident'] },
+  { re: /wellness|fitness|gym/i,               ruleNames: ['Wellness Programs','Self Care & Preventive Care'] },
+  { re: /eap|employee\s*assistance/i,          ruleNames: ['EAP'] },
+  { re: /mental\s*health|behavioral\s*health/i,ruleNames: ['Mental Health'] },
+  { re: /fertility|family\s*planning|parental\s*leave|maternity|paternity/i, ruleNames: ['Childcare — Baby & Family Planning'] },
+  { re: /child\s*care|daycare|dependent\s*care/i, ruleNames: ['Childcare — Child & Teen Care'] },
+  { re: /elder\s*care|senior\s*care|caregiving/i, ruleNames: ['Adult & Eldercare'] },
+  { re: /financial\s*(wellness|planning|benefit)|student\s*loan|tuition/i, ruleNames: ['Financial Wellness'] },
+  { re: /pet\s*(insurance|benefit|care)/i,     ruleNames: ['Pet Care'] },
+  { re: /commuter|transit|parking|transportation/i, ruleNames: ['Car & Auto'] },
+  { re: /legal\s*(plan|benefit|services?)/i,   ruleNames: ['Financial Wellness'] },
+];
+
+// Split document into named sections based on detected headers
+function splitIntoSections(text) {
+  const lines = text.split(/\n/);
+  const sections = [{ header: '__preamble__', start: 0, text: '' }];
+  lines.forEach((line, li) => {
+    const trimmed = line.trim();
+    // A section header is a short line (≤80 chars) that matches a header pattern
+    // and is likely standalone (not mid-sentence)
+    if (trimmed.length > 2 && trimmed.length <= 80) {
+      for (const sh of SECTION_HEADERS) {
+        if (sh.re.test(trimmed)) {
+          sections.push({ header: trimmed, ruleNames: sh.ruleNames, start: li, text: '' });
+          break;
+        }
+      }
+    }
+  });
+  // Fill in text for each section
+  sections.forEach((sec, si) => {
+    const end = si + 1 < sections.length ? sections[si + 1].start : lines.length;
+    sec.text = lines.slice(sec.start, end).join('\n');
+  });
+  return sections;
+}
+
+function parseBenefitsText(text) {
+  const lower = text.toLowerCase();
+  const data  = JSON.parse(JSON.stringify(BLANK_TEMPLATE));
+
+  // ── Detect company name
+  const lines = text.split(/\n/).map(l => l.trim()).filter(Boolean);
+  let companyName = '';
+  const skipWords = /^(benefits|employee|your|our|2024|2025|2026|january|february|march|april|may|june|july|august|september|october|november|december|q1|q2|q3|q4|page|table|section|summary|guide|overview|handbook)/i;
+  for (const line of lines.slice(0, 15)) {
+    if (line.length < 3 || line.length > 60) continue;
+    if (/^\d/.test(line)) continue;
+    if (skipWords.test(line)) continue;
+    if (/^[A-Z]/.test(line) && !/[^\w\s,\.&'\-()]/.test(line)) {
+      companyName = line.replace(/\s+(benefits|total rewards|guide|handbook|summary).*/i, '').trim();
+      break;
+    }
+  }
+
+  // ── Split document into sections
+  const docSections = splitIntoSections(text);
+
+  // ── Build a flat name→item lookup
+  const itemIndex = {};
+  data.categories.forEach(cat => {
+    cat.items.forEach(item => {
+      itemIndex[item.name] = item;
+      if (item.tasks) item.tasks.forEach(t => { itemIndex[t.name] = t; });
+    });
+  });
+
+  // ── Run each keyword rule
+  KEYWORD_MAP.forEach(rule => {
+    // Find all keyword match positions in the full document
+    const matchPositions = [];
+    rule.keys.forEach(k => {
+      let idx = 0;
+      const kl = k.toLowerCase();
+      while ((idx = lower.indexOf(kl, idx)) !== -1) {
+        matchPositions.push({ pos: idx, key: k });
+        idx += kl.length;
+      }
+    });
+    if (!matchPositions.length) return;
+
+    const distinctKeysMatched = rule.keys.filter(k => lower.includes(k.toLowerCase())).length;
+
+    // ── Section-aware vendor extraction
+    // For each match position, determine which document section it falls in.
+    // If that section's header is related to this rule, weight vendors highly;
+    // otherwise still collect them but at lower confidence.
+    const localVendors    = new Set();
+    const sectionVendors  = new Set(); // vendors found in a matching section
+    let inSectionMatches  = 0;
+
+    matchPositions.forEach(({ pos, key }) => {
+      // Find which section this position is in
+      let matchSection = docSections[0];
+      for (const sec of docSections) {
+        const secStart = text.indexOf(sec.text.slice(0, 40) || sec.header);
+        if (secStart !== -1 && secStart <= pos) matchSection = sec;
+      }
+      const isRelevantSection = matchSection.ruleNames &&
+        rule.names.some(n => matchSection.ruleNames.includes(n));
+      if (isRelevantSection) inSectionMatches++;
+
+      // Generous context window around each match
+      const chunk = text.substring(Math.max(0, pos - 300), pos + 500);
+      const found = chunk.match(VENDOR_RE);
+      if (found) {
+        found.forEach(v => {
+          localVendors.add(v.trim());
+          if (isRelevantSection) sectionVendors.add(v.trim());
+        });
+      }
+    });
+
+    // Prefer section-specific vendors; fall back to all local vendors
+    const bestVendors   = sectionVendors.size > 0 ? [...sectionVendors] : [...localVendors];
+    const uniqueVendors = bestVendors;
+
+    // ── Count strong/weak signals
+    let strongCount = 0;
+    let weakCount   = 0;
+    matchPositions.forEach(({ pos }) => {
+      const chunk = text.substring(Math.max(0, pos - 200), pos + 400).toLowerCase();
+      STRONG_SIGNALS.forEach(s => { if (chunk.includes(s)) strongCount++; });
+      WEAK_SIGNALS.forEach(s => { if (chunk.includes(s)) weakCount++; });
+    });
+    const ruleStrongGlobal = rule.strong && rule.strong.some(s => lower.includes(s.toLowerCase()));
+    if (ruleStrongGlobal) strongCount += 2;
+    // Being in a matching section is itself a strong signal
+    if (inSectionMatches > 0) strongCount += 1;
+
+    // ── Determine support level
+    let support;
+    const hasVendor = uniqueVendors.length > 0;
+
+    if (hasVendor && (strongCount >= 2 || ruleStrongGlobal)) {
+      support = 'Best-in-Class';
+    } else if (hasVendor) {
+      support = 'Partial';
+    } else if (strongCount >= 2 || distinctKeysMatched >= 3) {
+      support = 'Partial';
+    } else if (distinctKeysMatched >= 2) {
+      support = 'Basic';
+    } else {
+      support = 'Minimal';
+    }
+    if (strongCount >= 4 && support !== 'Best-in-Class') support = 'Best-in-Class';
+    if (weakCount > strongCount && distinctKeysMatched === 1 && !hasVendor) support = 'Minimal';
+
+    // ── Compute parser confidence score (0–100) for display
+    let confScore = 0;
+    confScore += Math.min(distinctKeysMatched * 10, 40); // up to 40 for keyword breadth
+    confScore += hasVendor ? 30 : 0;                     // 30 for vendor presence
+    confScore += Math.min(strongCount * 8, 20);           // up to 20 for strong signals
+    confScore += inSectionMatches > 0 ? 10 : 0;          // 10 for being in relevant section
+    const confLabel = confScore >= 70 ? 'high' : confScore >= 40 ? 'medium' : 'low';
+
+    // ── Score defaults
+    const utilMap = {'Best-in-Class':4,'Partial':3,'Basic':3,'Minimal':2,'No Support':0};
+    const expMap  = {'Best-in-Class':4,'Partial':3,'Basic':3,'Minimal':2,'No Support':0};
+
+    // ── Apply to all named items (only upgrade, never downgrade)
+    rule.names.forEach(name => {
+      const item = itemIndex[name];
+      if (!item) return;
+      const currentLevel = supportLevel(item.support);
+      const newLevel     = supportLevel(support);
+      if (newLevel > currentLevel) {
+        item.support     = support;
+        item.solutions   = uniqueVendors.join(', ');
+        item.util        = utilMap[support];
+        item.exp         = expMap[support];
+        item._confScore  = confScore;
+        item._confLabel  = confLabel;
+        item._autoFilled = true;
+      } else if (uniqueVendors.length && !item.solutions) {
+        item.solutions = uniqueVendors.join(', ');
+        if (!item._confScore) { item._confScore = confScore; item._confLabel = confLabel; item._autoFilled = true; }
+      }
+    });
+  });
+
+  data.company = companyName;
+  return data;
+}
+
+/* ═══════════════════════════════════════════
+   CLAUDE AI ENRICHMENT
+═══════════════════════════════════════════ */
+function openAiModal()  { document.getElementById('aiModal').classList.add('open'); }
+function closeAiModal() { document.getElementById('aiModal').classList.remove('open'); }
+
+async function runClaudeEnrich() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) { showToast('⚠ Please enter an API key.', 4000); return; }
+  if (!lastUploadedText) { showToast('⚠ No uploaded document to analyze.', 4000); return; }
+
+  closeAiModal();
+  showToast('✨ Analyzing with Claude…', 0);
+
+  const prompt = `You are a benefits analyst. I will give you a company benefits document and a JSON template. Fill in the template based on the document.
+
+For each item in the template, set:
+- "support": one of "No Support", "Minimal", "Basic", "Partial", "Best-in-Class"
+- "solutions": vendor/product name(s) found in the document for this benefit (empty string if none)
+- "util": utilization score 0-5 (estimate based on how prominently/broadly the benefit is offered)
+- "exp": employee experience score 0-5 (estimate based on quality of offering described)
+
+Only fill items where you find evidence in the document. Leave others as "No Support".
+
+Return ONLY valid JSON — the same structure as the template, with fields updated.
+
+TEMPLATE:
+${JSON.stringify(currentData, null, 2)}
+
+DOCUMENT:
+${lastUploadedText.slice(0, 12000)}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 8192,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${res.status}`);
+    }
+
+    const json   = await res.json();
+    const content = json.content?.[0]?.text || '';
+
+    // Extract JSON from response (Claude may wrap in markdown)
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Claude returned unexpected format.');
+
+    const enriched = JSON.parse(jsonMatch[0]);
+    // Preserve company/industry/empCount from current data if Claude didn't set them
+    if (!enriched.company)  enriched.company  = currentData.company;
+    if (!enriched.industry) enriched.industry = currentData.industry;
+    if (!enriched.empCount) enriched.empCount = currentData.empCount;
+
+    render(enriched);
+    const filled = countFilled(enriched);
+    showToast(`✨ Claude filled ${filled} benefit areas from the document.`);
+    document.getElementById('aiStripText').innerHTML =
+      `<strong>AI-enhanced analysis.</strong> Claude found <strong>${filled}</strong> benefit areas. Click any cell to edit.`;
+  } catch (err) {
+    showToast(`⚠ Claude error: ${err.message}`, 8000);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SCORING
+═══════════════════════════════════════════ */
+function supportLevel(s) {
+  if (!s || s === 'No Support' || s === 'N/A' || s === '') return 0;
+  if (s === 'Minimal')       return 1;
+  if (s === 'Basic')         return 2;
+  if (s === 'Partial')       return 3;
+  if (s === 'Best-in-Class') return 4;
+  return 0;
+}
+function calcPct(item) {
+  const sl = supportLevel(item.support);
+  if (!sl) return 0;
+  return Math.round((sl * ((item.util||0) + (item.exp||0))) / 40 * 100);
+}
+function gapType(item) {
+  if (item.overalls === 'N/A') return 'na';
+  if (!item.support || item.support === 'No Support') return 'critical';
+  if (calcPct(item) < 50) return 'opportunity';
+  return 'covered';
+}
+function pillClass(s) {
+  if (!s || s === 'No Support') return 'pill-none';
+  if (s === 'Best-in-Class')    return 'pill-best';
+  if (s === 'Partial')          return 'pill-partial';
+  if (s === 'Basic')            return 'pill-basic';
+  if (s === 'Minimal')          return 'pill-minimal';
+  return 'pill-none';
+}
+function scoreClass(pct) {
+  if (pct >= 70) return 'high';
+  if (pct >= 40) return 'mid';
+  if (pct >= 20) return 'low';
+  return 'none';
+}
+
+/* ═══════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════ */
+const CAT_ICONS = {
+  'Core Benefits Suite': '🏥',
+  'Life Navigation & Support Benefits': '🧭',
+  'Caregiving': '👨‍👩‍👧',
+  'Home Care': '🏠',
+  'Life Care': '🌟',
+  'Financial Wellness': '💰',
+};
+
+function render(data) {
+  currentData = data;
+  vhAutoSave(data);
+  ['summaryStrip','legendBar','controlBar'].forEach(id => { document.getElementById(id).style.display = ''; });
+  document.getElementById('companyName').value   = data.company   || '';
+  document.getElementById('industry').value      = data.industry  || '';
+  document.getElementById('empCount').value      = data.empCount  || '';
+  document.getElementById('analysisTitle').value = (data.company ? data.company + ' — ' : '') + 'Gap Analysis';
+
+  const chips = document.getElementById('catChips');
+  chips.innerHTML = `<div class="chip active" data-cat="all" onclick="setCatFilter('all',this)">All</div>`;
+  data.categories.forEach(c => {
+    chips.innerHTML += `<div class="chip" data-cat="${c.name}" onclick="setCatFilter('${encodeURIComponent(c.name)}',this)">${c.name}</div>`;
+  });
+
+  renderGrid(data);
+  renderSummary(data);
+}
+
+function renderGrid(data) {
+  const grid   = document.getElementById('analysisGrid');
+  const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  grid.innerHTML = '';
+
+  data.categories.forEach((cat, ci) => {
+    if (activeCatFilter !== 'all' && cat.name !== activeCatFilter) return;
+
+    const relevant = [];
+    cat.items.forEach(it => {
+      if (it.overalls !== 'N/A') relevant.push(calcPct(it));
+      if (it.tasks) it.tasks.forEach(t => { if (t.overalls !== 'N/A') relevant.push(calcPct(t)); });
+    });
+    const catPct = relevant.length ? Math.round(relevant.reduce((a,b)=>a+b,0)/relevant.length) : 0;
+    const isCollapsed = collapsedCats.has(cat.name);
+    const icon = CAT_ICONS[cat.name] || '📋';
+
+    const sec = document.createElement('div');
+    sec.className = 'analysis-section';
+    sec.innerHTML = `
+      <div class="category-header ${isCollapsed ? 'collapsed' : ''}" onclick="toggleCat('${cat.name.replace(/'/g,"\\'")}',this,'body${ci}')">
+        <span class="cat-icon">${icon}</span>
+        <span class="cat-title">${cat.name}</span>
+        <div class="cat-score-wrap">
+          <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${catPct}%"></div></div>
+          <span class="cat-pct">${catPct}%</span>
+        </div>
+        <span class="collapse-chevron">▼</span>
+      </div>
+      <div class="section-body" id="body${ci}" style="${isCollapsed ? 'display:none' : ''}">
+        <div class="col-headers">
+          <div></div><div>Capability</div><div>Current Solutions</div>
+          <div>Support Level</div><div>Utilization</div><div>Exp. Score</div>
+          <div>Score</div><div>Overalls</div><div>Gap Status</div><div>Confidence</div><div></div>
+        </div>
+        ${renderItems(cat.items, search, ci)}
+      </div>`;
+    grid.appendChild(sec);
+  });
+
+  if (!grid.children.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>No capabilities match your filters.</p></div>`;
+  }
+}
+
+function renderItems(items, search, ci) {
+  let html = '';
+  items.forEach((item, ii) => {
+    const subId   = `sub_${ci}_${ii}`;
+    const subColl = collapsedSubs.has(subId);
+    const hasTasks= item.tasks && item.tasks.length;
+    if (!itemMatches(item, search) && !(hasTasks && item.tasks.some(t => itemMatches(t, search)))) return;
+
+    const pct  = calcPct(item);
+    const sc   = scoreClass(pct);
+    const gap  = gapType(item);
+    const isNA = item.overalls === 'N/A';
+    const path = `${ci},${ii},-1`;
+
+    html += `
+      <div class="subcat-row" id="row_${ci}_${ii}">
+        <div></div>
+        <div>${editableName(item, path, false)}</div>
+        <div>${editableSolutions(item, path)}</div>
+        <div>${editableSupport(item, path)}</div>
+        <div>${editableStars(item, 'util', path)}</div>
+        <div>${editableStars(item, 'exp', path)}</div>
+        <div id="score_${path.replace(/,/g,'_')}">${scoreBarHTML(pct, sc)}</div>
+        <div>${isNA ? '<span class="pill pill-na">N/A</span>' : '<span class="pill pill-overalls">★★★★★</span>'}</div>
+        <div id="gap_${path.replace(/,/g,'_')}">${gapBadgeHTML(gap)}</div>
+        <div>${confBadgeHTML(item)}</div>
+        <div>${hasTasks ? `<button class="expand-btn" onclick="toggleSub('${subId}',this)">${subColl?'▶':'▼'}</button>` : ''}</div>
+      </div>`;
+
+    if (hasTasks) {
+      html += `<div id="${subId}" style="${subColl ? 'display:none' : ''}">`;
+      item.tasks.forEach((task, ti) => {
+        if (!itemMatches(task, search)) return;
+        const tp   = calcPct(task);
+        const tsc  = scoreClass(tp);
+        const tg   = gapType(task);
+        const tpath= `${ci},${ii},${ti}`;
+        const rowCls = (!task.support || task.support === 'No Support') ? 'row-critical' :
+                       tg === 'opportunity' ? 'row-gap' : '';
+        html += `
+          <div class="data-row ${rowCls}" id="row_${ci}_${ii}_${ti}">
+            <div></div>
+            <div class="task-name">${task.name}</div>
+            <div>${editableSolutions(task, tpath)}</div>
+            <div>${editableSupport(task, tpath)}</div>
+            <div>${editableStars(task, 'util', tpath)}</div>
+            <div>${editableStars(task, 'exp', tpath)}</div>
+            <div id="score_${tpath.replace(/,/g,'_')}">${scoreBarHTML(tp, tsc)}</div>
+            <div>${task.overalls !== 'N/A' ? '<span class="pill pill-overalls" style="font-size:10px">★★★★★</span>' : '<span class="pill pill-na">N/A</span>'}</div>
+            <div id="gap_${tpath.replace(/,/g,'_')}">${gapBadgeHTML(tg)}</div>
+            <div>${confBadgeHTML(task)}</div>
+            <div></div>
+          </div>`;
+      });
+      html += '</div>';
+    }
+  });
+  return html || '<div class="empty"><p>No items match filters.</p></div>';
+}
+
+function itemMatches(item, search) {
+  const nameOk = !search || item.name.toLowerCase().includes(search);
+  if (activeFilter === 'gaps')      return nameOk && item.overalls !== 'N/A' && item.support !== 'Best-in-Class';
+  if (activeFilter === 'nosupport') return nameOk && (!item.support || item.support === 'No Support');
+  if (activeFilter === 'overalls')  return nameOk && item.overalls !== 'N/A' && calcPct(item) < 60;
+  return nameOk;
+}
+
+/* ═══════════════════════════════════════════
+   INLINE EDIT HELPERS — return HTML strings
+   with onclick handlers that swap in inputs
+═══════════════════════════════════════════ */
+
+function editableName(item, path, isTask) {
+  if (isTask) return `<span class="task-name">${escHtml(item.name)}</span>`;
+  return `<span class="subcat-name editable-cell" onclick="activateNameEdit(this,'${path}')">${escHtml(item.name)}</span>`;
+}
+
+function editableSolutions(item, path) {
+  const val = item.solutions || '';
+  return `<span class="col-solutions editable-cell" onclick="activateSolutionsEdit(this,'${path}')" title="Click to edit">${escHtml(val) || '<span style="opacity:.35">Add vendor…</span>'}</span>`;
+}
+
+function editableSupport(item, path) {
+  const s = item.support || 'No Support';
+  return `<span class="editable-cell" onclick="activateSupportEdit(this,'${path}')" title="Click to change support level"><span class="pill ${pillClass(s)}">${s}</span></span>`;
+}
+
+function editableStars(item, field, path) {
+  const val = item[field] || 0;
+  return `<span class="star-editor" data-path="${path}" data-field="${field}" data-val="${val}">${buildStarSpans(val, val)}</span>`;
+}
+
+function buildStarSpans(val, hover) {
+  let s = '';
+  for (let i = 1; i <= 5; i++) {
+    const on = i <= val ? 'on' : '';
+    s += `<span class="s ${on}" data-i="${i}">★</span>`;
+  }
+  return s;
+}
+
+// Wire star editors after DOM insert — use event delegation
+document.addEventListener('click', e => {
+  const s = e.target.closest('.star-editor');
+  if (!s) return;
+  const i = parseInt(e.target.dataset.i);
+  if (!i) return;
+  const path  = s.dataset.path;
+  const field = s.dataset.field;
+  const item  = itemAtPath(path);
+  if (!item) return;
+  item[field] = i;
+  s.dataset.val = i;
+  s.innerHTML = buildStarSpans(i, i);
+  updateScoreGap(path);
+  renderSummary(currentData);
+});
+
+// Hover preview for stars
+document.addEventListener('mouseover', e => {
+  const star = e.target.closest('.s');
+  if (!star) return;
+  const editor = star.closest('.star-editor');
+  if (!editor) return;
+  const hoverVal = parseInt(star.dataset.i);
+  editor.querySelectorAll('.s').forEach((s, idx) => {
+    s.classList.toggle('hover-on', idx < hoverVal);
+  });
+});
+document.addEventListener('mouseout', e => {
+  const editor = e.target.closest('.star-editor');
+  if (!editor) return;
+  editor.querySelectorAll('.s').forEach(s => s.classList.remove('hover-on'));
+});
+
+/* ═══════════════════════════════════════════
+   ACTIVATE EDIT — swap cell → input
+═══════════════════════════════════════════ */
+function activateNameEdit(el, path) {
+  const item = itemAtPath(path);
+  if (!item) return;
+  const input = document.createElement('input');
+  input.className = 'inline-input subcat-name';
+  input.value = item.name;
+  const commit = () => {
+    item.name = input.value.trim() || item.name;
+    el.textContent = item.name;
+    el.style.display = '';
+    input.remove();
+  };
+  input.onblur = commit;
+  input.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); commit(); } if (e.key === 'Escape') { el.style.display=''; input.remove(); } };
+  el.style.display = 'none';
+  el.parentNode.insertBefore(input, el.nextSibling);
+  input.focus(); input.select();
+}
+
+function activateSolutionsEdit(el, path) {
+  const item = itemAtPath(path);
+  if (!item) return;
+  const input = document.createElement('input');
+  input.className = 'inline-input';
+  input.value = item.solutions || '';
+  input.placeholder = 'e.g. BCBS, Aetna';
+  const commit = () => {
+    item.solutions = input.value.trim();
+    el.innerHTML = item.solutions ? escHtml(item.solutions) : '<span style="opacity:.35">Add vendor…</span>';
+    el.style.display = '';
+    input.remove();
+  };
+  input.onblur = commit;
+  input.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); commit(); } if (e.key === 'Escape') { el.style.display=''; input.remove(); } };
+  el.style.display = 'none';
+  el.parentNode.insertBefore(input, el.nextSibling);
+  input.focus(); input.select();
+}
+
+function activateSupportEdit(el, path) {
+  const item = itemAtPath(path);
+  if (!item) return;
+  const sel = document.createElement('select');
+  sel.className = 'inline-select';
+  ['No Support','Minimal','Basic','Partial','Best-in-Class'].forEach(opt => {
+    const o = document.createElement('option');
+    o.value = opt; o.textContent = opt;
+    if (opt === (item.support || 'No Support')) o.selected = true;
+    sel.appendChild(o);
+  });
+  const commit = () => {
+    item.support = sel.value;
+    el.innerHTML = `<span class="pill ${pillClass(item.support)}">${item.support}</span>`;
+    el.style.display = '';
+    sel.remove();
+    updateScoreGap(path);
+    renderSummary(currentData);
+    // Update row background class
+    const parts = path.split(',');
+    const rowId = parts[2] === '-1' ? `row_${parts[0]}_${parts[1]}` : `row_${parts[0]}_${parts[1]}_${parts[2]}`;
+    const row = document.getElementById(rowId);
+    if (row && parts[2] !== '-1') {
+      row.classList.remove('row-gap','row-critical');
+      const g = gapType(item);
+      if (g === 'critical') row.classList.add('row-critical');
+      else if (g === 'opportunity') row.classList.add('row-gap');
+    }
+  };
+  sel.onchange = commit;
+  sel.onblur   = commit;
+  sel.onkeydown= e => { if (e.key === 'Escape') { el.style.display=''; sel.remove(); } };
+  el.style.display = 'none';
+  el.parentNode.insertBefore(sel, el.nextSibling);
+  sel.focus();
+}
+
+/* Update score bar + gap badge in-place after an edit */
+function updateScoreGap(path) {
+  const item = itemAtPath(path);
+  if (!item) return;
+  const key = path.replace(/,/g,'_');
+  const scoreEl = document.getElementById('score_' + key);
+  const gapEl   = document.getElementById('gap_'   + key);
+  const pct = calcPct(item);
+  const sc  = scoreClass(pct);
+  if (scoreEl) scoreEl.innerHTML = scoreBarHTML(pct, sc);
+  if (gapEl)   gapEl.innerHTML   = gapBadgeHTML(gapType(item));
+  // Update parent category bar
+  renderGrid(currentData); // simplest approach — full re-render
+}
+
+/* Resolve path "ci,ii,ti" → item object */
+function itemAtPath(path) {
+  if (!currentData) return null;
+  const [ci, ii, ti] = path.split(',').map(Number);
+  const cat = currentData.categories[ci];
+  if (!cat) return null;
+  const item = cat.items[ii];
+  if (!item) return null;
+  if (ti === -1) return item;
+  return item.tasks ? item.tasks[ti] : null;
+}
+
+/* ═══════════════════════════════════════════
+   HTML HELPERS
+═══════════════════════════════════════════ */
+function confBadgeHTML(item) {
+  if (!item._autoFilled) return '<span class="conf-badge conf-auto">Manual</span>';
+  if (item._confLabel === 'high')   return '<span class="conf-badge conf-high" title="Parser confidence: High">High</span>';
+  if (item._confLabel === 'medium') return '<span class="conf-badge conf-medium" title="Parser confidence: Medium">Med</span>';
+  return '<span class="conf-badge conf-low" title="Parser confidence: Low — review this row">Low</span>';
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function scoreBarHTML(pct, sc) {
+  return `<div class="score-wrap" data-tip="Score: ${pct}% of maximum">
+    <div class="score-bar"><div class="score-fill fill-${sc}" style="width:${pct}%"></div></div>
+    <span class="score-pct pct-${sc}">${pct}%</span>
+  </div>`;
+}
+
+function gapBadgeHTML(gap) {
+  if (gap === 'na')          return '<span class="gap-badge gap-na">N/A</span>';
+  if (gap === 'critical')    return '<span class="gap-badge gap-critical">● Critical</span>';
+  if (gap === 'opportunity') return '<span class="gap-badge gap-opportunity">● Opportunity</span>';
+  return '<span class="gap-badge gap-covered">● Covered</span>';
+}
+
+/* ═══════════════════════════════════════════
+   SUMMARY
+═══════════════════════════════════════════ */
+function renderSummary(data) {
+  // ── Collect all items
+  const all = [];
+  data.categories.forEach(c => c.items.forEach(i => {
+    all.push({ item: i, catName: c.name });
+    if (i.tasks) i.tasks.forEach(t => all.push({ item: t, catName: c.name }));
+  }));
+
+  const withO        = all.filter(x => x.item.overalls !== 'N/A');
+  const cur          = withO.length ? Math.round(withO.reduce((s,x) => s + calcPct(x.item), 0) / withO.length) : 0;
+  const withOveralls = withO.length ? 85 : 0;
+  const lift         = withOveralls - cur;
+  const gapItems     = withO.filter(x => { const g=gapType(x.item); return g==='critical'||g==='opportunity'; });
+  const noSup        = all.filter(x => (!x.item.support||x.item.support==='No Support') && x.item.overalls!=='N/A').length;
+  const covered      = withO.filter(x => gapType(x.item) === 'covered').length;
+
+  // ── Header
+  document.getElementById('sumCompany').textContent = data.company || 'Prospect Company';
+  document.getElementById('sumMeta').textContent =
+    [data.industry, data.empCount ? Number(data.empCount).toLocaleString() + ' employees' : ''].filter(Boolean).join(' · ');
+  document.getElementById('sumDate').textContent =
+    new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+  // ── Stat row
+  document.getElementById('spStats').innerHTML = `
+    <div class="sp-stat accent-amber">
+      <div class="sp-stat-label">Current Benefits Score</div>
+      <div class="sp-stat-value">${cur}%</div>
+      <div class="sp-stat-sub">of 100% maximum</div>
+    </div>
+    <div class="sp-stat accent-teal">
+      <div class="sp-stat-label">Score with Overalls</div>
+      <div class="sp-stat-value">${withOveralls}%</div>
+      <div class="sp-stat-sub">of 100% maximum</div>
+    </div>
+    <div class="sp-stat accent-green">
+      <div class="sp-stat-label">Score Lift</div>
+      <div class="sp-stat-value">+${lift}</div>
+      <div class="sp-stat-sub">percentage points</div>
+    </div>
+    <div class="sp-stat accent-berry">
+      <div class="sp-stat-label">Gaps Identified</div>
+      <div class="sp-stat-value">${gapItems.length}</div>
+      <div class="sp-stat-sub">critical or opportunity</div>
+    </div>
+    <div class="sp-stat">
+      <div class="sp-stat-label">Areas Covered</div>
+      <div class="sp-stat-value">${covered}</div>
+      <div class="sp-stat-sub">of ${withO.length} evaluated</div>
+    </div>`;
+
+  // ── Footer lift badge
+  document.getElementById('sumLift').textContent = '+' + lift + ' pts';
+
+  // ── Top Gaps (critical first, then opportunity; max 8)
+  const sortedGaps = [...gapItems].sort((a, b) => {
+    const ga = gapType(a.item), gb = gapType(b.item);
+    if (ga === 'critical' && gb !== 'critical') return -1;
+    if (gb === 'critical' && ga !== 'critical') return 1;
+    return calcPct(a.item) - calcPct(b.item); // lower score = higher priority
+  }).slice(0, 8);
+
+  if (sortedGaps.length === 0) {
+    document.getElementById('spTopGaps').innerHTML = `
+      <div class="sp-no-gaps">
+        <div class="sp-no-gaps-icon">✅</div>
+        <div>No critical gaps found.<br><span style="font-size:11px;color:var(--text-light)">Upload a benefits document to populate gaps.</span></div>
+      </div>`;
+  } else {
+    document.getElementById('spTopGaps').innerHTML = sortedGaps.map(x => {
+      const g   = gapType(x.item);
+      const pct = calcPct(x.item);
+      const sc  = scoreClass(pct);
+      return `
+        <div class="sp-gap-item">
+          <div class="sp-gap-dot ${g}"></div>
+          <div style="flex:1;min-width:0">
+            <div class="sp-gap-name">${escHtml(x.item.name)}</div>
+            <div class="sp-gap-cat">${escHtml(x.catName)}${x.item.solutions ? ' · ' + escHtml(x.item.solutions) : ''}</div>
+          </div>
+          <div class="sp-gap-badge">${gapBadgeHTML(g)}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Category Breakdown
+  document.getElementById('spCatBreakdown').innerHTML = data.categories.map(cat => {
+    const catAll = [];
+    cat.items.forEach(i => {
+      catAll.push(i);
+      if (i.tasks) i.tasks.forEach(t => catAll.push(t));
+    });
+    const catWith  = catAll.filter(i => i.overalls !== 'N/A');
+    const catPct   = catWith.length ? Math.round(catWith.reduce((s,i) => s + calcPct(i), 0) / catWith.length) : 0;
+    const catGaps  = catWith.filter(i => { const g=gapType(i); return g==='critical'||g==='opportunity'; }).length;
+    const sc       = scoreClass(catPct);
+    const fillColor = catPct >= 70 ? 'var(--teal)' : catPct >= 40 ? 'var(--teal-200)' : catPct >= 20 ? 'var(--amber)' : 'var(--berry)';
+    const pctColor  = catPct >= 70 ? 'var(--teal)' : catPct >= 40 ? 'var(--teal-200)' : catPct >= 20 ? 'var(--amber)' : 'var(--berry)';
+    const icon = { 'Core Benefits Suite':'🏥','Life Navigation & Support Benefits':'🧭','Caregiving':'👨‍👩‍👧','Home Care':'🏠','Life Care':'🌟','Financial Wellness':'💰' }[cat.name] || '📋';
+    return `
+      <div class="sp-cat-row">
+        <div class="sp-cat-top">
+          <div class="sp-cat-name">${icon} ${escHtml(cat.name)}</div>
+          <div class="sp-cat-right">
+            ${catGaps > 0 ? `<span style="font-size:10px;color:var(--berry);font-weight:700">${catGaps} gap${catGaps>1?'s':''}</span>` : '<span style="font-size:10px;color:var(--teal);font-weight:600">✓</span>'}
+            <span class="sp-cat-pct" style="color:${pctColor}">${catPct}%</span>
+          </div>
+        </div>
+        <div class="sp-cat-bar-bg">
+          <div class="sp-cat-bar-fill" style="width:${catPct}%;background:${fillColor}"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   UI ACTIONS
+═══════════════════════════════════════════ */
+function toggleCat(name, el, bodyId) {
+  const body = document.getElementById(bodyId);
+  const hiding = body.style.display !== 'none';
+  body.style.display = hiding ? 'none' : '';
+  el.classList.toggle('collapsed', hiding);
+  hiding ? collapsedCats.add(name) : collapsedCats.delete(name);
+}
+
+function toggleSub(subId, btn) {
+  const body = document.getElementById(subId);
+  if (!body) return;
+  const hiding = body.style.display !== 'none';
+  body.style.display = hiding ? 'none' : '';
+  btn.textContent = hiding ? '▶' : '▼';
+  hiding ? collapsedSubs.add(subId) : collapsedSubs.delete(subId);
+}
+
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('[data-filter]').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function setCatFilter(f, el) {
+  activeCatFilter = decodeURIComponent(f);
+  document.querySelectorAll('[data-cat]').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() { if (currentData) renderGrid(currentData); }
+
+function expandAll() {
+  collapsedCats.clear(); collapsedSubs.clear();
+  document.querySelectorAll('.section-body').forEach(b => b.style.display = '');
+  document.querySelectorAll('.category-header').forEach(h => h.classList.remove('collapsed'));
+  document.querySelectorAll('[id^="sub_"]').forEach(b => b.style.display = '');
+  document.querySelectorAll('.expand-btn').forEach(b => b.textContent = '▼');
+}
+
+function collapseAll() {
+  document.querySelectorAll('.section-body').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('.category-header').forEach(h => h.classList.add('collapsed'));
+  if (currentData) currentData.categories.forEach(c => collapsedCats.add(c.name));
+}
+
+function startBlank() {
+  const blank = JSON.parse(JSON.stringify(BLANK_TEMPLATE));
+  blank.company  = document.getElementById('companyName').value  || 'New Company';
+  blank.industry = document.getElementById('industry').value     || '';
+  blank.empCount = document.getElementById('empCount').value     || '';
+  render(blank);
+}
+
+function exportCSV() {
+  if (!currentData) { showToast('⚠ Load or upload data first.', 4000); return; }
+  const rows = [['Category','Subcategory','Task','Current Solutions','Support Level','Utilization','Experience','Score %','Overalls','Gap Type']];
+  currentData.categories.forEach(cat => cat.items.forEach(item => {
+    rows.push([cat.name, item.name, '', item.solutions, item.support, item.util, item.exp, calcPct(item), item.overalls, gapType(item)]);
+    if (item.tasks) item.tasks.forEach(t => {
+      rows.push([cat.name, item.name, t.name, t.solutions, t.support, t.util, t.exp, calcPct(t), t.overalls, gapType(t)]);
+    });
+  }));
+  const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const url = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  Object.assign(document.createElement('a'), {href:url, download:`Overalls_Gap_${currentData.company||'Export'}.csv`}).click();
+}
+
+/* ═══════════════════════════════════════════
+   EXPORT MODAL
+═══════════════════════════════════════════ */
+function openExportModal()  { document.getElementById('exportModal').classList.add('open'); }
+function closeExportModal() { document.getElementById('exportModal').classList.remove('open'); }
+
+/* ═══════════════════════════════════════════
+   SAVE / LOAD SESSION
+═══════════════════════════════════════════ */
+function saveSession() {
+  if (!currentData) { showToast('⚠ Nothing to save yet.', 4000); return; }
+  const payload = JSON.stringify(currentData, null, 2);
+  const url = URL.createObjectURL(new Blob([payload], {type:'application/json'}));
+  const name = `Overalls_Gap_${(currentData.company||'Session').replace(/\s+/g,'_')}.json`;
+  Object.assign(document.createElement('a'), {href:url, download:name}).click();
+  showToast(`💾 Session saved as ${name}`);
+}
+
+function loadSession(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  event.target.value = '';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.categories) throw new Error('Invalid session file — missing categories.');
+      render(data);
+      showToast(`✓ Session loaded: ${data.company || file.name}`);
+      document.getElementById('aiStripText').innerHTML =
+        `<strong>Session restored</strong> from <strong>${escHtml(file.name)}</strong>. All edits are intact.`;
+      document.getElementById('aiStrip').classList.add('show');
+    } catch(err) {
+      showToast(`⚠ Could not load session: ${err.message}`, 8000);
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ═══════════════════════════════════════════
+   EXPORT PPTX
+═══════════════════════════════════════════ */
+function exportPPTX() {
+  if (!currentData) { showToast('⚠ Load or upload data first.', 4000); return; }
+  if (typeof PptxGenJS === 'undefined') { showToast('⚠ PptxGenJS not loaded. Check your internet connection.', 6000); return; }
+
+  const pptx = new PptxGenJS();
+  pptx.layout = 'LAYOUT_WIDE'; // 13.33" × 7.5"
+
+  // Brand colors
+  const TEAL      = '0A5C5E';
+  const TEAL_DARK = '013748';
+  const AMBER     = 'DF9C26';
+  const BERRY     = 'CD2C5C';
+  const GREEN     = '04494A';
+  const OFF_WHITE = 'FAFAFA';
+  const TEXT_BODY = '203847';
+  const BORDER    = 'E8EFEF';
+
+  // ── Helpers
+  const company = currentData.company || 'Prospect';
+  const allItems = [];
+  currentData.categories.forEach(c => c.items.forEach(i => {
+    allItems.push(i);
+    if (i.tasks) i.tasks.forEach(t => allItems.push(t));
+  }));
+  const withO     = allItems.filter(i => i.overalls !== 'N/A');
+  const curScore  = withO.length ? Math.round(withO.reduce((s,i) => s + calcPct(i), 0) / withO.length) : 0;
+  const withOveralls = withO.length ? 85 : 0;
+  const gapCount  = withO.filter(i => { const g=gapType(i); return g==='critical'||g==='opportunity'; }).length;
+  const noSupCount= allItems.filter(i => (!i.support||i.support==='No Support') && i.overalls!=='N/A').length;
+
+  // ──────────────────────────────────────────
+  // SLIDE 1: Cover
+  // ──────────────────────────────────────────
+  const cover = pptx.addSlide();
+  cover.background = { color: TEAL_DARK };
+
+  // Teal accent bar on left
+  cover.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.18, h: '100%', fill: { color: TEAL } });
+
+  // Logomark circle + triangle (simplified as shapes)
+  cover.addShape(pptx.ShapeType.ellipse, { x: 0.55, y: 0.45, w: 0.55, h: 0.55, fill: { color: TEAL }, line: { color: TEAL } });
+  cover.addShape(pptx.ShapeType.triangle, { x: 0.88, y: 0.45, w: 0.42, h: 0.55, fill: { color: 'FFFFFF' }, line: { color: 'FFFFFF' }, rotate: 0 });
+
+  // Wordmark
+  cover.addText('Overalls', { x: 1.2, y: 0.42, w: 3, h: 0.45, fontSize: 28, bold: true, color: 'FFFFFF', fontFace: 'Open Sans' });
+  cover.addText('Life. Simplified.', { x: 1.2, y: 0.88, w: 4, h: 0.28, fontSize: 11, color: 'AACCCC', fontFace: 'Open Sans', charSpacing: 2 });
+
+  // Main title
+  cover.addText('Benefits Gap Analysis', {
+    x: 0.55, y: 2.0, w: 9, h: 1.1,
+    fontSize: 42, bold: false, color: 'FFFFFF', fontFace: 'Georgia',
+  });
+  cover.addText(company, {
+    x: 0.55, y: 3.1, w: 9, h: 0.7,
+    fontSize: 28, bold: true, color: 'BCE7E8', fontFace: 'Open Sans',
+  });
+
+  const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+  cover.addText(`Prepared ${today}`, {
+    x: 0.55, y: 6.6, w: 6, h: 0.35,
+    fontSize: 11, color: '7AABAF', fontFace: 'Open Sans', italic: true,
+  });
+
+  // ──────────────────────────────────────────
+  // SLIDE 2: Executive Summary
+  // ──────────────────────────────────────────
+  const sumSlide = pptx.addSlide();
+  sumSlide.background = { color: OFF_WHITE };
+
+  // Header bar
+  sumSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 1.0, fill: { color: TEAL_DARK } });
+  sumSlide.addText('Executive Summary', { x: 0.4, y: 0.15, w: 9, h: 0.55, fontSize: 22, bold: false, color: 'FFFFFF', fontFace: 'Georgia' });
+  sumSlide.addText(company.toUpperCase(), { x: 0.4, y: 0.65, w: 9, h: 0.25, fontSize: 9, bold: true, color: 'BCE7E8', fontFace: 'Open Sans', charSpacing: 2 });
+
+  // Stat cards  (x positions across slide)
+  const statCards = [
+    { label: 'Current Benefits Score', value: curScore + '%',    sub: 'of 100% max',         color: AMBER },
+    { label: 'Score with Overalls',     value: withOveralls + '%',sub: 'of 100% max',         color: TEAL },
+    { label: 'Score Lift',              value: '+' + (withOveralls - curScore), sub: 'percentage points', color: GREEN },
+    { label: 'Gaps Identified',         value: String(gapCount),  sub: 'critical or opportunity',color: BERRY },
+    { label: 'No Support Areas',        value: String(noSupCount),sub: 'capability areas',    color: BERRY },
+  ];
+  statCards.forEach((card, ci) => {
+    const cx = 0.35 + ci * 2.5;
+    sumSlide.addShape(pptx.ShapeType.rect, { x: cx, y: 1.25, w: 2.2, h: 1.6, fill: { color: 'FFFFFF' }, line: { color: BORDER, pt: 1 }, shadow: { type: 'outer', blur: 4, offset: 2, color: '00000015' } });
+    sumSlide.addText(card.label.toUpperCase(), { x: cx+0.12, y: 1.38, w: 2.0, h: 0.22, fontSize: 7, bold: true, color: '5A7A80', fontFace: 'Open Sans', charSpacing: 1 });
+    sumSlide.addText(card.value, { x: cx+0.12, y: 1.6, w: 2.0, h: 0.65, fontSize: 30, bold: false, color: card.color, fontFace: 'Georgia' });
+    sumSlide.addText(card.sub, { x: cx+0.12, y: 2.28, w: 2.0, h: 0.25, fontSize: 9, color: '8AABAF', fontFace: 'Open Sans' });
+  });
+
+  // Gap breakdown table header
+  sumSlide.addText('CATEGORY BREAKDOWN', { x: 0.35, y: 3.15, w: 5, h: 0.28, fontSize: 8, bold: true, color: TEAL, fontFace: 'Open Sans', charSpacing: 2 });
+
+  let rowY = 3.5;
+  currentData.categories.forEach(cat => {
+    const catItems = [];
+    cat.items.forEach(i => {
+      catItems.push(i);
+      if (i.tasks) i.tasks.forEach(t => catItems.push(t));
+    });
+    const catWith = catItems.filter(i => i.overalls !== 'N/A');
+    const catPct  = catWith.length ? Math.round(catWith.reduce((s,i) => s + calcPct(i), 0) / catWith.length) : 0;
+    const gaps    = catWith.filter(i => { const g=gapType(i); return g==='critical'||g==='opportunity'; }).length;
+
+    sumSlide.addText(cat.name, { x: 0.35, y: rowY, w: 5.5, h: 0.32, fontSize: 11, bold: true, color: TEAL_DARK, fontFace: 'Open Sans' });
+    // mini progress bar (via shapes)
+    const barW = 3.0;
+    const fillW = Math.max(0.01, barW * catPct / 100);
+    sumSlide.addShape(pptx.ShapeType.rect, { x: 6.0, y: rowY + 0.08, w: barW, h: 0.16, fill: { color: BORDER }, line: { color: BORDER } });
+    const fillColor = catPct >= 70 ? TEAL : catPct >= 40 ? '5BBBBD' : catPct >= 20 ? AMBER : BERRY;
+    sumSlide.addShape(pptx.ShapeType.rect, { x: 6.0, y: rowY + 0.08, w: fillW, h: 0.16, fill: { color: fillColor }, line: { color: fillColor } });
+    sumSlide.addText(`${catPct}%`, { x: 9.15, y: rowY + 0.02, w: 0.6, h: 0.28, fontSize: 10, bold: true, color: fillColor, fontFace: 'Open Sans' });
+    sumSlide.addText(`${gaps} gap${gaps !== 1 ? 's' : ''}`, { x: 9.8, y: rowY + 0.02, w: 1.5, h: 0.28, fontSize: 9, color: gaps > 0 ? BERRY : GREEN, fontFace: 'Open Sans', bold: gaps > 0 });
+    rowY += 0.38;
+    if (rowY > 7.0) return; // stay on slide
+  });
+
+  // ──────────────────────────────────────────
+  // SLIDES 3+: One per category
+  // ──────────────────────────────────────────
+  currentData.categories.forEach(cat => {
+    const slide = pptx.addSlide();
+    slide.background = { color: OFF_WHITE };
+
+    // Header bar
+    slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 0.9, fill: { color: TEAL_DARK } });
+    slide.addText(cat.name, { x: 0.4, y: 0.1, w: 9.5, h: 0.52, fontSize: 20, bold: false, color: 'FFFFFF', fontFace: 'Georgia' });
+    slide.addText(company.toUpperCase() + '  ·  BENEFITS GAP ANALYSIS', { x: 0.4, y: 0.6, w: 9.5, h: 0.22, fontSize: 8, bold: true, color: 'BCE7E8', fontFace: 'Open Sans', charSpacing: 2 });
+
+    // Column headers
+    const colY = 1.05;
+    slide.addShape(pptx.ShapeType.rect, { x: 0.2, y: colY, w: 12.9, h: 0.28, fill: { color: 'EAF5F5' }, line: { color: BORDER } });
+    ['Capability', 'Current Solutions', 'Support Level', 'Score', 'Overalls', 'Gap'].forEach((h, hi) => {
+      const colXs = [0.25, 3.0, 5.5, 7.5, 9.5, 10.8];
+      const colWs = [2.7, 2.4, 1.9, 1.9, 1.2, 2.0];
+      slide.addText(h.toUpperCase(), { x: colXs[hi], y: colY + 0.04, w: colWs[hi], h: 0.2, fontSize: 7, bold: true, color: '5A7A80', fontFace: 'Open Sans', charSpacing: 1 });
+    });
+
+    let ry = colY + 0.32;
+    const ROW_H = 0.3;
+
+    cat.items.forEach((item, ii) => {
+      if (ry > 7.0) return;
+      const pct = calcPct(item);
+      const gap = gapType(item);
+      const isEven = ii % 2 === 0;
+
+      // Row background
+      slide.addShape(pptx.ShapeType.rect, { x: 0.2, y: ry, w: 12.9, h: ROW_H,
+        fill: { color: gap === 'critical' ? 'FDF4F7' : gap === 'opportunity' ? 'FFFBEE' : isEven ? 'FFFFFF' : OFF_WHITE },
+        line: { color: BORDER, pt: 0.5 } });
+
+      // Subcategory name
+      slide.addText(item.name, { x: 0.25, y: ry + 0.04, w: 2.7, h: ROW_H - 0.08, fontSize: 9, bold: true, color: TEAL_DARK, fontFace: 'Open Sans' });
+      // Solutions
+      slide.addText(item.solutions || '—', { x: 3.0, y: ry + 0.04, w: 2.4, h: ROW_H - 0.08, fontSize: 8, color: '5A7A80', fontFace: 'Open Sans' });
+      // Support pill text
+      const supColor = item.support === 'Best-in-Class' ? GREEN : item.support === 'Partial' ? '7A6000' : item.support === 'Basic' ? TEAL : item.support === 'Minimal' ? BERRY : '8AABAF';
+      slide.addText(item.support || 'No Support', { x: 5.5, y: ry + 0.04, w: 1.9, h: ROW_H - 0.08, fontSize: 8, bold: true, color: supColor, fontFace: 'Open Sans' });
+      // Score bar (via shapes)
+      const barW2 = 1.5;
+      const fillW2 = Math.max(0.01, barW2 * pct / 100);
+      const fc2 = pct >= 70 ? TEAL : pct >= 40 ? '5BBBBD' : pct >= 20 ? AMBER : BERRY;
+      slide.addShape(pptx.ShapeType.rect, { x: 7.5, y: ry + 0.1, w: barW2, h: 0.1, fill: { color: BORDER }, line: { color: BORDER } });
+      slide.addShape(pptx.ShapeType.rect, { x: 7.5, y: ry + 0.1, w: fillW2, h: 0.1, fill: { color: fc2 }, line: { color: fc2 } });
+      slide.addText(`${pct}%`, { x: 9.1, y: ry + 0.04, w: 0.38, h: ROW_H - 0.08, fontSize: 8, bold: true, color: fc2, fontFace: 'Open Sans' });
+      // Overalls
+      slide.addText(item.overalls === 'N/A' ? 'N/A' : '★★★★★', { x: 9.55, y: ry + 0.04, w: 1.1, h: ROW_H - 0.08, fontSize: 8, color: item.overalls === 'N/A' ? 'AAAAAA' : AMBER, fontFace: 'Open Sans' });
+      // Gap badge
+      const gapTxt  = gap === 'critical' ? '● Critical' : gap === 'opportunity' ? '● Opportunity' : gap === 'covered' ? '● Covered' : 'N/A';
+      const gapColor= gap === 'critical' ? BERRY : gap === 'opportunity' ? AMBER : gap === 'covered' ? GREEN : 'AAAAAA';
+      slide.addText(gapTxt, { x: 10.8, y: ry + 0.04, w: 2.3, h: ROW_H - 0.08, fontSize: 8, bold: true, color: gapColor, fontFace: 'Open Sans' });
+
+      ry += ROW_H;
+
+      // Task rows (smaller)
+      if (item.tasks) {
+        item.tasks.forEach(task => {
+          if (ry > 7.1) return;
+          const tp  = calcPct(task);
+          const tg  = gapType(task);
+          slide.addShape(pptx.ShapeType.rect, { x: 0.2, y: ry, w: 12.9, h: 0.25,
+            fill: { color: tg === 'critical' ? 'FDF4F7' : tg === 'opportunity' ? 'FFFBEE' : 'FFFFFF' },
+            line: { color: BORDER, pt: 0.5 } });
+          slide.addText('  › ' + task.name, { x: 0.25, y: ry + 0.03, w: 2.7, h: 0.19, fontSize: 7.5, color: '5A7A80', fontFace: 'Open Sans', italic: true });
+          slide.addText(task.solutions || '—', { x: 3.0, y: ry + 0.03, w: 2.4, h: 0.19, fontSize: 7, color: '8AABAF', fontFace: 'Open Sans' });
+          const tSupColor = task.support === 'Best-in-Class' ? GREEN : task.support === 'Partial' ? '7A6000' : task.support === 'Basic' ? TEAL : task.support === 'Minimal' ? BERRY : 'AAAAAA';
+          slide.addText(task.support || 'No Support', { x: 5.5, y: ry + 0.03, w: 1.9, h: 0.19, fontSize: 7, bold: true, color: tSupColor, fontFace: 'Open Sans' });
+          const bfw = Math.max(0.01, 1.5 * tp / 100);
+          const tfc = tp >= 70 ? TEAL : tp >= 40 ? '5BBBBD' : tp >= 20 ? AMBER : BERRY;
+          slide.addShape(pptx.ShapeType.rect, { x: 7.5, y: ry + 0.08, w: 1.5, h: 0.08, fill: { color: BORDER }, line: { color: BORDER } });
+          slide.addShape(pptx.ShapeType.rect, { x: 7.5, y: ry + 0.08, w: bfw, h: 0.08, fill: { color: tfc }, line: { color: tfc } });
+          slide.addText(`${tp}%`, { x: 9.1, y: ry + 0.03, w: 0.38, h: 0.19, fontSize: 7, bold: true, color: tfc, fontFace: 'Open Sans' });
+          const tGapTxt  = tg === 'critical' ? '● Critical' : tg === 'opportunity' ? '● Opportunity' : tg === 'covered' ? '● Covered' : 'N/A';
+          const tGapColor= tg === 'critical' ? BERRY : tg === 'opportunity' ? AMBER : tg === 'covered' ? GREEN : 'AAAAAA';
+          slide.addText(tGapTxt, { x: 10.8, y: ry + 0.03, w: 2.3, h: 0.19, fontSize: 7, bold: true, color: tGapColor, fontFace: 'Open Sans' });
+          ry += 0.25;
+        });
+      }
+    });
+  });
+
+  // ── Write file
+  const filename = `Overalls_Gap_${company.replace(/\s+/g,'_')}.pptx`;
+  showToast('⏳ Building deck…', 0);
+  pptx.writeFile({ fileName: filename })
+    .then(() => showToast(`✓ Deck exported as ${filename}`))
+    .catch(err => showToast(`⚠ Export failed: ${err.message}`, 8000));
+}
+/* ═══════════════════════════════════════════
+   VERSION HISTORY
+═══════════════════════════════════════════ */
+const VH_KEY = 'overalls_versions';
+
+function vhLoad() {
+  try { return JSON.parse(localStorage.getItem(VH_KEY) || '[]'); } catch { return []; }
+}
+function vhSave(versions) {
+  localStorage.setItem(VH_KEY, JSON.stringify(versions));
+}
+
+function openVersionDrawer() {
+  document.getElementById('vhDrawer').classList.add('open');
+  document.getElementById('vhOverlay').classList.add('open');
+  vhRenderList();
+}
+function closeVersionDrawer() {
+  document.getElementById('vhDrawer').classList.remove('open');
+  document.getElementById('vhOverlay').classList.remove('open');
+}
+
+function vhSaveVersion() {
+  if (!currentData) { showToast('⚠ Nothing to save yet — upload or start a blank first.', 4000); return; }
+  const input = document.getElementById('vhNameInput');
+  const company = currentData.company || 'Analysis';
+  const name = input.value.trim() || `${company} — ${new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`;
+  input.value = '';
+
+  const all   = [];
+  currentData.categories.forEach(c => c.items.forEach(i => {
+    all.push(i); if (i.tasks) i.tasks.forEach(t => all.push(t));
+  }));
+  const withO    = all.filter(i => i.overalls !== 'N/A');
+  const score    = withO.length ? Math.round(withO.reduce((s,i) => s + calcPct(i), 0) / withO.length) : 0;
+  const gaps     = withO.filter(i => { const g=gapType(i); return g==='critical'||g==='opportunity'; }).length;
+  const filled   = countFilled(currentData);
+
+  const version = {
+    id:        Date.now(),
+    name,
+    timestamp: new Date().toISOString(),
+    company:   currentData.company || '',
+    score,
+    gaps,
+    filled,
+    data:      JSON.parse(JSON.stringify(currentData)),
+  };
+
+  const versions = vhLoad();
+  versions.unshift(version); // newest first
+  if (versions.length > 50) versions.splice(50); // cap at 50
+  vhSave(versions);
+  vhRenderList();
+  showToast(`💾 Version saved: "${name}"`);
+}
+
+function vhRenderList() {
+  const list = document.getElementById('vhList');
+  const versions = vhLoad();
+  if (!versions.length) {
+    list.innerHTML = `<div class="vh-empty"><div class="vh-empty-icon">🕐</div><p>No saved versions yet.<br>Enter a name above and click Save.</p></div>`;
+    return;
+  }
+  list.innerHTML = versions.map(v => {
+    const ts = new Date(v.timestamp).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+    return `
+      <div class="vh-item" id="vhi_${v.id}">
+        <div class="vh-item-top">
+          <div class="vh-item-name" onclick="vhRestore(${v.id})" title="Click to restore this version">${escHtml(v.name)}</div>
+          <button class="vh-item-del" onclick="vhDelete(${v.id})" title="Delete version">✕</button>
+        </div>
+        <div class="vh-item-meta">${ts}${v.company ? ' · ' + escHtml(v.company) : ''}</div>
+        <div class="vh-item-stats">
+          <span class="vh-stat stat-score">Score ${v.score}%</span>
+          <span class="vh-stat stat-gaps">${v.gaps} gap${v.gaps !== 1 ? 's' : ''}</span>
+          <span class="vh-stat">${v.filled} areas filled</span>
+        </div>
+        <div class="vh-item-actions">
+          <button class="vh-btn-restore" onclick="vhRestore(${v.id})">↩ Restore this version</button>
+          <button class="vh-btn-dl" onclick="vhDownload(${v.id})">↓ Download</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function vhRestore(id) {
+  const versions = vhLoad();
+  const v = versions.find(v => v.id === id);
+  if (!v) { showToast('⚠ Version not found.', 4000); return; }
+  render(v.data);
+  closeVersionDrawer();
+  showToast(`↩ Restored: "${v.name}"`);
+  document.getElementById('aiStripText').innerHTML =
+    `<strong>Version restored:</strong> "${escHtml(v.name)}" — ${new Date(v.timestamp).toLocaleString()}`;
+  document.getElementById('aiStrip').classList.add('show');
+}
+
+function vhDelete(id) {
+  const versions = vhLoad().filter(v => v.id !== id);
+  vhSave(versions);
+  vhRenderList();
+}
+
+function vhDownload(id) {
+  const versions = vhLoad();
+  const v = versions.find(v => v.id === id);
+  if (!v) return;
+  const url = URL.createObjectURL(new Blob([JSON.stringify(v.data, null, 2)], {type:'application/json'}));
+  const name = `Overalls_${v.name.replace(/[^\w\s-]/g,'').replace(/\s+/g,'_')}.json`;
+  Object.assign(document.createElement('a'), {href:url, download:name}).click();
+}
+
+// Auto-save on every render (keeps a rolling "last state" for safety)
+function vhAutoSave(data) {
+  try {
+    localStorage.setItem('overalls_autosave', JSON.stringify({ ts: new Date().toISOString(), data }));
+  } catch {}
+}
+</script>
+
+<!-- ── VERSION HISTORY FAB ── -->
+<button class="vh-fab" onclick="openVersionDrawer()">🕐 Versions</button>
+
+<!-- ── OVERLAY ── -->
+<div class="vh-overlay" id="vhOverlay" onclick="closeVersionDrawer()"></div>
+
+<!-- ── VERSION HISTORY DRAWER ── -->
+<div class="vh-drawer" id="vhDrawer">
+  <div class="vh-drawer-header">
+    <button class="vh-drawer-close" onclick="closeVersionDrawer()">✕</button>
+    <div class="overline">Version History</div>
+    <h3>Saved Versions</h3>
+    <div class="vh-save-row">
+      <input class="vh-name-input" id="vhNameInput" type="text" placeholder="Version name (optional)…" onkeydown="if(event.key==='Enter') vhSaveVersion()" />
+      <button class="vh-save-btn" onclick="vhSaveVersion()">💾 Save</button>
+    </div>
+  </div>
+  <div class="vh-list" id="vhList">
+    <div class="vh-empty"><div class="vh-empty-icon">🕐</div><p>No saved versions yet.<br>Enter a name above and click Save.</p></div>
+  </div>
+</div>
+</body>
+</html>
