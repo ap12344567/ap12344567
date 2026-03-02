@@ -676,6 +676,64 @@
     .es-kpi.accent-amber .es-kpi-value { color: var(--amber); }
     .es-kpi.accent-teal  .es-kpi-value { color: var(--teal-100); }
     .es-kpi.accent-berry .es-kpi-value { color: #F0809A; }
+    .es-kpi { cursor: pointer; transition: background .15s, transform .15s; }
+    .es-kpi:hover { background: rgba(255,255,255,.13); transform: translateY(-2px); }
+    .es-kpi-hint { font-size: 9px; color: rgba(255,255,255,.25); margin-top: 8px; letter-spacing: .05em; }
+
+    /* KPI detail modal */
+    .kpi-modal-backdrop {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.55); z-index: 2000;
+      align-items: center; justify-content: center;
+    }
+    .kpi-modal-backdrop.open { display: flex; }
+    .kpi-modal {
+      background: #fff; border-radius: 16px;
+      width: 420px; max-width: 90vw;
+      box-shadow: 0 24px 60px rgba(0,0,0,.25);
+      overflow: hidden; animation: kpiModalIn .18s ease;
+    }
+    @keyframes kpiModalIn {
+      from { opacity: 0; transform: scale(.95) translateY(8px); }
+      to   { opacity: 1; transform: scale(1)  translateY(0); }
+    }
+    .kpi-modal-head {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    }
+    .kpi-modal-head-left { flex: 1; }
+    .kpi-modal-title { font-size: 18px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+    .kpi-modal-value { font-family: var(--font-display); font-size: 36px; line-height: 1; }
+    .kpi-modal-value.accent-amber { color: var(--amber); }
+    .kpi-modal-value.accent-teal  { color: var(--teal-dark); }
+    .kpi-modal-value.accent-berry { color: #d1537a; }
+    .kpi-modal-value.accent-default { color: var(--teal-dark); }
+    .kpi-modal-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 20px; color: var(--text-light); padding: 0; line-height: 1;
+    }
+    .kpi-modal-close:hover { color: var(--text-dark); }
+    .kpi-modal-body { padding: 20px 28px 24px; }
+    .kpi-modal-desc { font-size: 13px; color: var(--text-mid); line-height: 1.6; margin-bottom: 16px; }
+    .kpi-modal-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+    .kpi-modal-list li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--text-dark);
+      padding: 8px 12px; border-radius: 8px;
+      background: var(--bg-soft);
+    }
+    .kpi-modal-list li .li-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .kpi-modal-scroll-btn {
+      display: block; width: 100%; margin-top: 16px;
+      padding: 10px; border-radius: 8px; border: none; cursor: pointer;
+      background: var(--teal-dark); color: #fff;
+      font-size: 12px; font-weight: 600; letter-spacing: .04em;
+      transition: background .15s;
+    }
+    .kpi-modal-scroll-btn:hover { background: var(--teal); }
 
     /* ── S2: Coverage Matrix ── */
     .es-matrix-wrap { overflow-x: auto; }
@@ -1214,6 +1272,24 @@
     <div class="es-print-footer">Confidential — Prepared by Overalls · <span id="esPrintDate"></span></div>
 
   </div><!-- end #execView -->
+
+  <!-- KPI detail modal -->
+  <div class="kpi-modal-backdrop" id="kpiModalBackdrop" onclick="closeKpiModal(event)">
+    <div class="kpi-modal" id="kpiModal">
+      <div class="kpi-modal-head">
+        <div class="kpi-modal-head-left">
+          <div class="kpi-modal-title" id="kpiModalTitle"></div>
+          <div class="kpi-modal-value" id="kpiModalValue"></div>
+        </div>
+        <button class="kpi-modal-close" onclick="document.getElementById('kpiModalBackdrop').classList.remove('open')">✕</button>
+      </div>
+      <div class="kpi-modal-body">
+        <p class="kpi-modal-desc" id="kpiModalDesc"></p>
+        <ul class="kpi-modal-list" id="kpiModalList"></ul>
+        <button class="kpi-modal-scroll-btn" id="kpiModalScrollBtn" style="display:none"></button>
+      </div>
+    </div>
+  </div>
 
 </div>
 
@@ -2604,6 +2680,86 @@ function showView(name) {
   if (name === 'exec' && currentData) renderExecSummary(currentData);
 }
 
+function openKpiModal(type) {
+  const d = window._kpiModalData;
+  if (!d) return;
+  const cfg = {
+    categories: {
+      title: 'Benefits Categories Reviewed',
+      value: String(d.catNames.length),
+      accent: 'accent-default',
+      desc: 'Every benefit area reviewed spans the full spectrum of employee life — from clinical health to household logistics, caregiving, and financial wellbeing.',
+      items: d.catNames,
+      dotColor: 'var(--teal-dark)',
+      scrollLabel: null,
+    },
+    overlaps: {
+      title: 'Overlap Identified',
+      value: String(d.overlapNames.length),
+      accent: 'accent-amber',
+      desc: 'These are benefit areas where your current portfolio already provides some level of support. Overalls can amplify utilization and resolve the gaps that still exist within them.',
+      items: d.overlapNames,
+      dotColor: 'var(--amber)',
+      scrollLabel: '↓ See Coverage Matrix',
+      scrollTarget: 'esCoverageMatrix',
+    },
+    gaps: {
+      title: 'True Gaps Identified',
+      value: String(d.gapNames.length),
+      accent: 'accent-berry',
+      desc: 'These are areas where employees currently have zero support — no vendor, no benefit, no resource. Each one represents unresolved friction that lands in the workday.',
+      items: d.gapNames,
+      dotColor: '#d1537a',
+      scrollLabel: '↓ See Friction Mapping',
+      scrollTarget: 'esFrictionGrid',
+    },
+    leakage: {
+      title: 'Estimated Productivity Leakage',
+      value: `${d.lowerHrs}–${d.upperHrs} hrs`,
+      accent: 'accent-teal',
+      desc: `Based on the number of true gaps identified, employees lose an estimated ${d.lowerHrs}–${d.upperHrs} hours per year resolving life issues during work hours. At an average salary of $${Number(d.avgSalary).toLocaleString()}, that translates to roughly $${Math.round(d.costPerEmp).toLocaleString()} per employee — or $${Number(d.totalCost).toLocaleString()} across your ${Number(d.employees).toLocaleString()}-person workforce.`,
+      items: [
+        `${d.lowerHrs}–${d.upperHrs} hrs lost per employee per year`,
+        `~$${Math.round(d.costPerEmp).toLocaleString()} cost per employee`,
+        `~$${Number(d.totalCost).toLocaleString()} estimated total annual impact`,
+      ],
+      dotColor: 'var(--teal-dark)',
+      scrollLabel: '↓ See Financial Impact',
+      scrollTarget: 'esImpactGrid',
+    },
+  };
+  const c = cfg[type];
+  if (!c) return;
+
+  document.getElementById('kpiModalTitle').textContent = c.title;
+  const valEl = document.getElementById('kpiModalValue');
+  valEl.textContent = c.value;
+  valEl.className = 'kpi-modal-value ' + c.accent;
+  document.getElementById('kpiModalDesc').textContent = c.desc;
+  document.getElementById('kpiModalList').innerHTML = c.items.map(name =>
+    `<li><span class="li-dot" style="background:${c.dotColor}"></span>${escHtml(name)}</li>`
+  ).join('');
+  const scrollBtn = document.getElementById('kpiModalScrollBtn');
+  if (c.scrollLabel) {
+    scrollBtn.style.display = '';
+    scrollBtn.textContent = c.scrollLabel;
+    scrollBtn.onclick = () => {
+      closeKpiModal();
+      const el = document.getElementById(c.scrollTarget);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+  } else {
+    scrollBtn.style.display = 'none';
+  }
+  document.getElementById('kpiModalBackdrop').classList.add('open');
+}
+
+function closeKpiModal(e) {
+  if (!e || e.target === document.getElementById('kpiModalBackdrop')) {
+    document.getElementById('kpiModalBackdrop').classList.remove('open');
+  }
+}
+
 /* ═══════════════════════════════════════════
    EXECUTIVE SUMMARY RENDERER
 ═══════════════════════════════════════════ */
@@ -2691,27 +2847,39 @@ function renderExecSummary(data) {
   if (pt) pt.textContent = (data.company || 'Prospect') + ' — Benefits Gap Analysis';
 
   // ── S1: KPI tiles
+  // Build category names for modal lists
+  const overlapNames  = overlaps.map(({item}) => item.name);
+  const gapNames      = trueGaps.map(({item}) => item.name);
+  const catNames      = data.categories.map(c => c.name);
+
   document.getElementById('esKpiRow').innerHTML = `
-    <div class="es-kpi">
+    <div class="es-kpi" onclick="openKpiModal('categories')">
       <div class="es-kpi-label">Benefits Categories Reviewed</div>
       <div class="es-kpi-value">${data.categories.length}</div>
       <div class="es-kpi-sub">across all life domains</div>
+      <div class="es-kpi-hint">Click to see breakdown →</div>
     </div>
-    <div class="es-kpi accent-amber">
+    <div class="es-kpi accent-amber" onclick="openKpiModal('overlaps')">
       <div class="es-kpi-label">Overlap Identified</div>
       <div class="es-kpi-value">${overlaps.length}</div>
       <div class="es-kpi-sub">areas with existing support</div>
+      <div class="es-kpi-hint">Click to see breakdown →</div>
     </div>
-    <div class="es-kpi accent-berry">
+    <div class="es-kpi accent-berry" onclick="openKpiModal('gaps')">
       <div class="es-kpi-label">True Gaps Identified</div>
       <div class="es-kpi-value">${trueGaps.length}</div>
       <div class="es-kpi-sub">no current support</div>
+      <div class="es-kpi-hint">Click to see breakdown →</div>
     </div>
-    <div class="es-kpi accent-teal">
+    <div class="es-kpi accent-teal" onclick="openKpiModal('leakage')">
       <div class="es-kpi-label">Estimated Productivity Leakage</div>
       <div class="es-kpi-value">${lowerHrs}–${upperHrs}</div>
       <div class="es-kpi-sub">hrs / employee / year</div>
+      <div class="es-kpi-hint">Click to learn more →</div>
     </div>`;
+
+  // Store data for modal use
+  window._kpiModalData = { catNames, overlapNames, gapNames, lowerHrs, upperHrs, midHrs, employees, avgSalary, costPerEmp, totalCost };
 
   // ── S2: Coverage Matrix (one row per subcategory item)
   document.getElementById('esMatrixBody').innerHTML = allItems.map(({ item, catName }) => {
