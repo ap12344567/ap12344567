@@ -1767,6 +1767,58 @@ const VENDORS = [
   'LifeWorks','ComPsych','Optum EAP','Magellan EAP','Beacon EAP','AllOne Health',
   // Commuter
   'WageWorks','Commuter Check','Edenred','TransitChek','Luum','Parkway',
+  // ── From HR Tech Benefits Vendor Landscape spreadsheet ──────────────────
+  // Concierge / life admin
+  'Circles','Best Upon Request','LifeSpeak',
+  // Fertility & family building
+  'Maven Clinic','Carrot Fertility','Kindbody','Stork Club','WIN Fertility','WINFertility',
+  'Cleo','Ovia Health','Modern Fertility','Lilia','ARC Fertility',
+  'The Lactation Network','Cofertility',
+  // Caregiving / eldercare
+  'Wellthy','Cariloop','Torchlight','Homethrive','ianacare','Carallel','Honor Technology',
+  // Childcare
+  'KinderCare','TOOTRiS','Vivvi','WeeCare','Upwards',
+  // Mental health
+  'Lyra Health','Spring Health','BetterUp','Unmind','Brightside Health',
+  'SonderMind','Samata Health','Kyan Health','Resilience Lab',
+  'Big Health','Quartet Health','Headspace Health',
+  // Navigation / advocacy
+  'Quantum Health','Rightway','HealthJoy','Health Advocate','Alight Solutions',
+  'Sharecare','Personify Health','Castlight Health','Wellnecity','Healthee',
+  'Transcarent','Accolade',
+  // Benefits admin
+  'Businessolver','bswift','PlanSource','Nayya','Jellyvision','Liazon',
+  // Chronic conditions / MSK / weight
+  'Omada Health','Dario Health','Vida Health','Kaia Health','RecoveryOne',
+  'Vori Health','Hello Heart','Lark Health','Wondr Health',
+  // Virtual care / telehealth
+  'Teladoc Health','Amazon One Medical','PlushCare','Doctor On Demand',
+  'Hims & Hers Health','K Health','98point6',
+  // Financial wellness
+  'DailyPay','Brightside Financial','Chime Workplace','PayActiv','Branch',
+  'Origin Financial','Northstar','SoFi at Work','SmartDollar',
+  'iGrad','Guild Education','InStride','Tuition.io','Goodly','FutureFuel',
+  // Flexible benefits / LSA
+  'Forma','Benepass','Compt','Fringe','Joon','Espresa','Holisticly','Lively',
+  'Optum Financial','WEX Benefits','WEX',
+  // Wellness platforms
+  'Wellable','WellRight','Vitality','Gympass / Wellhub','Peloton Corporate Wellness',
+  // Recognition (generic — detected but rarely rule-specific)
+  'Bonusly','Workhuman','O.C. Tanner','Achievers','Motivosity','Nectar HR','Kudos','Awardco',
+  // Voluntary / insurance
+  'Bestow','Wagmo','Allstate Identity Protection','Colonial Life','ARAG Legal',
+  'Nationwide Pet Insurance','MetLife',
+  // HCM (generic)
+  'Workday','ADP','BambooHR','Rippling','Gusto','Paylocity','Paycom',
+  'UKG','Ceridian Dayforce','Justworks','Zenefits',
+  // Weight / GLP-1
+  'Calibrate','Found','Solera Health','Ro',
+  // Pharmacy
+  'RxSavings Solutions','Capsule Pharmacy','Amazon Pharmacy','Cost Plus Drugs','Rightway Rx',
+  // Commuter additions
+  'Scoop Technologies',
+  // Leave management (generic)
+  'Sparrow','Tilt','AbsenceSoft','Cocoon',
 ];
 
 const VENDOR_RE = new RegExp('\\b(' + VENDORS.map(v => v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|') + ')\\b', 'gi');
@@ -1910,12 +1962,127 @@ const VENDOR_AFFINITY = {
   'WageWorks':              ['Commuter Benefits & Transportation'],
   'Edenred':                ['Commuter Benefits & Transportation'],
   'Luum':                   ['Commuter Benefits & Transportation'],
+  'TransitChek':            ['Commuter Benefits & Transportation'],
+  'Scoop Technologies':     ['Commuter Benefits & Transportation'],
+  'Scoop':                  ['Commuter Benefits & Transportation'],
   // HSA / FSA
   'HealthEquity':           ['HSA & FSA'],
   'WEX':                    ['HSA & FSA','Commuter Benefits & Transportation'],
+  'WEX Benefits':           ['HSA & FSA','Commuter Benefits & Transportation'],
   'Optum Bank':             ['HSA & FSA'],
-  // Generic navigators (intentionally NOT listed here — they match any rule):
-  // HealthJoy, Accolade, Included Health, Transcarent, Garner Health, Nava Benefits
+  'Optum Financial':        ['HSA & FSA'],
+  'Lively':                 ['HSA & FSA'],
+  // ── Spreadsheet-sourced additions ────────────────────────────────────────
+  // Fertility & family building
+  'Maven Clinic':           ['Fertility & Family Planning','Childcare — Baby & Family Planning'],
+  'Carrot Fertility':       ['Fertility & Family Planning','Childcare — Baby & Family Planning'],
+  'Carrot':                 ['Fertility & Family Planning','Childcare — Baby & Family Planning'],
+  'Kindbody':               ['Fertility & Family Planning'],
+  'Stork Club':             ['Fertility & Family Planning'],
+  'WIN Fertility':          ['Fertility & Family Planning'],
+  'WINFertility':           ['Fertility & Family Planning'],
+  'Cleo':                   ['Fertility & Family Planning','Childcare — Baby & Family Planning'],
+  'Ovia Health':            ['Fertility & Family Planning','Childcare — Baby & Family Planning'],
+  'Modern Fertility':       ['Fertility & Family Planning'],
+  'Lilia':                  ['Fertility & Family Planning'],
+  'ARC Fertility':          ['Fertility & Family Planning'],
+  'The Lactation Network':  ['Fertility & Family Planning','Childcare — Baby & Family Planning'],
+  'Cofertility':            ['Fertility & Family Planning'],
+  // Caregiving / eldercare
+  'Wellthy':                ['Eldercare & Senior Care','Childcare — Baby & Family Planning'],
+  'Cariloop':               ['Eldercare & Senior Care','Childcare — Baby & Family Planning'],
+  'Torchlight':             ['Eldercare & Senior Care'],
+  'Homethrive':             ['Eldercare & Senior Care'],
+  'ianacare':               ['Eldercare & Senior Care'],
+  'Carallel':               ['Eldercare & Senior Care'],
+  'Honor Technology':       ['Eldercare & Senior Care'],
+  // Childcare
+  'TOOTRiS':                ['Childcare — Baby & Family Planning'],
+  'Vivvi':                  ['Childcare — Baby & Family Planning'],
+  'WeeCare':                ['Childcare — Baby & Family Planning'],
+  'Upwards':                ['Childcare — Baby & Family Planning'],
+  'KinderCare':             ['Childcare — Baby & Family Planning'],
+  // Mental health / EAP
+  'Lyra Health':            ['Mental Health','EAP'],
+  'Spring Health':          ['Mental Health','EAP'],
+  'BetterUp':               ['Mental Health','EAP'],
+  'Unmind':                 ['Mental Health','EAP'],
+  'Brightside Health':      ['Mental Health'],
+  'SonderMind':             ['Mental Health'],
+  'Samata Health':          ['Mental Health'],
+  'Resilience Lab':         ['Mental Health'],
+  'Big Health':             ['Mental Health'],
+  'Quartet Health':         ['Mental Health','EAP'],
+  'Headspace Health':       ['Mental Health','EAP'],
+  // Navigation / advocacy (these know healthcare broadly — don't over-pin)
+  'Quantum Health':         ['Healthcare Navigation','Medical Navigation'],
+  'Rightway':               ['Healthcare Navigation','Medical Navigation'],
+  'HealthJoy':              ['Healthcare Navigation','Medical Navigation'],
+  'Health Advocate':        ['Healthcare Navigation','Medical Navigation'],
+  'Alight Solutions':       ['Healthcare Navigation','Medical Navigation'],
+  'Sharecare':              ['Healthcare Navigation','Medical Navigation'],
+  'Wellnecity':             ['Healthcare Navigation','Medical Navigation'],
+  'Healthee':               ['Healthcare Navigation','Medical Navigation'],
+  // Chronic conditions / MSK
+  'Omada Health':           ['Self Care & Preventive Care','Musculoskeletal & Physical Therapy'],
+  'Dario Health':           ['Self Care & Preventive Care'],
+  'Vida Health':            ['Self Care & Preventive Care'],
+  'Kaia Health':            ['Musculoskeletal & Physical Therapy'],
+  'RecoveryOne':            ['Musculoskeletal & Physical Therapy'],
+  'Vori Health':            ['Musculoskeletal & Physical Therapy'],
+  'Hello Heart':            ['Self Care & Preventive Care'],
+  'Lark Health':            ['Self Care & Preventive Care'],
+  'Wondr Health':           ['Self Care & Preventive Care','Learn about Weight Loss'],
+  // Virtual care / telehealth
+  'Teladoc Health':         ['Medical & Prescription Plans'],
+  'Amazon One Medical':     ['Medical & Prescription Plans'],
+  '98point6':               ['Medical & Prescription Plans'],
+  'PlushCare':              ['Medical & Prescription Plans'],
+  'Doctor On Demand':       ['Medical & Prescription Plans'],
+  'Hims & Hers Health':     ['Medical & Prescription Plans','Self Care & Preventive Care'],
+  'K Health':               ['Medical & Prescription Plans'],
+  // Financial wellness
+  'DailyPay':               ['Financial Wellness & Student Loan Support'],
+  'Brightside Financial':   ['Financial Wellness & Student Loan Support'],
+  'Chime Workplace':        ['Financial Wellness & Student Loan Support'],
+  'PayActiv':               ['Financial Wellness & Student Loan Support'],
+  'Branch':                 ['Financial Wellness & Student Loan Support'],
+  'Origin Financial':       ['Financial Wellness & Student Loan Support'],
+  'Northstar':              ['Financial Wellness & Student Loan Support'],
+  'SoFi at Work':           ['Financial Wellness & Student Loan Support'],
+  'SmartDollar':            ['Financial Wellness & Student Loan Support'],
+  'iGrad':                  ['Financial Wellness & Student Loan Support'],
+  'Guild Education':        ['Financial Wellness & Student Loan Support'],
+  'InStride':               ['Financial Wellness & Student Loan Support'],
+  'Tuition.io':             ['Financial Wellness & Student Loan Support'],
+  'Goodly':                 ['Financial Wellness & Student Loan Support'],
+  'FutureFuel':             ['Financial Wellness & Student Loan Support'],
+  // Wellness platforms
+  'Wellable':               ['Wellness Programs','Self Care & Preventive Care'],
+  'WellRight':              ['Wellness Programs','Self Care & Preventive Care'],
+  'Vitality':               ['Wellness Programs','Self Care & Preventive Care'],
+  'Peloton Corporate Wellness': ['Wellness Programs'],
+  // Voluntary insurance / pet / legal
+  'Bestow':                 ['Life, Disability & Accident'],
+  'Wagmo':                  ['Pet Care'],
+  'Allstate Identity Protection': ['Identity Theft & Cybersecurity'],
+  'ARAG Legal':             ['Legal & Financial Services'],
+  'Nationwide Pet Insurance': ['Pet Care'],
+  // Weight / GLP-1
+  'Calibrate':              ['Self Care & Preventive Care','Learn about Weight Loss','Learn about GLP-1s for Weight Loss'],
+  'Found':                  ['Self Care & Preventive Care','Learn about Weight Loss','Learn about GLP-1s for Weight Loss'],
+  'Solera Health':          ['Self Care & Preventive Care'],
+  'Ro':                     ['Self Care & Preventive Care','Learn about Weight Loss','Learn about GLP-1s for Weight Loss'],
+  // Pharmacy
+  'RxSavings Solutions':    ['Medical & Prescription Plans','Check For Prescriptions (Rx) Savings'],
+  'Capsule Pharmacy':       ['Medical & Prescription Plans'],
+  'Amazon Pharmacy':        ['Medical & Prescription Plans'],
+  'Cost Plus Drugs':        ['Medical & Prescription Plans','Check For Prescriptions (Rx) Savings'],
+  'Rightway Rx':            ['Medical & Prescription Plans','Check For Prescriptions (Rx) Savings'],
+  // Leave management (don't pin — may not be in grid)
+  // Generic (intentionally NOT listed — match any rule):
+  // Overalls, Accolade, Included Health, Transcarent, Garner Health, Nava Benefits,
+  // Personify Health, Castlight Health, HCM platforms (Workday, ADP, Rippling etc.)
 };
 
 // Returns true if a vendor should be included for a given rule.
