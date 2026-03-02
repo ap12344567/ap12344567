@@ -1183,17 +1183,6 @@
       </div>
     </div>
 
-    <!-- S5: Strategic Recommendation -->
-    <div class="es-section es-section-alt es-page-break">
-      <div class="es-section-inner">
-        <div class="es-section-label">Strategic Recommendation</div>
-        <h2 class="es-section-title">Recommended Structure</h2>
-        <p class="es-section-sub" id="esRecoIntro"></p>
-        <div class="es-tiers" id="esTiers"></div>
-        <div class="es-narrative" id="esNarrative"></div>
-      </div>
-    </div>
-
     <!-- S6: Access vs Resolution -->
     <div class="es-section">
       <div class="es-section-inner">
@@ -2780,54 +2769,6 @@ function renderExecSummary(data) {
       <div class="es-impact-label">estimated annual impact for ${Number(employees).toLocaleString()} employees at ${fmtCurrency(avgSalary)} avg salary</div>
     </div>`;
 
-  // ── S5: Strategic Recommendation
-  const isOverlapHeavy = overlaps.length >= trueGaps.length;
-  document.getElementById('esRecoIntro').textContent = isOverlapHeavy
-    ? 'Your organization has built a strong foundation of clinical and specialty benefits. Overalls is best positioned as a complementary layer — amplifying utilization and resolving the life friction your current stack doesn\'t address.'
-    : 'Your organization has meaningful gaps across life operations and navigation benefits. Overalls is positioned as a foundational Life Ops layer — closing structural gaps while amplifying the clinical benefits you\'ve already invested in.';
-
-  document.getElementById('esTiers').innerHTML = `
-    <div class="es-tier">
-      <div class="es-tier-head">
-        <span class="es-tier-name">Option A — Core</span>
-        <span class="es-tier-tag">Recommended starting point</span>
-      </div>
-      <div class="es-tier-body">
-        <p class="es-tier-desc">Focused on life admin and navigation — the highest-friction, lowest-covered category for most employers.</p>
-        <ul class="es-tier-features">
-          <li>Medical navigation &amp; claims support</li>
-          <li>Home services &amp; household logistics</li>
-          <li>Financial wellness &amp; planning</li>
-          <li>Travel &amp; scheduling coordination</li>
-          <li>Dedicated concierge support</li>
-        </ul>
-      </div>
-    </div>
-    <div class="es-tier">
-      <div class="es-tier-head">
-        <span class="es-tier-name">Option B — Premium</span>
-        <span class="es-tier-tag">Full resolution platform</span>
-      </div>
-      <div class="es-tier-body">
-        <p class="es-tier-desc">Full resolution across medical, family, household, financial, and complex life events.</p>
-        <ul class="es-tier-features">
-          <li>Everything in Core, plus:</li>
-          <li>Fertility &amp; family planning support</li>
-          <li>Eldercare coordination</li>
-          <li>Pet, auto &amp; home services</li>
-          <li>Legal &amp; estate guidance</li>
-          <li>Priority concierge &amp; dedicated rep</li>
-        </ul>
-      </div>
-    </div>`;
-
-  document.getElementById('esNarrative').innerHTML = `
-    <strong>Your organization has built a strong foundation of clinical and specialty benefits.</strong>
-    However, meaningful gaps remain in everyday life operations — the administrative and logistical burdens that employees carry into work each day.
-    <br><br>
-    Overalls is designed to operate as a <strong>resolution layer</strong> across your existing ecosystem — amplifying what you already offer while closing the gaps where employees currently receive no support.
-    <br><br>
-    The opportunity is not replacing benefits. It's ensuring they are actually <strong>used</strong> — and resolving the life friction that erodes focus, productivity, and wellbeing.`;
 }
 
 /* ═══════════════════════════════════════════
