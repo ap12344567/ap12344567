@@ -583,6 +583,308 @@
     .ai-strip.show { display: flex; }
     .ai-strip-text { flex: 1; font-size: 13px; color: var(--text-muted); }
     .ai-strip-text strong { color: var(--teal-dark); }
+
+    /* ══════════════════════════════════════
+       VIEW TABS
+    ══════════════════════════════════════ */
+    .view-tabs {
+      display: flex; gap: 4px; margin-bottom: 24px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+    }
+    .view-tab {
+      font-family: var(--font-body); font-weight: 700; font-size: 13px;
+      padding: 10px 22px; border: none; background: none; cursor: pointer;
+      color: var(--text-muted); border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: color .15s, border-color .15s;
+      letter-spacing: .01em;
+    }
+    .view-tab:hover { color: var(--teal); }
+    .view-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+    /* ══════════════════════════════════════
+       EXECUTIVE SUMMARY — BASE
+    ══════════════════════════════════════ */
+    #execView {
+      font-family: var(--font-body);
+      color: var(--text-body);
+    }
+
+    .es-section {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+    }
+    .es-section-alt { background: var(--bg-mint); }
+    .es-section-inner { padding: 52px 60px; max-width: 960px; margin: 0 auto; }
+
+    .es-section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 10px;
+    }
+    .es-section-title {
+      font-family: var(--font-display); font-size: 30px; font-weight: 400;
+      color: var(--teal-dark); margin-bottom: 10px; line-height: 1.2;
+    }
+    .es-section-sub {
+      font-size: 14px; color: var(--text-muted); line-height: 1.7;
+      max-width: 640px; margin-bottom: 36px;
+    }
+
+    /* ── S1: Hero ── */
+    .es-hero {
+      background: linear-gradient(160deg, var(--teal-dark) 0%, #0d4a4c 60%, #0a3a3b 100%);
+      border-radius: var(--radius-lg);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-lg);
+    }
+    .es-hero-inner { padding: 64px 60px; max-width: 960px; margin: 0 auto; }
+    .es-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--teal-100); margin-bottom: 20px;
+    }
+    .es-headline {
+      font-family: var(--font-display); font-size: 42px; font-weight: 400;
+      color: #fff; line-height: 1.15; margin-bottom: 18px;
+    }
+    .es-subheadline {
+      font-size: 16px; color: rgba(255,255,255,.65); line-height: 1.7;
+      max-width: 580px; margin-bottom: 48px;
+    }
+
+    /* KPI tiles */
+    .es-kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+    .es-kpi {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+    }
+    .es-kpi-label {
+      font-size: 9px; font-weight: 700; letter-spacing: .15em;
+      text-transform: uppercase; color: rgba(255,255,255,.45);
+      margin-bottom: 10px; line-height: 1.4;
+    }
+    .es-kpi-value {
+      font-family: var(--font-display); font-size: 36px;
+      color: #fff; line-height: 1; margin-bottom: 6px;
+    }
+    .es-kpi-sub { font-size: 11px; color: rgba(255,255,255,.35); }
+    .es-kpi.accent-amber .es-kpi-value { color: var(--amber); }
+    .es-kpi.accent-teal  .es-kpi-value { color: var(--teal-100); }
+    .es-kpi.accent-berry .es-kpi-value { color: #F0809A; }
+
+    /* ── S2: Coverage Matrix ── */
+    .es-matrix-wrap { overflow-x: auto; }
+    .es-matrix {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .es-matrix thead tr {
+      border-bottom: 2px solid var(--border);
+    }
+    .es-matrix thead th {
+      text-align: left; padding: 10px 14px;
+      font-size: 9px; font-weight: 700; letter-spacing: .13em;
+      text-transform: uppercase; color: var(--text-light);
+    }
+    .es-matrix tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+    .es-matrix tbody tr:last-child { border-bottom: none; }
+    .es-matrix tbody tr:hover { background: var(--teal-50); }
+    .es-matrix td {
+      padding: 11px 14px; vertical-align: middle;
+    }
+    .es-matrix .td-name { font-weight: 600; color: var(--teal-dark); }
+    .es-matrix .td-benefit { color: var(--text-muted); font-size: 12px; }
+
+    /* Depth badge */
+    .depth-badge {
+      display: inline-block; padding: 2px 9px; border-radius: 20px;
+      font-size: 10px; font-weight: 700;
+    }
+    .depth-strong  { background: var(--green-bg);  color: var(--green); }
+    .depth-moderate{ background: var(--warn-bg);   color: #7A6000; }
+    .depth-low     { background: var(--blue-bg);   color: var(--teal); }
+    .depth-none    { background: var(--bg-mint);   color: var(--text-light); border: 1px solid var(--border); }
+
+    /* Friction badge */
+    .friction-badge {
+      display: inline-block; padding: 2px 9px; border-radius: 20px;
+      font-size: 10px; font-weight: 700;
+    }
+    .friction-low  { background: var(--green-bg); color: var(--green); }
+    .friction-med  { background: var(--warn-bg);  color: #7A6000; }
+    .friction-high { background: var(--red-bg);   color: var(--berry); }
+
+    /* Gap score badge */
+    .gs-covered { background: var(--green-bg); color: var(--green);  padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; display:inline-block; }
+    .gs-partial { background: var(--warn-bg);  color: #7A6000;       padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; display:inline-block; }
+    .gs-gap     { background: var(--red-bg);   color: var(--berry);  padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; display:inline-block; }
+
+    /* ── S3: Friction Mapping ── */
+    .es-friction-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+    }
+    .es-friction-col {
+      background: #fff; border-radius: var(--radius);
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .es-friction-head {
+      padding: 14px 18px; font-size: 10px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+    }
+    .es-friction-head.fc-clinical    { background: var(--green-bg); color: var(--green); }
+    .es-friction-head.fc-navigation  { background: var(--warn-bg);  color: #7A6000; }
+    .es-friction-head.fc-lifeops     { background: var(--red-bg);   color: var(--berry); }
+    .es-friction-body { padding: 8px 0; }
+    .es-friction-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 18px; font-size: 12px; color: var(--text-body);
+      border-bottom: 1px solid var(--border);
+    }
+    .es-friction-item:last-child { border-bottom: none; }
+    .es-friction-item .fi-name { flex: 1; }
+    .es-friction-item .fi-badge { flex-shrink: 0; margin-left: 8px; }
+
+    /* ── S4: Financial Impact ── */
+    .es-impact-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+      margin-bottom: 28px;
+    }
+    .es-impact-tile {
+      padding: 28px 24px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      background: #fff;
+    }
+    .es-impact-stat {
+      font-family: var(--font-display); font-size: 38px;
+      color: var(--teal-dark); line-height: 1; margin-bottom: 8px;
+    }
+    .es-impact-stat.accent-berry { color: var(--berry); }
+    .es-impact-stat.accent-amber { color: var(--amber); }
+    .es-impact-label { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .es-impact-cta {
+      font-size: 14px; color: var(--text-muted); line-height: 1.7;
+      border-left: 3px solid var(--teal); padding-left: 18px;
+      max-width: 620px;
+    }
+
+    /* ── S5: Recommendations ── */
+    .es-tiers { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 36px; }
+    .es-tier {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; background: #fff;
+    }
+    .es-tier-head {
+      padding: 16px 22px; background: var(--teal-dark);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .es-tier-name { font-family: var(--font-display); font-size: 17px; color: #fff; }
+    .es-tier-tag  { font-size: 10px; font-weight: 700; letter-spacing: .1em;
+                    text-transform: uppercase; color: var(--teal-100);
+                    background: rgba(255,255,255,.1); padding: 3px 9px; border-radius: 20px; }
+    .es-tier-body { padding: 18px 22px; }
+    .es-tier-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
+    .es-tier-features { list-style: none; }
+    .es-tier-features li {
+      font-size: 12px; color: var(--text-body); padding: 5px 0;
+      border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+    }
+    .es-tier-features li:last-child { border-bottom: none; }
+    .es-tier-features li::before { content: '✓'; color: var(--teal); font-weight: 700; flex-shrink: 0; }
+
+    .es-narrative {
+      background: var(--teal-50); border: 1px solid var(--teal-100);
+      border-radius: var(--radius); padding: 24px 28px;
+      font-size: 13px; color: var(--text-muted); line-height: 1.8;
+    }
+    .es-narrative strong { color: var(--teal-dark); }
+
+    /* ── S6: Access vs Resolution ── */
+    .es-avr-wrap {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+    }
+    .es-avr {
+      border-collapse: collapse; width: 100%;
+    }
+    .es-avr thead th {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; padding: 10px 16px; border-bottom: 2px solid var(--border);
+      color: var(--text-muted);
+    }
+    .es-avr thead .es-avr-right { color: var(--teal); }
+    .es-avr tbody tr { border-bottom: 1px solid var(--border); }
+    .es-avr tbody tr:last-child { border-bottom: none; }
+    .es-avr td { padding: 12px 16px; font-size: 14px; }
+    .es-avr .es-avr-vs { color: var(--border-dark); text-align: center; font-size: 18px; width: 32px; }
+    .es-avr .es-avr-right { font-weight: 700; color: var(--teal); }
+    .es-avr-caption {
+      font-size: 14px; color: var(--text-muted); line-height: 1.8;
+      border-left: 3px solid var(--teal-200); padding-left: 20px;
+    }
+    .es-footer-brand {
+      text-align: center; padding: 48px 0 8px;
+    }
+    .es-footer-wordmark {
+      font-family: var(--font-body); font-weight: 800; font-size: 28px;
+      color: var(--teal); letter-spacing: -.5px; margin-bottom: 4px;
+    }
+    .es-footer-tag { font-size: 12px; color: var(--text-light); letter-spacing: .1em; }
+
+    /* Print-only elements */
+    .es-print-header { display: none; }
+    .es-print-footer { display: none; }
+
+    /* ══════════════════════════════════════
+       PRINT STYLES
+    ══════════════════════════════════════ */
+    @media print {
+      /* Hide everything except the exec summary */
+      header, .setup-card, .ai-strip, .view-tabs,
+      .vh-fab, .vh-drawer, .vh-overlay,
+      #toast, .modal-backdrop,
+      #gapView { display: none !important; }
+
+      #execView { display: block !important; }
+      .page { padding: 0 !important; max-width: 100% !important; }
+      body { background: #fff !important; }
+
+      /* Print header on each page */
+      .es-print-header {
+        display: flex !important; align-items: center; justify-content: space-between;
+        padding: 14px 40px; border-bottom: 1px solid var(--border);
+        position: running(header);
+      }
+      .es-print-logo { font-weight: 800; font-size: 16px; color: var(--teal); }
+      .es-print-title { font-size: 12px; color: var(--text-muted); }
+      .es-print-footer {
+        display: block !important; text-align: center; font-size: 10px;
+        color: var(--text-light); padding: 20px 0; margin-top: 20px;
+        border-top: 1px solid var(--border);
+      }
+
+      /* Remove shadows and borders for clean print */
+      .es-section, .es-hero { box-shadow: none !important; border: 1px solid #ddd !important; }
+
+      .es-hero { background: var(--teal-dark) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .es-section-alt { background: var(--bg-mint) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .es-tier-head { background: var(--teal-dark) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      /* Page breaks */
+      .es-page-break { page-break-before: always; }
+      .es-section { page-break-inside: avoid; }
+      .es-kpi-row { page-break-inside: avoid; }
+
+      .es-section-inner { padding: 36px 40px !important; }
+      .es-hero-inner { padding: 40px !important; }
+      .es-headline { font-size: 32px !important; }
+      .es-kpi-value { font-size: 28px !important; }
+    }
   </style>
 </head>
 <body>
@@ -688,6 +990,10 @@
         <input type="number" id="empCount" placeholder="e.g. 10,000" />
       </div>
       <div class="field">
+        <label>Avg. Annual Salary ($)</label>
+        <input type="number" id="avgSalary" placeholder="e.g. 75000" value="75000" />
+      </div>
+      <div class="field">
         <label>Analysis Title</label>
         <input type="text" id="analysisTitle" placeholder="e.g. Q1 2025 Proposal" />
       </div>
@@ -708,6 +1014,15 @@
     <button class="btn btn-ai" onclick="openAiModal()">✨ Improve with Claude AI</button>
     <button class="btn btn-ghost" onclick="document.getElementById('aiStrip').classList.remove('show')">✕</button>
   </div>
+
+  <!-- View Tabs -->
+  <div class="view-tabs" id="viewTabs" style="display:none">
+    <button class="view-tab active" id="tabGap"  onclick="showView('gap')">📊 Gap Analysis</button>
+    <button class="view-tab"        id="tabExec" onclick="showView('exec')">📋 Executive Summary</button>
+  </div>
+
+  <!-- ═══ GAP ANALYSIS VIEW ═══ -->
+  <div id="gapView">
 
   <!-- Summary Panel -->
   <div class="summary-panel" id="summaryStrip" style="display:none">
@@ -803,6 +1118,113 @@
 
   <!-- Analysis Grid -->
   <div id="analysisGrid"></div>
+
+  </div><!-- end #gapView -->
+
+  <!-- ═══ EXECUTIVE SUMMARY VIEW ═══ -->
+  <div id="execView" style="display:none">
+
+    <!-- Print header (only visible when printing) -->
+    <div class="es-print-header">
+      <div class="es-print-logo">Overalls</div>
+      <div class="es-print-title" id="esPrintTitle">Benefits Gap Analysis</div>
+    </div>
+
+    <!-- S1: Hero -->
+    <div class="es-hero">
+      <div class="es-hero-inner">
+        <div class="es-eyebrow">Executive Summary</div>
+        <h1 class="es-headline">Your Benefits Solve Access.<br>We Solve Resolution.</h1>
+        <p class="es-subheadline">Here's where your current portfolio performs well — and where life friction still impacts productivity.</p>
+        <div class="es-kpi-row" id="esKpiRow"></div>
+      </div>
+    </div>
+
+    <!-- S2: Coverage Matrix -->
+    <div class="es-section">
+      <div class="es-section-inner">
+        <div class="es-section-label">Category Coverage Matrix</div>
+        <h2 class="es-section-title">Where You Stand Today</h2>
+        <p class="es-section-sub">A full inventory of your benefits portfolio mapped against employee needs.</p>
+        <div class="es-matrix-wrap">
+          <table class="es-matrix" id="esCoverageMatrix">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Existing Benefit</th>
+                <th>Depth of Coverage</th>
+                <th>Employee Friction</th>
+                <th>Gap Score</th>
+              </tr>
+            </thead>
+            <tbody id="esMatrixBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3: Friction Mapping -->
+    <div class="es-section es-section-alt es-page-break">
+      <div class="es-section-inner">
+        <div class="es-section-label">Friction Mapping</div>
+        <h2 class="es-section-title">Where Employees Still Struggle</h2>
+        <p class="es-section-sub">Most benefits portfolios are strong on access. The gap is in resolution — completing the task, not just pointing to a resource.</p>
+        <div class="es-friction-grid" id="esFrictionGrid"></div>
+      </div>
+    </div>
+
+    <!-- S4: Financial Impact -->
+    <div class="es-section">
+      <div class="es-section-inner">
+        <div class="es-section-label">Financial Impact</div>
+        <h2 class="es-section-title">The Cost of Unresolved Life Admin</h2>
+        <div class="es-impact-grid" id="esImpactGrid"></div>
+        <p class="es-impact-cta">Overalls resolves these requests end-to-end — not just providing access, but delivering <strong>completion</strong>.</p>
+      </div>
+    </div>
+
+    <!-- S5: Strategic Recommendation -->
+    <div class="es-section es-section-alt es-page-break">
+      <div class="es-section-inner">
+        <div class="es-section-label">Strategic Recommendation</div>
+        <h2 class="es-section-title">Recommended Structure</h2>
+        <p class="es-section-sub" id="esRecoIntro"></p>
+        <div class="es-tiers" id="esTiers"></div>
+        <div class="es-narrative" id="esNarrative"></div>
+      </div>
+    </div>
+
+    <!-- S6: Access vs Resolution -->
+    <div class="es-section">
+      <div class="es-section-inner">
+        <div class="es-section-label">The Overalls Difference</div>
+        <h2 class="es-section-title">Access vs. Resolution</h2>
+        <p class="es-section-sub">Benefits give employees a starting point. Overalls delivers the outcome.</p>
+        <div class="es-avr-wrap">
+          <table class="es-avr">
+            <thead>
+              <tr><th>Traditional Benefits</th><th class="es-avr-vs">→</th><th class="es-avr-right">Overalls</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Directory</td><td class="es-avr-vs">→</td><td class="es-avr-right">Booked</td></tr>
+              <tr><td>Referral</td><td class="es-avr-vs">→</td><td class="es-avr-right">Coordinated</td></tr>
+              <tr><td>Resource list</td><td class="es-avr-vs">→</td><td class="es-avr-right">Completed</td></tr>
+              <tr><td>Advice</td><td class="es-avr-vs">→</td><td class="es-avr-right">Done</td></tr>
+              <tr><td>Access</td><td class="es-avr-vs">→</td><td class="es-avr-right">Resolution</td></tr>
+            </tbody>
+          </table>
+          <div class="es-avr-caption">The opportunity is not replacing benefits. It's ensuring they are actually <em>used</em> — and resolving the life friction that erodes focus, productivity, and wellbeing.</div>
+        </div>
+        <div class="es-footer-brand">
+          <div class="es-footer-wordmark">Overalls</div>
+          <div class="es-footer-tag">Life. Simplified.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="es-print-footer">Confidential — Prepared by Overalls · <span id="esPrintDate"></span></div>
+
+  </div><!-- end #execView -->
 
 </div>
 
@@ -1730,6 +2152,7 @@ function render(data) {
   currentData = data;
   vhAutoSave(data);
   ['summaryStrip','legendBar','controlBar'].forEach(id => { document.getElementById(id).style.display = ''; });
+  document.getElementById('viewTabs').style.display = '';
   document.getElementById('companyName').value   = data.company   || '';
   document.getElementById('industry').value      = data.industry  || '';
   document.getElementById('empCount').value      = data.empCount  || '';
@@ -1743,6 +2166,9 @@ function render(data) {
 
   renderGrid(data);
   renderSummary(data);
+  if (document.getElementById('execView').style.display !== 'none') {
+    renderExecSummary(data);
+  }
 }
 
 function renderGrid(data) {
@@ -2176,6 +2602,232 @@ function renderSummary(data) {
         </div>
       </div>`;
   }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   VIEW TOGGLE
+═══════════════════════════════════════════ */
+function showView(name) {
+  document.getElementById('gapView').style.display  = name === 'gap'  ? '' : 'none';
+  document.getElementById('execView').style.display = name === 'exec' ? '' : 'none';
+  document.getElementById('tabGap').classList.toggle('active',  name === 'gap');
+  document.getElementById('tabExec').classList.toggle('active', name === 'exec');
+  if (name === 'exec' && currentData) renderExecSummary(currentData);
+}
+
+/* ═══════════════════════════════════════════
+   EXECUTIVE SUMMARY RENDERER
+═══════════════════════════════════════════ */
+
+// Bucket definitions for friction mapping
+const FRICTION_BUCKETS = {
+  clinical: {
+    label: 'Clinical / Covered Well',
+    css: 'fc-clinical',
+    desc: 'Core medical and mental health benefits',
+    keys: ['Medical & Prescription Plans','Dental & Vision','Retirement & 401k',
+           'Life, Disability & Accident','Wellness Programs','EAP','Mental Health',
+           'Self Care & Preventive Care'],
+    examples: ['Therapy sessions','Medical plan','EAP counseling',
+               'Preventive care','Dental & vision','Disability coverage'],
+  },
+  navigation: {
+    label: 'Navigation / Partially Covered',
+    css: 'fc-navigation',
+    desc: 'Finding and using the right resources',
+    keys: ['Healthcare Navigation','Medical Navigation','Financial Wellness',
+           'Childcare — Baby & Family Planning','Childcare — Child & Teen Care',
+           'Adult & Eldercare'],
+    examples: ['Finding in-network providers','Billing disputes','Claims confusion',
+               'Fertility navigation','Eldercare coordination','Financial planning'],
+  },
+  lifeops: {
+    label: 'Life Ops / Largely Uncovered',
+    css: 'fc-lifeops',
+    desc: 'Daily life logistics that erode productivity',
+    keys: ['Home Services','Home Life','Car & Auto','Pet Care','Travel',
+           'Common Family & Parenting Support'],
+    examples: ['Home repairs & contractors','Eldercare logistics',
+               'Travel during emergencies','Estate paperwork',
+               'School enrollment','Scheduling overload'],
+  },
+};
+
+function depthFromSupport(s) {
+  if (s === 'Best-in-Class') return { label: 'Strong',    css: 'depth-strong' };
+  if (s === 'Partial')       return { label: 'Moderate',  css: 'depth-moderate' };
+  if (s === 'Basic')         return { label: 'Moderate',  css: 'depth-moderate' };
+  if (s === 'Minimal')       return { label: 'Low',       css: 'depth-low' };
+  return                            { label: 'None',      css: 'depth-none' };
+}
+function frictionFromSupport(s) {
+  if (s === 'Best-in-Class') return { label: 'Low',  css: 'friction-low' };
+  if (s === 'Partial')       return { label: 'Medium', css: 'friction-med' };
+  if (s === 'Basic')         return { label: 'Medium', css: 'friction-med' };
+  return                            { label: 'High', css: 'friction-high' };
+}
+function gapScoreFromType(g) {
+  if (g === 'covered')     return { label: '● Covered', css: 'gs-covered' };
+  if (g === 'opportunity') return { label: '● Partial',  css: 'gs-partial' };
+  if (g === 'na')          return { label: 'N/A',        css: 'gs-partial' };
+  return                          { label: '● Gap',      css: 'gs-gap' };
+}
+
+function renderExecSummary(data) {
+  // ── Collect flat item list
+  const allItems = [];
+  data.categories.forEach(cat => {
+    cat.items.forEach(item => {
+      allItems.push({ item, catName: cat.name });
+    });
+  });
+  const withO      = allItems.filter(x => x.item.overalls !== 'N/A');
+  const trueGaps   = allItems.filter(x => gapType(x.item) === 'critical');
+  const overlaps   = allItems.filter(x => x.item.support && x.item.support !== 'No Support');
+  const employees  = parseInt(data.empCount) || 1000;
+  const avgSalary  = parseInt(document.getElementById('avgSalary')?.value) || 75000;
+
+  // Productivity leakage hours (scales with gap severity)
+  const gapRatio   = trueGaps.length / Math.max(allItems.length, 1);
+  const lowerHrs   = gapRatio > 0.5 ? 12 : gapRatio > 0.25 ? 10 : 8;
+  const upperHrs   = gapRatio > 0.5 ? 18 : gapRatio > 0.25 ? 14 : 12;
+  const midHrs     = (lowerHrs + upperHrs) / 2;
+  const costPerEmp = midHrs * (avgSalary / 2000);  // hourly rate × hours
+  const totalCost  = Math.round(costPerEmp * employees / 1000) * 1000;
+
+  // ── Update print header date
+  const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const el = document.getElementById('esPrintDate'); if (el) el.textContent = today;
+  const pt = document.getElementById('esPrintTitle');
+  if (pt) pt.textContent = (data.company || 'Prospect') + ' — Benefits Gap Analysis';
+
+  // ── S1: KPI tiles
+  document.getElementById('esKpiRow').innerHTML = `
+    <div class="es-kpi">
+      <div class="es-kpi-label">Benefits Categories Reviewed</div>
+      <div class="es-kpi-value">${data.categories.length}</div>
+      <div class="es-kpi-sub">across all life domains</div>
+    </div>
+    <div class="es-kpi accent-amber">
+      <div class="es-kpi-label">Overlap Identified</div>
+      <div class="es-kpi-value">${overlaps.length}</div>
+      <div class="es-kpi-sub">areas with existing support</div>
+    </div>
+    <div class="es-kpi accent-berry">
+      <div class="es-kpi-label">True Gaps Identified</div>
+      <div class="es-kpi-value">${trueGaps.length}</div>
+      <div class="es-kpi-sub">no current support</div>
+    </div>
+    <div class="es-kpi accent-teal">
+      <div class="es-kpi-label">Estimated Productivity Leakage</div>
+      <div class="es-kpi-value">${lowerHrs}–${upperHrs}</div>
+      <div class="es-kpi-sub">hrs / employee / year</div>
+    </div>`;
+
+  // ── S2: Coverage Matrix (one row per subcategory item)
+  document.getElementById('esMatrixBody').innerHTML = allItems.map(({ item, catName }) => {
+    const depth   = depthFromSupport(item.support);
+    const friction= frictionFromSupport(item.support);
+    const gs      = gapScoreFromType(gapType(item));
+    return `<tr>
+      <td class="td-name">${escHtml(item.name)}<div style="font-size:10px;color:var(--text-light);font-weight:400">${escHtml(catName)}</div></td>
+      <td class="td-benefit">${escHtml(item.solutions || 'None')}</td>
+      <td><span class="depth-badge ${depth.css}">${depth.label}</span></td>
+      <td><span class="friction-badge ${friction.css}">${friction.label}</span></td>
+      <td><span class="${gs.css}">${gs.label}</span></td>
+    </tr>`;
+  }).join('');
+
+  // ── S3: Friction Mapping
+  // Build lookup of item name → gap type
+  const itemGapMap = {};
+  allItems.forEach(({ item }) => { itemGapMap[item.name] = gapType(item); });
+
+  document.getElementById('esFrictionGrid').innerHTML = Object.entries(FRICTION_BUCKETS).map(([key, bucket]) => {
+    // Find items from this analysis that belong to this bucket
+    const matchedItems = allItems.filter(({ item }) => bucket.keys.includes(item.name));
+
+    // Combine: show matched items first, then static examples for any not covered
+    const rows = matchedItems.length > 0
+      ? matchedItems.map(({ item }) => {
+          const gs = gapScoreFromType(gapType(item));
+          return `<div class="es-friction-item">
+            <span class="fi-name">${escHtml(item.name)}</span>
+            <span class="fi-badge"><span class="${gs.css}" style="font-size:9px">${gs.label}</span></span>
+          </div>`;
+        }).join('')
+      : bucket.examples.map(ex => `<div class="es-friction-item"><span class="fi-name">${escHtml(ex)}</span></div>`).join('');
+
+    return `<div class="es-friction-col">
+      <div class="es-friction-head ${bucket.css}">${bucket.label}</div>
+      <div class="es-friction-body">${rows}</div>
+    </div>`;
+  }).join('');
+
+  // ── S4: Financial Impact
+  const fmtCurrency = n => '$' + n.toLocaleString();
+  document.getElementById('esImpactGrid').innerHTML = `
+    <div class="es-impact-tile">
+      <div class="es-impact-stat accent-berry">62%</div>
+      <div class="es-impact-label">of employees report unresolved life tasks during work hours</div>
+    </div>
+    <div class="es-impact-tile">
+      <div class="es-impact-stat accent-amber">${lowerHrs}–${upperHrs}</div>
+      <div class="es-impact-label">estimated productivity hours lost per employee, per year</div>
+    </div>
+    <div class="es-impact-tile">
+      <div class="es-impact-stat">${employees >= 1000 ? fmtCurrency(totalCost) : fmtCurrency(Math.round(totalCost/1000)*1000)}</div>
+      <div class="es-impact-label">estimated annual impact for ${Number(employees).toLocaleString()} employees at ${fmtCurrency(avgSalary)} avg salary</div>
+    </div>`;
+
+  // ── S5: Strategic Recommendation
+  const isOverlapHeavy = overlaps.length >= trueGaps.length;
+  document.getElementById('esRecoIntro').textContent = isOverlapHeavy
+    ? 'Your organization has built a strong foundation of clinical and specialty benefits. Overalls is best positioned as a complementary layer — amplifying utilization and resolving the life friction your current stack doesn\'t address.'
+    : 'Your organization has meaningful gaps across life operations and navigation benefits. Overalls is positioned as a foundational Life Ops layer — closing structural gaps while amplifying the clinical benefits you\'ve already invested in.';
+
+  document.getElementById('esTiers').innerHTML = `
+    <div class="es-tier">
+      <div class="es-tier-head">
+        <span class="es-tier-name">Option A — Core</span>
+        <span class="es-tier-tag">Recommended starting point</span>
+      </div>
+      <div class="es-tier-body">
+        <p class="es-tier-desc">Focused on life admin and navigation — the highest-friction, lowest-covered category for most employers.</p>
+        <ul class="es-tier-features">
+          <li>Medical navigation &amp; claims support</li>
+          <li>Home services &amp; household logistics</li>
+          <li>Financial wellness &amp; planning</li>
+          <li>Travel &amp; scheduling coordination</li>
+          <li>Dedicated concierge support</li>
+        </ul>
+      </div>
+    </div>
+    <div class="es-tier">
+      <div class="es-tier-head">
+        <span class="es-tier-name">Option B — Premium</span>
+        <span class="es-tier-tag">Full resolution platform</span>
+      </div>
+      <div class="es-tier-body">
+        <p class="es-tier-desc">Full resolution across medical, family, household, financial, and complex life events.</p>
+        <ul class="es-tier-features">
+          <li>Everything in Core, plus:</li>
+          <li>Fertility &amp; family planning support</li>
+          <li>Eldercare coordination</li>
+          <li>Pet, auto &amp; home services</li>
+          <li>Legal &amp; estate guidance</li>
+          <li>Priority concierge &amp; dedicated rep</li>
+        </ul>
+      </div>
+    </div>`;
+
+  document.getElementById('esNarrative').innerHTML = `
+    <strong>Your organization has built a strong foundation of clinical and specialty benefits.</strong>
+    However, meaningful gaps remain in everyday life operations — the administrative and logistical burdens that employees carry into work each day.
+    <br><br>
+    Overalls is designed to operate as a <strong>resolution layer</strong> across your existing ecosystem — amplifying what you already offer while closing the gaps where employees currently receive no support.
+    <br><br>
+    The opportunity is not replacing benefits. It's ensuring they are actually <strong>used</strong> — and resolving the life friction that erodes focus, productivity, and wellbeing.`;
 }
 
 /* ═══════════════════════════════════════════
