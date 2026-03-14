@@ -588,6 +588,28 @@
     .conf-medium { background: var(--warn-bg);   color: #7A6000; }
     .conf-low    { background: var(--red-bg);    color: var(--berry); }
     .conf-auto   { background: var(--bg-mint);   color: var(--text-light); border: 1px solid var(--border); }
+    .conf-review { background: #FFF3E0; color: #E65100; border: 1px solid #FFCC80; }
+    .conf-ai     { background: #EDE7F6; color: #4527A0; }
+
+    /* ── AI REVIEW RESULTS MODAL ── */
+    .ai-review-modal .modal { max-width: 560px; max-height: 80vh; display: flex; flex-direction: column; }
+    .ai-review-modal .modal-body { overflow-y: auto; flex: 1; padding: 0 28px 20px; }
+    .ai-review-section { margin-bottom: 20px; }
+    .ai-review-section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-light); margin-bottom: 10px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ai-review-row {
+      display: flex; align-items: flex-start; gap: 10px; padding: 8px 0;
+      border-bottom: 1px solid var(--bg-mint); font-size: 13px;
+    }
+    .ai-review-row:last-child { border-bottom: none; }
+    .ai-review-name { flex: 1; font-weight: 600; color: var(--text-dark); }
+    .ai-review-change { font-size: 12px; color: var(--text-muted); flex: 2; }
+    .ai-review-change s { color: var(--berry); }
+    .ai-review-change strong { color: var(--teal-dark); }
+    .ai-review-flag { font-size: 11px; color: #E65100; font-weight: 600; }
 
     /* ── PPTX / SAVE-LOAD MODAL ── */
     .export-modal .modal { max-width: 420px; }
@@ -1013,16 +1035,28 @@
 <!-- ── AI KEY MODAL ── -->
 <div class="modal-backdrop" id="aiModal">
   <div class="modal">
-    <div class="overline">Improve with AI</div>
-    <h3>Claude API Key</h3>
-    <p>Enter your Anthropic API key to use Claude to intelligently re-parse the uploaded benefits document. Your key is used only for this request and never stored.</p>
+    <div class="overline">AI Review Pass</div>
+    <h3>Review with Claude</h3>
+    <p>Claude will review what the parser auto-filled, correct any mistakes, fill gaps it can confirm from the document, and flag rows it's uncertain about for your review.</p>
     <div class="field">
       <label>Anthropic API Key</label>
       <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeAiModal()">Cancel</button>
-      <button class="btn btn-ai" onclick="runClaudeEnrich()">✨ Analyze with Claude</button>
+      <button class="btn btn-ai" onclick="runClaudeEnrich()">✨ Run AI Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── AI REVIEW RESULTS MODAL ── -->
+<div class="modal-backdrop ai-review-modal" id="aiReviewModal">
+  <div class="modal">
+    <div class="overline">AI Review Complete</div>
+    <h3 id="aiReviewHeadline"></h3>
+    <div class="modal-body" id="aiReviewBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('aiReviewModal').classList.remove('open')">Close</button>
     </div>
   </div>
 </div>
@@ -2561,25 +2595,40 @@ async function runClaudeEnrich() {
   if (!lastUploadedText) { showToast('⚠ No uploaded document to analyze.', 4000); return; }
 
   closeAiModal();
-  showToast('✨ Analyzing with Claude…', 0);
+  showToast('✨ Claude is reviewing the analysis…', 0);
 
-  const prompt = `You are a benefits analyst. I will give you a company benefits document and a JSON template. Fill in the template based on the document.
+  // Build a slim version of current data for the prompt (support + solutions only)
+  const slim = {};
+  currentData.categories.forEach(cat => {
+    cat.items.forEach(item => {
+      slim[item.name] = { support: item.support || 'No Support', solutions: item.solutions || '' };
+    });
+  });
 
-For each item in the template, set:
-- "support": one of "No Support", "Minimal", "Basic", "Partial", "Best-in-Class"
-- "solutions": vendor/product name(s) found in the document for this benefit (empty string if none)
-- "util": utilization score 0-5 (estimate based on how prominently/broadly the benefit is offered)
-- "exp": employee experience score 0-5 (estimate based on quality of offering described)
+  const prompt = `You are a senior benefits analyst reviewing an automated parsing job.
 
-Only fill items where you find evidence in the document. Leave others as "No Support".
+The regex parser has already analysed the document and produced the results in PARSER_OUTPUT below.
+Your job is to:
+1. Review each row for accuracy against the DOCUMENT.
+2. Correct any wrong support levels or vendors.
+3. Fill in rows the parser left empty where evidence exists.
+4. For each item you return, add "_confidence": "high" | "medium" | "low" to indicate how certain you are based on the document evidence.
 
-Return ONLY valid JSON — the same structure as the template, with fields updated.
+Support levels (use exactly these strings):
+  "No Support" | "Minimal" | "Basic" | "Partial" | "Best-in-Class"
 
-TEMPLATE:
-${JSON.stringify(currentData, null, 2)}
+Rules:
+- Only set vendors that are explicitly named in the document for that benefit.
+- Do not infer vendors from unrelated sections.
+- If a row has no evidence, set support "No Support" and solutions "".
+- Return ONLY a JSON object mapping item name → { support, solutions, _confidence }.
+  Example: { "Mental Health": { "support": "Partial", "solutions": "Lyra Health", "_confidence": "high" } }
 
-DOCUMENT:
-${lastUploadedText.slice(0, 12000)}`;
+PARSER_OUTPUT:
+${JSON.stringify(slim, null, 2)}
+
+DOCUMENT (first 14000 chars):
+${lastUploadedText.slice(0, 14000)}`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -2591,7 +2640,7 @@ ${lastUploadedText.slice(0, 12000)}`;
         'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'claude-sonnet-4-6',
         max_tokens: 8192,
         messages: [{ role: 'user', content: prompt }]
       })
@@ -2602,24 +2651,111 @@ ${lastUploadedText.slice(0, 12000)}`;
       throw new Error(err.error?.message || `API error ${res.status}`);
     }
 
-    const json   = await res.json();
+    const json    = await res.json();
     const content = json.content?.[0]?.text || '';
 
-    // Extract JSON from response (Claude may wrap in markdown)
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('Claude returned unexpected format.');
 
-    const enriched = JSON.parse(jsonMatch[0]);
-    // Preserve company/industry/empCount from current data if Claude didn't set them
+    const claudeMap = JSON.parse(jsonMatch[0]);
+
+    // Apply Claude's corrections and track changes
+    const corrected = [], flagged = [], filled = [];
+
+    const enriched = JSON.parse(JSON.stringify(currentData));
+    enriched.categories.forEach(cat => {
+      cat.items.forEach(item => {
+        const c = claudeMap[item.name];
+        if (!c) return;
+        const prevSupport   = item.support   || 'No Support';
+        const prevSolutions = item.solutions || '';
+
+        item.support   = c.support   || item.support;
+        item.solutions = c.solutions !== undefined ? c.solutions : item.solutions;
+        item._claudeFilled = true;
+        item._autoFilled   = true;
+
+        if (c._confidence === 'low') {
+          item._claudeReview = true;
+          flagged.push({ name: item.name, reason: 'Claude is uncertain — verify manually' });
+        } else {
+          item._claudeReview = false;
+        }
+
+        // Track changes
+        const supportChanged   = prevSupport   !== item.support;
+        const solutionsChanged = prevSolutions !== item.solutions;
+
+        if (prevSupport === 'No Support' && item.support !== 'No Support') {
+          filled.push({ name: item.name, support: item.support, solutions: item.solutions });
+        } else if (supportChanged || solutionsChanged) {
+          corrected.push({
+            name: item.name,
+            prevSupport, prevSolutions,
+            newSupport: item.support, newSolutions: item.solutions,
+          });
+        }
+      });
+    });
+
     if (!enriched.company)  enriched.company  = currentData.company;
     if (!enriched.industry) enriched.industry = currentData.industry;
     if (!enriched.empCount) enriched.empCount = currentData.empCount;
 
     render(enriched);
-    const filled = countFilled(enriched);
-    showToast(`✨ Claude filled ${filled} benefit areas from the document.`);
+    showToast('');
+
+    // Show review summary modal
+    const totalChanged = corrected.length + filled.length;
+    document.getElementById('aiReviewHeadline').textContent =
+      `${totalChanged} rows updated · ${flagged.length} flagged for review`;
+
+    let bodyHtml = '';
+
+    if (filled.length) {
+      bodyHtml += `<div class="ai-review-section">
+        <div class="ai-review-section-title">Newly filled (${filled.length})</div>
+        ${filled.map(r => `
+          <div class="ai-review-row">
+            <div class="ai-review-name">${escHtml(r.name)}</div>
+            <div class="ai-review-change"><strong>${escHtml(r.support)}</strong>${r.solutions ? ' · ' + escHtml(r.solutions) : ''}</div>
+          </div>`).join('')}
+      </div>`;
+    }
+
+    if (corrected.length) {
+      bodyHtml += `<div class="ai-review-section">
+        <div class="ai-review-section-title">Corrected by Claude (${corrected.length})</div>
+        ${corrected.map(r => `
+          <div class="ai-review-row">
+            <div class="ai-review-name">${escHtml(r.name)}</div>
+            <div class="ai-review-change">
+              <s>${escHtml(r.prevSupport)}${r.prevSolutions ? ' · ' + escHtml(r.prevSolutions) : ''}</s>
+              → <strong>${escHtml(r.newSupport)}${r.newSolutions ? ' · ' + escHtml(r.newSolutions) : ''}</strong>
+            </div>
+          </div>`).join('')}
+      </div>`;
+    }
+
+    if (flagged.length) {
+      bodyHtml += `<div class="ai-review-section">
+        <div class="ai-review-section-title">Flagged for manual review (${flagged.length})</div>
+        ${flagged.map(r => `
+          <div class="ai-review-row">
+            <div class="ai-review-name">${escHtml(r.name)}</div>
+            <div class="ai-review-flag">⚠ ${escHtml(r.reason)}</div>
+          </div>`).join('')}
+      </div>`;
+    }
+
+    if (!bodyHtml) bodyHtml = '<p style="color:var(--text-muted);font-size:13px">No changes — the parser output looks accurate.</p>';
+
+    document.getElementById('aiReviewBody').innerHTML = bodyHtml;
+    document.getElementById('aiReviewModal').classList.add('open');
+
     document.getElementById('aiStripText').innerHTML =
-      `<strong>AI-enhanced analysis.</strong> Claude found <strong>${filled}</strong> benefit areas. Click any cell to edit.`;
+      `<strong>AI review complete.</strong> ${totalChanged} rows updated, ${flagged.length} flagged. Rows marked <span class="conf-badge conf-review" style="display:inline-flex">Review</span> need manual verification.`;
+
   } catch (err) {
     showToast(`⚠ Claude error: ${err.message}`, 8000);
   }
@@ -2996,7 +3132,9 @@ function itemAtPath(path) {
    HTML HELPERS
 ═══════════════════════════════════════════ */
 function confBadgeHTML(item) {
-  if (!item._autoFilled) return '<span class="conf-badge conf-auto">Manual</span>';
+  if (item._claudeReview)  return '<span class="conf-badge conf-review" title="Claude flagged this row as uncertain — please verify">Review</span>';
+  if (item._claudeFilled)  return '<span class="conf-badge conf-ai" title="Filled or corrected by Claude AI">AI</span>';
+  if (!item._autoFilled)   return '<span class="conf-badge conf-auto">Manual</span>';
   if (item._confLabel === 'high')   return '<span class="conf-badge conf-high" title="Parser confidence: High">High</span>';
   if (item._confLabel === 'medium') return '<span class="conf-badge conf-medium" title="Parser confidence: Medium">Med</span>';
   return '<span class="conf-badge conf-low" title="Parser confidence: Low — review this row">Low</span>';
