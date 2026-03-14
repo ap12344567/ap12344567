@@ -2999,6 +2999,23 @@ function render(data) {
     chips.innerHTML += `<div class="chip" data-cat="${c.name}" onclick="setCatFilter('${encodeURIComponent(c.name)}',this)">${c.name}</div>`;
   });
 
+  // ── Smart collapse defaults on every fresh load ──
+  // 1. Collapse all task sub-rows (one row per benefit area, drill in on demand)
+  // 2. Collapse categories where nothing is a gap (surfacing only what needs attention)
+  collapsedSubs.clear();
+  collapsedCats.clear();
+  data.categories.forEach((cat, ci) => {
+    cat.items.forEach((item, ii) => {
+      if (item.tasks && item.tasks.length) collapsedSubs.add(`sub_${ci}_${ii}`);
+    });
+    const catHasGap = cat.items.some(item => {
+      const g = gapType(item);
+      if (g === 'critical' || g === 'opportunity') return true;
+      return (item.tasks || []).some(t => { const tg = gapType(t); return tg === 'critical' || tg === 'opportunity'; });
+    });
+    if (!catHasGap) collapsedCats.add(cat.name);
+  });
+
   renderGrid(data);
   renderSummary(data);
   if (document.getElementById('execView').style.display !== 'none') {
