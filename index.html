@@ -1092,6 +1092,27 @@
     .roi-subtotal { background: var(--teal-50); border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; margin-top: 10px; }
     .roi-subtotal-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
     .roi-subtotal-val { font-size: 12px; font-weight: 800; color: var(--teal); }
+
+    /* Formula Ledger */
+    .roi-ledger { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
+    .roi-ledger-hdr { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px; cursor: pointer; user-select: none; }
+    .roi-ledger-hdr:hover { background: var(--teal-50); }
+    .roi-ledger-hdr h3 { font-family: var(--font-display); font-size: 16px; color: var(--teal-dark); }
+    .roi-ledger-body { border-top: 1px solid var(--border); overflow-x: auto; }
+    .roi-ledger-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .roi-ledger-table thead th { padding: 9px 16px; background: var(--bg-mint); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .roi-ledger-table thead th:last-child { text-align: right; }
+    .roi-ledger-table tbody tr { border-bottom: 1px solid #F2F7F7; transition: background .1s; }
+    .roi-ledger-table tbody tr:last-child { border-bottom: none; }
+    .roi-ledger-table tbody tr:hover { background: var(--teal-50); }
+    .roi-ledger-table td { padding: 8px 16px; vertical-align: middle; }
+    .roi-ledger-table td:last-child { text-align: right; font-weight: 700; color: var(--teal-dark); white-space: nowrap; }
+    .roi-ledger-group td { background: var(--bg-mint); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); padding: 6px 16px; border-bottom: 1px solid var(--border); }
+    .roi-ledger-var { font-family: monospace; font-size: 11px; font-weight: 700; background: var(--teal-50); color: var(--teal); border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
+    .roi-ledger-var.final { background: #E8F5EE; color: #04494A; }
+    .roi-ledger-var.output { background: #EAF5F5; color: var(--teal-mid); }
+    .roi-ledger-formula { font-family: monospace; font-size: 11px; color: var(--text-muted); background: var(--bg-mint); border-radius: 4px; padding: 2px 7px; }
+    .roi-ledger-desc { color: var(--text-body); font-size: 12px; max-width: 240px; }
   </style>
 </head>
 <body>
@@ -1724,6 +1745,79 @@
           </div>
           <div class="roi-subtotal"><span class="roi-subtotal-label">Clinical Subtotal</span><span class="roi-subtotal-val" id="roiSubClinical">—</span></div>
         </div>
+      </div>
+    </div>
+
+    <!-- Formula Ledger (collapsible) -->
+    <div class="roi-ledger">
+      <div class="roi-ledger-hdr" onclick="toggleROILedger(this)">
+        <h3>📐 Formula Ledger</h3>
+        <span id="roiLedgerChevron">▼</span>
+      </div>
+      <div class="roi-ledger-body" id="roiLedgerBody" style="display:none">
+        <table class="roi-ledger-table">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Description</th>
+              <th>Formula</th>
+              <th>Live Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- CORE -->
+            <tr class="roi-ledger-group"><td colspan="4">Core Metrics</td></tr>
+            <tr><td><span class="roi-ledger-var">c_MedSpend</span></td><td class="roi-ledger-desc">Total annual medical spend</td><td><span class="roi-ledger-formula">Employees × Med Cost/EE</span></td><td id="rof_medSpend">—</td></tr>
+            <tr><td><span class="roi-ledger-var">c_AnnualCost</span></td><td class="roi-ledger-desc">Annual Overalls program cost</td><td><span class="roi-ledger-formula">Employees × PEPM × 12</span></td><td id="rof_annualCost">—</td></tr>
+            <tr><td><span class="roi-ledger-var">c_ActiveUsers</span></td><td class="roi-ledger-desc">Engaged employees</td><td><span class="roi-ledger-formula">Employees × Adoption Rate</span></td><td id="rof_activeUsers">—</td></tr>
+            <tr><td><span class="roi-ledger-var">c_MedRequests</span></td><td class="roi-ledger-desc">Medical-related requests per year</td><td><span class="roi-ledger-formula">Active Users × Req/User × Pct Med</span></td><td id="rof_medReqs">—</td></tr>
+            <!-- DIRECT CLAIMS -->
+            <tr class="roi-ledger-group"><td colspan="4">Direct Claims</td></tr>
+            <tr><td><span class="roi-ledger-var output">ER Diversion</span></td><td class="roi-ledger-desc">Savings from ER → Urgent Care routing</td><td><span class="roi-ledger-formula">Med Reqs × ER Rate × (ER Cost − UC Cost)</span></td><td id="rof_erSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">In-Network</span></td><td class="roi-ledger-desc">OON premium avoided</td><td><span class="roi-ledger-formula">Med Reqs × In-Net Rate × OON Premium</span></td><td id="rof_inNetSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Claims Advocacy</span></td><td class="roi-ledger-desc">Billing error recovery</td><td><span class="roi-ledger-formula">Med Reqs × Claims Rate × Billing Error $</span></td><td id="rof_claimSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Care Pathway</span></td><td class="roi-ledger-desc">Directed care cost avoidance</td><td><span class="roi-ledger-formula">Med Reqs × Pathway Rate × Pathway Savings</span></td><td id="rof_careSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Large Claims</span></td><td class="roi-ledger-desc">High-cost claim reduction</td><td><span class="roi-ledger-formula">(Employees / 100) × Reduction × Claim Amt</span></td><td id="rof_largeSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Sub_DirectClaims</span></td><td class="roi-ledger-desc">Subtotal — direct claims module</td><td><span class="roi-ledger-formula">SUM(ER + InNet + Claims + Care + Large)</span></td><td id="rof_subClaims">—</td></tr>
+            <!-- RENEWAL -->
+            <tr class="roi-ledger-group"><td colspan="4">Renewal Trend</td></tr>
+            <tr><td><span class="roi-ledger-var final">Sub_Renewal</span></td><td class="roi-ledger-desc">Medical trend reduction value</td><td><span class="roi-ledger-formula">c_MedSpend × Trend Reduction %</span></td><td id="rof_subRenewal">—</td></tr>
+            <!-- PRODUCTIVITY -->
+            <tr class="roi-ledger-group"><td colspan="4">Productivity &amp; HR</td></tr>
+            <tr><td><span class="roi-ledger-var output">Prod Value</span></td><td class="roi-ledger-desc">Employee time saved × conversion rate</td><td><span class="roi-ledger-formula">Reqs × Hrs Saved × Conversion × Hourly Rate</span></td><td id="rof_prodVal">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">HR Savings</span></td><td class="roi-ledger-desc">HR team time freed up</td><td><span class="roi-ledger-formula">Active Users × HR Hrs/User × HR Hourly Cost</span></td><td id="rof_hrSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Sub_Productivity</span></td><td class="roi-ledger-desc">Subtotal — productivity module</td><td><span class="roi-ledger-formula">Prod Value + HR Savings (if enabled)</span></td><td id="rof_subProd">—</td></tr>
+            <!-- PREVENTION -->
+            <tr class="roi-ledger-group"><td colspan="4">Preventive Care</td></tr>
+            <tr><td><span class="roi-ledger-var output">Skin Cancer</span></td><td class="roi-ledger-desc">Early detection savings</td><td><span class="roi-ledger-formula">(EEs/1000) × Rate × Early Pct × Savings/Case</span></td><td id="rof_skinSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Colorectal</span></td><td class="roi-ledger-desc">Incremental colonoscopy value</td><td><span class="roi-ledger-formula">EEs × Screen Inc × CRC Rate × Savings/Case</span></td><td id="rof_crcSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Diabetes Prev</span></td><td class="roi-ledger-desc">Pre-diabetes intervention</td><td><span class="roi-ledger-formula">EEs × Screen Inc × Savings/Case Prevented</span></td><td id="rof_diabSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Sub_Prevention</span></td><td class="roi-ledger-desc">Subtotal — preventive care module</td><td><span class="roi-ledger-formula">SUM(Skin + CRC + Diabetes) (if enabled)</span></td><td id="rof_subPrev">—</td></tr>
+            <!-- MSK -->
+            <tr class="roi-ledger-group"><td colspan="4">MSK Optimization</td></tr>
+            <tr><td><span class="roi-ledger-var output">Digital MSK</span></td><td class="roi-ledger-desc">Digital PT program savings</td><td><span class="roi-ledger-formula">EEs × MSK Rate × Digital Rate × Savings/User</span></td><td id="rof_digitalMSK">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Surgery Avoid</span></td><td class="roi-ledger-desc">Surgeries avoided via PT-first navigation</td><td><span class="roi-ledger-formula">Med Reqs × PT-First Rate × Surgery Cost</span></td><td id="rof_surgSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Sub_MSK</span></td><td class="roi-ledger-desc">Subtotal — MSK module</td><td><span class="roi-ledger-formula">Digital MSK + Surgery Avoid (if enabled)</span></td><td id="rof_subMSK">—</td></tr>
+            <!-- GLP-1 -->
+            <tr class="roi-ledger-group"><td colspan="4">GLP-1 &amp; Obesity Navigation</td></tr>
+            <tr><td><span class="roi-ledger-var output">Formulary Sav</span></td><td class="roi-ledger-desc">Formulary optimization for navigated users</td><td><span class="roi-ledger-formula">Eligible × Users × Nav Rate × Monthly Sav × 12</span></td><td id="rof_glpForm">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Lifestyle Div</span></td><td class="roi-ledger-desc">Drug cost avoided via lifestyle programs</td><td><span class="roi-ledger-formula">Eligible × Diversion Rate × Annual Drug Cost</span></td><td id="rof_glpLife">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Comorbidity</span></td><td class="roi-ledger-desc">Downstream comorbidity cost reduction</td><td><span class="roi-ledger-formula">Eligible × Reduction Rate × Comorbidity Cost</span></td><td id="rof_glpComor">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Sub_GLP1</span></td><td class="roi-ledger-desc">Subtotal — GLP-1 module</td><td><span class="roi-ledger-formula">Formulary + Lifestyle + Comorbidity (if enabled)</span></td><td id="rof_subGLP1">—</td></tr>
+            <!-- RETENTION -->
+            <tr class="roi-ledger-group"><td colspan="4">Retention &amp; Recruitment</td></tr>
+            <tr><td><span class="roi-ledger-var output">Retention Sav</span></td><td class="roi-ledger-desc">Turnover cost reduction</td><td><span class="roi-ledger-formula">Turnover Count × Improvement % × (Salary × Mult)</span></td><td id="rof_retSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Sub_Retention</span></td><td class="roi-ledger-desc">Subtotal — retention module</td><td><span class="roi-ledger-formula">Retention Sav (if enabled)</span></td><td id="rof_subRet">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Recruitment Sav</span></td><td class="roi-ledger-desc">Hiring efficiency gain</td><td><span class="roi-ledger-formula">Annual Hires × Cost/Hire × Efficiency %</span></td><td id="rof_recSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Sub_Recruitment</span></td><td class="roi-ledger-desc">Subtotal — recruitment module</td><td><span class="roi-ledger-formula">Recruitment Sav (if enabled)</span></td><td id="rof_subRec">—</td></tr>
+            <!-- FINAL -->
+            <tr class="roi-ledger-group"><td colspan="4">Final Rollup</td></tr>
+            <tr><td><span class="roi-ledger-var final">Gross_Benefits</span></td><td class="roi-ledger-desc">Total value across all modules</td><td><span class="roi-ledger-formula">SUM(All Module Subtotals)</span></td><td id="rof_gross">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Net_Benefit</span></td><td class="roi-ledger-desc">Value after program cost</td><td><span class="roi-ledger-formula">Gross Benefits − Annual Program Cost</span></td><td id="rof_net">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">ROI</span></td><td class="roi-ledger-desc">Return on investment multiple</td><td><span class="roi-ledger-formula">Net Benefit ÷ Annual Program Cost</span></td><td id="rof_roi">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Payback_Months</span></td><td class="roi-ledger-desc">Months to break even</td><td><span class="roi-ledger-formula">(Annual Cost ÷ Gross Benefits) × 12</span></td><td id="rof_payback">—</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -4543,20 +4637,21 @@ function calculateROI(inp) {
   const diabSav = (employees * inp.diabetesScreeningInc) * inp.diabetesPreventSavings;
   const subPrev = inp.includePreventiveCare ? (skinSav + crcSav + diabSav) : 0;
 
-  const mskSav  = (employees * inp.mskIssueRate * inp.digitalMSKRate) * inp.digitalMSKSavings
-                + (c_MedR * inp.ptFirstRate) * inp.surgeryAvoidSavings;
-  const subMSK  = inp.includeMSK ? mskSav : 0;
+  const digitalMSK = (employees * inp.mskIssueRate * inp.digitalMSKRate) * inp.digitalMSKSavings;
+  const surgSav    = (c_MedR * inp.ptFirstRate) * inp.surgeryAvoidSavings;
+  const subMSK  = inp.includeMSK ? (digitalMSK + surgSav) : 0;
 
   const eligible = employees * inp.glp1EligiblePct;
-  const glpSav   = (eligible * inp.glp1CurrentUsers * inp.glp1NavRate) * inp.glp1FormularySavings * 12
-                 + (eligible * inp.lifestyleDiversionRate) * (inp.glp1MonthlyCost * 12)
-                 + (eligible * inp.comorbidityReduction) * inp.obesityComorbidityCost;
-  const subGLP1  = inp.includeGLP1 ? glpSav : 0;
+  const glpForm  = (eligible * inp.glp1CurrentUsers * inp.glp1NavRate) * inp.glp1FormularySavings * 12;
+  const glpLife  = (eligible * inp.lifestyleDiversionRate) * (inp.glp1MonthlyCost * 12);
+  const glpComor = (eligible * inp.comorbidityReduction) * inp.obesityComorbidityCost;
+  const subGLP1  = inp.includeGLP1 ? (glpForm + glpLife + glpComor) : 0;
 
   const retSav  = (employees * (inp.currentTurnoverRate / 100)) * (inp.retentionImprovement / 100) * (salary * inp.turnoverCostMultiplier);
   const subRet  = inp.includeRetention ? retSav : 0;
 
-  const subRec  = inp.includeRecruitment ? (inp.annualHires * inp.recruitmentCostPerHire * (inp.recruitmentEfficiency / 100)) : 0;
+  const recSav  = inp.annualHires * inp.recruitmentCostPerHire * (inp.recruitmentEfficiency / 100);
+  const subRec  = inp.includeRecruitment ? recSav : 0;
 
   const gross = subClaims + subRenewal + subProd + subPrev + subMSK + subGLP1 + subRet + subRec;
   const net   = gross - c_Cost;
@@ -4564,7 +4659,13 @@ function calculateROI(inp) {
   const payback = (c_Cost / Math.max(gross, 1)) * 12;
   const medRedux = (subClaims + subPrev + subMSK + subGLP1) / Math.max(c_Med, 1);
 
-  return { gross, net, roi, payback, medRedux, c_Cost, subClaims, subRenewal, subProd, subPrev, subMSK, subGLP1, subRet, subRec };
+  return { gross, net, roi, payback, medRedux, c_Cost, c_Med, c_Users, c_Reqs, c_MedR,
+           erSav, inNetSav, claimSav, careSav, largeSav, subClaims,
+           subRenewal, prodVal, hrSav, subProd,
+           skinSav, crcSav, diabSav, subPrev,
+           digitalMSK, surgSav, subMSK,
+           glpForm, glpLife, glpComor, subGLP1,
+           retSav, subRet, recSav, subRec };
 }
 
 function updateROIInput(field, value) {
@@ -4582,6 +4683,14 @@ function toggleROIModule(field, btn) {
 function toggleROILevers(hdr) {
   const body = document.getElementById('roiLeversBody');
   const chev = document.getElementById('roiLeversChevron');
+  const open = body.style.display === 'none';
+  body.style.display = open ? '' : 'none';
+  chev.textContent   = open ? '▲' : '▼';
+}
+
+function toggleROILedger(hdr) {
+  const body = document.getElementById('roiLedgerBody');
+  const chev = document.getElementById('roiLedgerChevron');
   const open = body.style.display === 'none';
   body.style.display = open ? '' : 'none';
   chev.textContent   = open ? '▲' : '▼';
@@ -4615,6 +4724,30 @@ function renderROIView() {
   document.getElementById('roiSubClaims').textContent   = fmt(r.subClaims);
   document.getElementById('roiSubRetRec').textContent   = fmt(r.subRet + r.subRec);
   document.getElementById('roiSubClinical').textContent = fmt(r.subPrev + r.subMSK + r.subGLP1);
+
+  // Formula ledger — update live values (only if ledger is open)
+  const fmtN = v => Math.round(v).toLocaleString();
+  const ledger = {
+    rof_medSpend:   fmt(r.c_Med),       rof_annualCost: fmt(r.c_Cost),
+    rof_activeUsers:fmtN(r.c_Users),    rof_medReqs:    fmtN(r.c_MedR),
+    rof_erSav:      fmt(r.erSav),       rof_inNetSav:   fmt(r.inNetSav),
+    rof_claimSav:   fmt(r.claimSav),    rof_careSav:    fmt(r.careSav),
+    rof_largeSav:   fmt(r.largeSav),    rof_subClaims:  fmt(r.subClaims),
+    rof_subRenewal: fmt(r.subRenewal),
+    rof_prodVal:    fmt(r.prodVal),     rof_hrSav:      fmt(r.hrSav),
+    rof_subProd:    fmt(r.subProd),
+    rof_skinSav:    fmt(r.skinSav),     rof_crcSav:     fmt(r.crcSav),
+    rof_diabSav:    fmt(r.diabSav),     rof_subPrev:    fmt(r.subPrev),
+    rof_digitalMSK: fmt(r.digitalMSK), rof_surgSav:    fmt(r.surgSav),
+    rof_subMSK:     fmt(r.subMSK),
+    rof_glpForm:    fmt(r.glpForm),     rof_glpLife:    fmt(r.glpLife),
+    rof_glpComor:   fmt(r.glpComor),    rof_subGLP1:    fmt(r.subGLP1),
+    rof_retSav:     fmt(r.retSav),      rof_subRet:     fmt(r.subRet),
+    rof_recSav:     fmt(r.recSav),      rof_subRec:     fmt(r.subRec),
+    rof_gross:      fmt(r.gross),       rof_net:        fmt(r.net),
+    rof_roi:        r.roi.toFixed(2) + 'x', rof_payback: r.payback.toFixed(1) + ' mo'
+  };
+  Object.entries(ledger).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.textContent = val; });
 
   // Charts
   const barLabels = ['Overalls Cost', 'Gross Savings'];
