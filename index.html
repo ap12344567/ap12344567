@@ -11,6 +11,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <!-- PptxGenJS for PowerPoint export -->
   <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <!-- Chart.js for ROI charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     /* ─────────────────────────────────────────
        OVERALLS BRAND TOKENS
@@ -1034,6 +1036,62 @@
       .es-headline { font-size: 32px !important; }
       .es-kpi-value { font-size: 28px !important; }
     }
+
+    /* ══════════════════════════════════════════
+       ROI & VALUE VIEW
+    ══════════════════════════════════════════ */
+    .roi-header { background: var(--teal-dark); color: #fff; border-radius: var(--radius-lg); padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .roi-header-left .overline { color: rgba(255,255,255,.55); margin-bottom: 4px; }
+    .roi-header-title { font-family: var(--font-display); font-size: 26px; color: #fff; line-height: 1.2; }
+    .roi-header-meta { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 3px; }
+    .roi-badge { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 14px; padding: 12px 20px; text-align: center; min-width: 130px; }
+    .roi-badge-label { font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 4px; }
+    .roi-badge-value { font-size: 28px; font-weight: 800; color: var(--mustard); line-height: 1; }
+
+    .roi-kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 20px; }
+    .roi-kpi-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+    .roi-kpi-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .roi-kpi-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; display: flex; align-items: center; }
+    .roi-kpi-value { font-size: 20px; font-weight: 800; color: var(--teal-dark); white-space: nowrap; line-height: 1; }
+    .roi-kpi-sub { font-size: 11px; color: var(--text-light); margin-top: 3px; }
+
+    .roi-body { display: grid; grid-template-columns: 1fr 320px; gap: 20px; margin-bottom: 20px; align-items: start; }
+    .roi-charts { display: flex; flex-direction: column; gap: 18px; }
+    .roi-chart-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; }
+    .roi-chart-card h3 { font-family: var(--font-display); font-size: 17px; color: var(--teal-dark); margin-bottom: 16px; }
+    .roi-chart-wrap { position: relative; height: 220px; }
+
+    .roi-config { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; display: flex; flex-direction: column; gap: 20px; }
+    .roi-config-section .overline { margin-bottom: 10px; }
+    .roi-input-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
+    .roi-input-label { font-size: 12px; color: var(--text-body); font-weight: 600; }
+    .roi-input-num { width: 84px; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-weight: 700; text-align: right; background: var(--bg); color: var(--teal-dark); outline: none; }
+    .roi-input-num:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(10,92,94,.08); }
+    .roi-slider-row { margin-bottom: 10px; }
+    .roi-slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .roi-slider-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+    .roi-slider-val { font-size: 11px; font-weight: 700; color: var(--teal); background: var(--teal-50); border-radius: 10px; padding: 1px 7px; }
+    .roi-slider { width: 100%; height: 4px; border-radius: 2px; appearance: none; -webkit-appearance: none; background: var(--border); cursor: pointer; outline: none; }
+    .roi-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--teal); cursor: pointer; box-shadow: 0 1px 4px rgba(10,92,94,.3); }
+    .roi-toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #F2F7F7; }
+    .roi-toggle-row:last-child { border-bottom: none; }
+    .roi-toggle-label { font-size: 12px; font-weight: 600; color: var(--text-body); }
+    .roi-toggle-btn { width: 36px; height: 20px; border-radius: 10px; border: none; cursor: pointer; position: relative; transition: background .2s; flex-shrink: 0; padding: 0; }
+    .roi-toggle-btn.on  { background: var(--teal); }
+    .roi-toggle-btn.off { background: var(--border-dark); }
+    .roi-toggle-thumb { width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; top: 2px; transition: left .15s; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+    .roi-toggle-btn.on  .roi-toggle-thumb { left: 18px; }
+    .roi-toggle-btn.off .roi-toggle-thumb { left: 2px; }
+
+    .roi-levers { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
+    .roi-levers-hdr { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px; cursor: pointer; user-select: none; }
+    .roi-levers-hdr:hover { background: var(--teal-50); }
+    .roi-levers-hdr h3 { font-family: var(--font-display); font-size: 16px; color: var(--teal-dark); }
+    .roi-levers-body { padding: 20px 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 28px; border-top: 1px solid var(--border); }
+    .roi-lever-col h4 { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .roi-subtotal { background: var(--teal-50); border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; margin-top: 10px; }
+    .roi-subtotal-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
+    .roi-subtotal-val { font-size: 12px; font-weight: 800; color: var(--teal); }
   </style>
 </head>
 <body>
@@ -1224,6 +1282,7 @@
   <div class="view-tabs" id="viewTabs" style="display:none">
     <button class="view-tab active" id="tabGap"  onclick="showView('gap')">📊 Gap Analysis</button>
     <button class="view-tab"        id="tabExec" onclick="showView('exec')">📋 Executive Summary</button>
+    <button class="view-tab"        id="tabROI"  onclick="showView('roi')">💰 ROI &amp; Value</button>
   </div>
 
   <!-- ═══ GAP ANALYSIS VIEW ═══ -->
@@ -1456,6 +1515,219 @@
     <div class="es-print-footer">Confidential — Prepared by Overalls · <span id="esPrintDate"></span></div>
 
   </div><!-- end #execView -->
+
+  <!-- ═══ ROI & VALUE VIEW ═══ -->
+  <div id="roiView" style="display:none">
+
+    <!-- Header -->
+    <div class="roi-header">
+      <div class="roi-header-left">
+        <div class="overline">ROI &amp; Value Platform</div>
+        <div class="roi-header-title" id="roiHeaderCompany">Company</div>
+        <div class="roi-header-meta" id="roiHeaderMeta"></div>
+      </div>
+      <div class="roi-badge">
+        <div class="roi-badge-label">Projected Annual ROI</div>
+        <div class="roi-badge-value" id="roiBadgeROI">—</div>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="roi-kpi-row">
+      <div class="roi-kpi-card">
+        <div class="roi-kpi-label"><span class="roi-kpi-dot" style="background:var(--teal)"></span>Annual Gross Savings</div>
+        <div class="roi-kpi-value" id="roiKpiGross">—</div>
+        <div class="roi-kpi-sub">before program cost</div>
+      </div>
+      <div class="roi-kpi-card">
+        <div class="roi-kpi-label"><span class="roi-kpi-dot" style="background:var(--teal-dark)"></span>Net Financial Benefit</div>
+        <div class="roi-kpi-value" id="roiKpiNet">—</div>
+        <div class="roi-kpi-sub">gross savings minus cost</div>
+      </div>
+      <div class="roi-kpi-card">
+        <div class="roi-kpi-label"><span class="roi-kpi-dot" style="background:var(--amber)"></span>ROI Multiple</div>
+        <div class="roi-kpi-value" id="roiKpiROI">—</div>
+        <div class="roi-kpi-sub">net ÷ program cost</div>
+      </div>
+      <div class="roi-kpi-card">
+        <div class="roi-kpi-label"><span class="roi-kpi-dot" style="background:var(--teal-mid)"></span>Medical Reduction</div>
+        <div class="roi-kpi-value" id="roiKpiMedRedux">—</div>
+        <div class="roi-kpi-sub">clinical &amp; claims savings</div>
+      </div>
+      <div class="roi-kpi-card">
+        <div class="roi-kpi-label"><span class="roi-kpi-dot" style="background:var(--berry)"></span>Payback Period</div>
+        <div class="roi-kpi-value" id="roiKpiPayback">—</div>
+        <div class="roi-kpi-sub">months to break even</div>
+      </div>
+    </div>
+
+    <!-- Body: Charts + Config -->
+    <div class="roi-body">
+
+      <!-- Charts -->
+      <div class="roi-charts">
+        <div class="roi-chart-card">
+          <h3>Cost vs. Savings</h3>
+          <div class="roi-chart-wrap"><canvas id="roiBarChart"></canvas></div>
+        </div>
+        <div class="roi-chart-card">
+          <h3>Sources of Value</h3>
+          <div class="roi-chart-wrap"><canvas id="roiDonutChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Config Panel -->
+      <div class="roi-config">
+
+        <!-- Core ROI Inputs -->
+        <div class="roi-config-section">
+          <div class="overline">Core Assumptions</div>
+          <div class="roi-input-row">
+            <span class="roi-input-label">Med Cost / EE ($/yr)</span>
+            <input class="roi-input-num" type="number" id="roiMedCost" value="16000" oninput="updateROIInput('medCostPerEE', +this.value)" />
+          </div>
+          <div class="roi-input-row">
+            <span class="roi-input-label">Overalls PEPM ($)</span>
+            <input class="roi-input-num" type="number" id="roiPEPM" value="4.5" step="0.25" oninput="updateROIInput('overallsPEPM', +this.value)" />
+          </div>
+          <div class="roi-input-row">
+            <span class="roi-input-label">Annual Hires</span>
+            <input class="roi-input-num" type="number" id="roiHires" value="150" oninput="updateROIInput('annualHires', +this.value)" />
+          </div>
+        </div>
+
+        <!-- Key Levers -->
+        <div class="roi-config-section">
+          <div class="overline">Key Levers</div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header">
+              <span class="roi-slider-label">Adoption Rate</span>
+              <span class="roi-slider-val" id="roiValAdoption">65%</span>
+            </div>
+            <input class="roi-slider" type="range" min="0" max="100" step="1" value="65"
+              oninput="document.getElementById('roiValAdoption').textContent=this.value+'%'; updateROIInput('adoptionRate', this.value/100)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header">
+              <span class="roi-slider-label">Requests / User / Yr</span>
+              <span class="roi-slider-val" id="roiValReqs">12</span>
+            </div>
+            <input class="roi-slider" type="range" min="1" max="24" step="1" value="12"
+              oninput="document.getElementById('roiValReqs').textContent=this.value; updateROIInput('requestsPerUser', +this.value)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header">
+              <span class="roi-slider-label">Turnover Rate</span>
+              <span class="roi-slider-val" id="roiValTurnover">15%</span>
+            </div>
+            <input class="roi-slider" type="range" min="0" max="50" step="1" value="15"
+              oninput="document.getElementById('roiValTurnover').textContent=this.value+'%'; updateROIInput('currentTurnoverRate', +this.value)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header">
+              <span class="roi-slider-label">ER Diversion Rate</span>
+              <span class="roi-slider-val" id="roiValER">2%</span>
+            </div>
+            <input class="roi-slider" type="range" min="0" max="20" step="0.5" value="2"
+              oninput="document.getElementById('roiValER').textContent=this.value+'%'; updateROIInput('erDiversionRate', this.value/100)" />
+          </div>
+        </div>
+
+        <!-- Module Toggles -->
+        <div class="roi-config-section">
+          <div class="overline">Include Modules</div>
+          <div class="roi-toggle-row">
+            <span class="roi-toggle-label">Self-Insured Framework</span>
+            <button class="roi-toggle-btn on" id="roiToggleSI" onclick="toggleROIModule('isSelfInsured', this)"><span class="roi-toggle-thumb"></span></button>
+          </div>
+          <div class="roi-toggle-row">
+            <span class="roi-toggle-label">Productivity Savings</span>
+            <button class="roi-toggle-btn on" id="roiToggleProd" onclick="toggleROIModule('includeProductivity', this)"><span class="roi-toggle-thumb"></span></button>
+          </div>
+          <div class="roi-toggle-row">
+            <span class="roi-toggle-label">Preventive Care</span>
+            <button class="roi-toggle-btn on" id="roiTogglePrev" onclick="toggleROIModule('includePreventiveCare', this)"><span class="roi-toggle-thumb"></span></button>
+          </div>
+          <div class="roi-toggle-row">
+            <span class="roi-toggle-label">MSK Optimization</span>
+            <button class="roi-toggle-btn on" id="roiToggleMSK" onclick="toggleROIModule('includeMSK', this)"><span class="roi-toggle-thumb"></span></button>
+          </div>
+          <div class="roi-toggle-row">
+            <span class="roi-toggle-label">GLP-1 Navigation</span>
+            <button class="roi-toggle-btn on" id="roiToggleGLP1" onclick="toggleROIModule('includeGLP1', this)"><span class="roi-toggle-thumb"></span></button>
+          </div>
+          <div class="roi-toggle-row">
+            <span class="roi-toggle-label">Retention ROI</span>
+            <button class="roi-toggle-btn on" id="roiToggleRetention" onclick="toggleROIModule('includeRetention', this)"><span class="roi-toggle-thumb"></span></button>
+          </div>
+          <div class="roi-toggle-row">
+            <span class="roi-toggle-label">Recruitment ROI</span>
+            <button class="roi-toggle-btn on" id="roiToggleRecruit" onclick="toggleROIModule('includeRecruitment', this)"><span class="roi-toggle-thumb"></span></button>
+          </div>
+        </div>
+
+      </div><!-- /.roi-config -->
+    </div><!-- /.roi-body -->
+
+    <!-- Advanced Levers (collapsible) -->
+    <div class="roi-levers">
+      <div class="roi-levers-hdr" onclick="toggleROILevers(this)">
+        <h3>Advanced Levers</h3>
+        <span id="roiLeversChevron">▼</span>
+      </div>
+      <div class="roi-levers-body" id="roiLeversBody" style="display:none">
+        <div class="roi-lever-col">
+          <h4>Direct Claims</h4>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label">In-Network Steer</span><span class="roi-slider-val" id="roiValInNet">3%</span></div>
+            <input class="roi-slider" type="range" min="0" max="20" step="0.5" value="3" oninput="document.getElementById('roiValInNet').textContent=this.value+'%'; updateROIInput('inNetworkRate', this.value/100)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label">Claims Review Rate</span><span class="roi-slider-val" id="roiValClaims">8%</span></div>
+            <input class="roi-slider" type="range" min="0" max="30" step="1" value="8" oninput="document.getElementById('roiValClaims').textContent=this.value+'%'; updateROIInput('claimsRate', this.value/100)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label">Care Pathway Rate</span><span class="roi-slider-val" id="roiValCare">2%</span></div>
+            <input class="roi-slider" type="range" min="0" max="20" step="0.5" value="2" oninput="document.getElementById('roiValCare').textContent=this.value+'%'; updateROIInput('carePathwayRate', this.value/100)" />
+          </div>
+          <div class="roi-subtotal"><span class="roi-subtotal-label">Claims Subtotal</span><span class="roi-subtotal-val" id="roiSubClaims">—</span></div>
+        </div>
+        <div class="roi-lever-col">
+          <h4>Retention &amp; Recruitment</h4>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label">Retention Improvement</span><span class="roi-slider-val" id="roiValRetImp">5%</span></div>
+            <input class="roi-slider" type="range" min="0" max="30" step="1" value="5" oninput="document.getElementById('roiValRetImp').textContent=this.value+'%'; updateROIInput('retentionImprovement', +this.value)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label">Turnover Cost Multiplier</span><span class="roi-slider-val" id="roiValTurnMult">0.75x</span></div>
+            <input class="roi-slider" type="range" min="0" max="2" step="0.05" value="0.75" oninput="document.getElementById('roiValTurnMult').textContent=parseFloat(this.value).toFixed(2)+'x'; updateROIInput('turnoverCostMultiplier', +this.value)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label">Recruitment Efficiency</span><span class="roi-slider-val" id="roiValRecEff">10%</span></div>
+            <input class="roi-slider" type="range" min="0" max="50" step="1" value="10" oninput="document.getElementById('roiValRecEff').textContent=this.value+'%'; updateROIInput('recruitmentEfficiency', +this.value)" />
+          </div>
+          <div class="roi-subtotal"><span class="roi-subtotal-label">Retention + Recruit</span><span class="roi-subtotal-val" id="roiSubRetRec">—</span></div>
+        </div>
+        <div class="roi-lever-col">
+          <h4>Clinical Modules</h4>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label">MSK Prevalence</span><span class="roi-slider-val" id="roiValMSK">40%</span></div>
+            <input class="roi-slider" type="range" min="0" max="80" step="1" value="40" oninput="document.getElementById('roiValMSK').textContent=this.value+'%'; updateROIInput('mskIssueRate', this.value/100)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label">GLP-1 Eligible %</span><span class="roi-slider-val" id="roiValGLP1">34%</span></div>
+            <input class="roi-slider" type="range" min="0" max="60" step="1" value="34" oninput="document.getElementById('roiValGLP1').textContent=this.value+'%'; updateROIInput('glp1EligiblePct', this.value/100)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label">Renewal Reduction (pp)</span><span class="roi-slider-val" id="roiValRenewal">1%</span></div>
+            <input class="roi-slider" type="range" min="0" max="5" step="0.1" value="1" oninput="document.getElementById('roiValRenewal').textContent=this.value+'%'; updateROIInput('renewalReductionSI', this.value/100); updateROIInput('renewalReductionFI', this.value/100)" />
+          </div>
+          <div class="roi-subtotal"><span class="roi-subtotal-label">Clinical Subtotal</span><span class="roi-subtotal-val" id="roiSubClinical">—</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end #roiView -->
 
   <!-- KPI detail modal -->
   <div class="kpi-modal-backdrop" id="kpiModalBackdrop" onclick="closeKpiModal(event)">
@@ -3489,9 +3761,12 @@ function renderSummary(data) {
 function showView(name) {
   document.getElementById('gapView').style.display  = name === 'gap'  ? '' : 'none';
   document.getElementById('execView').style.display = name === 'exec' ? '' : 'none';
+  document.getElementById('roiView').style.display  = name === 'roi'  ? '' : 'none';
   document.getElementById('tabGap').classList.toggle('active',  name === 'gap');
   document.getElementById('tabExec').classList.toggle('active', name === 'exec');
+  document.getElementById('tabROI').classList.toggle('active',  name === 'roi');
   if (name === 'exec' && currentData) renderExecSummary(currentData);
+  if (name === 'roi') renderROIView();
 }
 
 function openKpiModal(type) {
@@ -4204,6 +4479,199 @@ function vhAutoSave(data) {
   try {
     localStorage.setItem('overalls_autosave', JSON.stringify({ ts: new Date().toISOString(), data }));
   } catch {}
+}
+
+/* ══════════════════════════════════════════════
+   ROI & VALUE CALCULATOR
+══════════════════════════════════════════════ */
+const ROI_DEFAULTS = {
+  // pulled live from setup card: totalEmployees, avgSalary, companyName, industry
+  medCostPerEE: 16000, overallsPEPM: 4.5, adoptionRate: 0.65,
+  requestsPerUser: 12, pctMedRequests: 0.40,
+  isSelfInsured: true,
+  includeProductivity: true, includePreventiveCare: true, includeMSK: true,
+  includeGLP1: true, includeRetention: true, includeRecruitment: true,
+  erCost: 2500, ucCost: 250, erDiversionRate: 0.02,
+  oonPremium: 1500, inNetworkRate: 0.03, claimsRate: 0.08,
+  billingError: 800, carePathwayRate: 0.02, carePathwaySavings: 1200,
+  largeClaimAmt: 50000, largeClaimReduction: 0.02,
+  baseRenewalFI: 0.09, baseRenewalSI: 0.08,
+  renewalReductionFI: 0.005, renewalReductionSI: 0.01,
+  hoursSavedPerRequest: 2.3, productivityConversion: 0.5,
+  hrHoursPerUser: 4, hrHourlyCost: 45,
+  skinCancerRate: 3, skinCancerEarlyPct: 0.1, skinCancerSavings: 75000,
+  colorectalRate: 0.004, colorectalIncrease: 0.15, colorectalSavings: 50000,
+  diabetesScreeningInc: 0.05, diabetesPreventSavings: 5000,
+  mskIssueRate: 0.4, ptFirstRate: 0.02, surgeryAvoidSavings: 18000,
+  digitalMSKRate: 0.03, digitalMSKSavings: 2025,
+  glp1EligiblePct: 0.34, glp1MonthlyCost: 1000, glp1BaseAdherence: 0.14,
+  glp1OverallsAdherence: 0.25, glp1CurrentUsers: 0.1, glp1NavRate: 0.6,
+  glp1FormularySavings: 200, lifestyleDiversionRate: 0.05, lifestyleSavings: 8000,
+  obesityComorbidityCost: 4500, comorbidityReduction: 0.05,
+  currentTurnoverRate: 15, retentionImprovement: 5, turnoverCostMultiplier: 0.75,
+  annualHires: 150, recruitmentCostPerHire: 5000, recruitmentEfficiency: 10
+};
+let roiInputs = Object.assign({}, ROI_DEFAULTS);
+let roiBarChartInst = null;
+let roiDonutChartInst = null;
+
+function calculateROI(inp) {
+  const employees = inp.totalEmployees || 1000;
+  const salary    = inp.avgSalary    || 75000;
+  const c_Med    = employees * inp.medCostPerEE;
+  const c_Cost   = employees * inp.overallsPEPM * 12;
+  const c_Users  = employees * inp.adoptionRate;
+  const c_Reqs   = c_Users * inp.requestsPerUser;
+  const c_MedR   = c_Reqs * inp.pctMedRequests;
+  const c_Hourly = salary / 2080;
+
+  const erSav    = (c_MedR * inp.erDiversionRate) * (inp.erCost - inp.ucCost);
+  const inNetSav = (c_MedR * inp.inNetworkRate) * inp.oonPremium;
+  const claimSav = (c_MedR * inp.claimsRate) * inp.billingError;
+  const careSav  = (c_MedR * inp.carePathwayRate) * inp.carePathwaySavings;
+  const largeSav = (employees / 100) * inp.largeClaimReduction * inp.largeClaimAmt;
+  const subClaims = erSav + inNetSav + claimSav + careSav + largeSav;
+
+  const subRenewal = c_Med * (inp.isSelfInsured ? inp.renewalReductionSI : inp.renewalReductionFI);
+
+  const prodVal = (c_Reqs * inp.hoursSavedPerRequest) * inp.productivityConversion * c_Hourly;
+  const hrSav   = c_Users * inp.hrHoursPerUser * inp.hrHourlyCost;
+  const subProd = inp.includeProductivity ? (prodVal + hrSav) : 0;
+
+  const skinSav = (employees / 1000) * inp.skinCancerRate * inp.skinCancerEarlyPct * inp.skinCancerSavings;
+  const crcSav  = (employees * inp.colorectalIncrease) * inp.colorectalRate * inp.colorectalSavings;
+  const diabSav = (employees * inp.diabetesScreeningInc) * inp.diabetesPreventSavings;
+  const subPrev = inp.includePreventiveCare ? (skinSav + crcSav + diabSav) : 0;
+
+  const mskSav  = (employees * inp.mskIssueRate * inp.digitalMSKRate) * inp.digitalMSKSavings
+                + (c_MedR * inp.ptFirstRate) * inp.surgeryAvoidSavings;
+  const subMSK  = inp.includeMSK ? mskSav : 0;
+
+  const eligible = employees * inp.glp1EligiblePct;
+  const glpSav   = (eligible * inp.glp1CurrentUsers * inp.glp1NavRate) * inp.glp1FormularySavings * 12
+                 + (eligible * inp.lifestyleDiversionRate) * (inp.glp1MonthlyCost * 12)
+                 + (eligible * inp.comorbidityReduction) * inp.obesityComorbidityCost;
+  const subGLP1  = inp.includeGLP1 ? glpSav : 0;
+
+  const retSav  = (employees * (inp.currentTurnoverRate / 100)) * (inp.retentionImprovement / 100) * (salary * inp.turnoverCostMultiplier);
+  const subRet  = inp.includeRetention ? retSav : 0;
+
+  const subRec  = inp.includeRecruitment ? (inp.annualHires * inp.recruitmentCostPerHire * (inp.recruitmentEfficiency / 100)) : 0;
+
+  const gross = subClaims + subRenewal + subProd + subPrev + subMSK + subGLP1 + subRet + subRec;
+  const net   = gross - c_Cost;
+  const roi   = net / Math.max(c_Cost, 1);
+  const payback = (c_Cost / Math.max(gross, 1)) * 12;
+  const medRedux = (subClaims + subPrev + subMSK + subGLP1) / Math.max(c_Med, 1);
+
+  return { gross, net, roi, payback, medRedux, c_Cost, subClaims, subRenewal, subProd, subPrev, subMSK, subGLP1, subRet, subRec };
+}
+
+function updateROIInput(field, value) {
+  roiInputs[field] = value;
+  renderROIView();
+}
+
+function toggleROIModule(field, btn) {
+  roiInputs[field] = !roiInputs[field];
+  btn.classList.toggle('on',  roiInputs[field]);
+  btn.classList.toggle('off', !roiInputs[field]);
+  renderROIView();
+}
+
+function toggleROILevers(hdr) {
+  const body = document.getElementById('roiLeversBody');
+  const chev = document.getElementById('roiLeversChevron');
+  const open = body.style.display === 'none';
+  body.style.display = open ? '' : 'none';
+  chev.textContent   = open ? '▲' : '▼';
+}
+
+function renderROIView() {
+  // Sync company/headcount/salary from setup card
+  const company  = document.getElementById('companyName')?.value || 'Company';
+  const industry = document.getElementById('industry')?.value    || '';
+  const emp      = parseInt(document.getElementById('empCount')?.value)  || 1000;
+  const salary   = parseInt(document.getElementById('avgSalary')?.value) || 75000;
+  roiInputs.totalEmployees = emp;
+  roiInputs.avgSalary      = salary;
+
+  document.getElementById('roiHeaderCompany').textContent = company;
+  const metaParts = [industry, emp ? Number(emp).toLocaleString() + ' employees' : ''].filter(Boolean);
+  document.getElementById('roiHeaderMeta').textContent = metaParts.join(' · ');
+
+  const r = calculateROI(roiInputs);
+  const fmt  = v => new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', maximumFractionDigits:0 }).format(v);
+  const fmtP = v => (v * 100).toFixed(1) + '%';
+
+  document.getElementById('roiBadgeROI').textContent   = r.roi.toFixed(1) + 'x';
+  document.getElementById('roiKpiGross').textContent   = fmt(r.gross);
+  document.getElementById('roiKpiNet').textContent     = fmt(r.net);
+  document.getElementById('roiKpiROI').textContent     = r.roi.toFixed(1) + 'x';
+  document.getElementById('roiKpiMedRedux').textContent= fmtP(r.medRedux);
+  document.getElementById('roiKpiPayback').textContent = r.payback.toFixed(1) + ' mo';
+
+  // Advanced lever subtotals
+  document.getElementById('roiSubClaims').textContent   = fmt(r.subClaims);
+  document.getElementById('roiSubRetRec').textContent   = fmt(r.subRet + r.subRec);
+  document.getElementById('roiSubClinical').textContent = fmt(r.subPrev + r.subMSK + r.subGLP1);
+
+  // Charts
+  const barLabels = ['Overalls Cost', 'Gross Savings'];
+  const barData   = [r.c_Cost, r.gross];
+  const barColors = ['#CD2C5C', '#0A5C5E'];
+
+  const donutRaw = [
+    { label: 'Direct Claims', val: r.subClaims },
+    { label: 'Renewal Trend', val: r.subRenewal },
+    { label: 'Productivity',  val: r.subProd },
+    { label: 'Prevention',    val: r.subPrev },
+    { label: 'MSK Clinical',  val: r.subMSK },
+    { label: 'GLP-1 Nav',     val: r.subGLP1 },
+    { label: 'Retention',     val: r.subRet },
+    { label: 'Recruitment',   val: r.subRec },
+  ].filter(d => d.val > 0);
+  const donutColors = ['#0A5C5E','#DF9C26','#CEB72C','#013748','#CD2C5C','#5BBBBD','#197577','#E0CB4D'];
+
+  if (!roiBarChartInst) {
+    const ctx = document.getElementById('roiBarChart').getContext('2d');
+    roiBarChartInst = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: barLabels, datasets: [{ data: barData, backgroundColor: barColors, borderRadius: 6, barThickness: 60 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.raw) } } },
+        scales: {
+          x: { grid: { display: false }, border: { display: false } },
+          y: { grid: { color: '#f1f5f9' }, border: { display: false }, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } }
+        }
+      }
+    });
+  } else {
+    roiBarChartInst.data.datasets[0].data = barData;
+    roiBarChartInst.update('none');
+  }
+
+  if (!roiDonutChartInst) {
+    const ctx2 = document.getElementById('roiDonutChart').getContext('2d');
+    roiDonutChartInst = new Chart(ctx2, {
+      type: 'doughnut',
+      data: { labels: donutRaw.map(d=>d.label), datasets: [{ data: donutRaw.map(d=>d.val), backgroundColor: donutColors, borderWidth: 2, borderColor: '#fff' }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 }, padding: 10 } },
+          tooltip: { callbacks: { label: c => c.label + ': ' + fmt(c.raw) } }
+        }
+      }
+    });
+  } else {
+    roiDonutChartInst.data.labels = donutRaw.map(d=>d.label);
+    roiDonutChartInst.data.datasets[0].data = donutRaw.map(d=>d.val);
+    roiDonutChartInst.data.datasets[0].backgroundColor = donutColors.slice(0, donutRaw.length);
+    roiDonutChartInst.update('none');
+  }
 }
 </script>
 
