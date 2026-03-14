@@ -5119,7 +5119,7 @@ function renderGLUEView() {
 function renderGLUEOrch() {
   if (!currentData) return;
 
-  // Before chaos: collect all unique vendors from the data
+  // Before chaos: collect ALL unique vendors (represents the fragmented state)
   const allVendors = [];
   currentData.categories.forEach(cat => {
     cat.items.forEach(item => {
@@ -5131,16 +5131,32 @@ function renderGLUEOrch() {
   document.getElementById('glueBeforeChaos').innerHTML =
     allVendors.slice(0, 14).map(v => `<span class="glue-ba-chaos-chip">${escHtml(v)}</span>`).join('');
 
-  // Category orchestration nodes
-  document.getElementById('glueOrchCats').innerHTML = currentData.categories.map((cat, ci) => {
-    const icon = CAT_ICONS[cat.name] || '●';
-    const vendors = [];
+  // ── Deduplicate vendors across category cards ──
+  // Core Benefits Suite gets first pick; every other category only shows
+  // vendors that haven't already appeared in a previous card.
+  const seenVendors = new Set();
+  const prioritized = [
+    ...currentData.categories.filter(c => c.name === 'Core Benefits Suite'),
+    ...currentData.categories.filter(c => c.name !== 'Core Benefits Suite'),
+  ];
+  const vendorsByCat = {};
+  prioritized.forEach(cat => {
+    const unique = [];
     cat.items.forEach(item => {
       (item.solutions || '').split(/[,\/;]+/).map(v=>v.trim()).filter(Boolean).forEach(v => {
-        if (!vendors.includes(v)) vendors.push(v);
+        if (!seenVendors.has(v) && !unique.includes(v)) {
+          unique.push(v);
+          seenVendors.add(v);
+        }
       });
     });
-    // Count how many items Overalls can handle directly (No Support or partial)
+    vendorsByCat[cat.name] = unique;
+  });
+
+  // Render in original category order
+  document.getElementById('glueOrchCats').innerHTML = currentData.categories.map((cat, ci) => {
+    const icon    = CAT_ICONS[cat.name] || '●';
+    const vendors = vendorsByCat[cat.name] || [];
     const overallsHandled = cat.items.filter(i => {
       const s = (i.support || '').toLowerCase();
       return s.includes('no support') || s.includes('partial') || s.includes('minimal');
@@ -5154,6 +5170,7 @@ function renderGLUEOrch() {
       <div class="glue-orch-cat-vendors">
         ${vendors.slice(0, 3).map(v => `<div class="glue-orch-vendor-row"><div class="glue-orch-vendor-dot"></div>${escHtml(v)}</div>`).join('')}
         ${vendors.length > 3 ? `<div class="glue-orch-vendor-row" style="color:var(--teal-mid);font-weight:700">+${vendors.length-3} more</div>` : ''}
+        ${vendors.length === 0 ? `<div class="glue-orch-vendor-row" style="color:var(--text-muted);font-style:italic">No additional vendors</div>` : ''}
         ${overallsHandled > 0 ? `<div class="glue-orch-overalls-row"><span class="glue-orch-overalls-badge">O</span>Overalls fills ${overallsHandled} gap${overallsHandled!==1?'s':''} directly</div>` : ''}
       </div>
       <div class="glue-orch-cat-ft">${cat.items.length} benefit${cat.items.length!==1?'s':''} · Explore →</div>
