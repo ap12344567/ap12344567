@@ -1113,6 +1113,80 @@
     .roi-ledger-var.output { background: #EAF5F5; color: var(--teal-mid); }
     .roi-ledger-formula { font-family: monospace; font-size: 11px; color: var(--text-muted); background: var(--bg-mint); border-radius: 4px; padding: 2px 7px; }
     .roi-ledger-desc { color: var(--text-body); font-size: 12px; max-width: 240px; }
+
+    /* ═══════════════════════════ GLUE VIEW ═══════════════════════════ */
+    .glue-view { padding: 0 24px 40px; max-width: 1400px; margin: 0 auto; }
+    .glue-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0 16px; flex-wrap: wrap; gap: 12px; }
+    .glue-header h2 { font-family: var(--font-display); font-size: 22px; color: var(--teal-dark); letter-spacing: -.3px; margin: 0; }
+    .glue-search { display: flex; align-items: center; background: #fff; border: 1.5px solid var(--border); border-radius: 24px; padding: 8px 16px; gap: 8px; min-width: 220px; }
+    .glue-search input { border: none; outline: none; font-size: 13px; color: var(--text-body); background: transparent; width: 100%; font-family: inherit; }
+
+    .glue-cat-row { display: flex; gap: 8px; overflow-x: auto; padding: 0 0 12px; scrollbar-width: none; margin-bottom: 4px; }
+    .glue-cat-row::-webkit-scrollbar { display: none; }
+    .glue-cat-chip { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 20px; background: #fff; border: 1.5px solid var(--border); font-size: 12px; font-weight: 600; color: var(--text-body); cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0; }
+    .glue-cat-chip:hover { border-color: var(--teal); color: var(--teal); }
+    .glue-cat-chip.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .glue-cat-chip .chip-count { font-size: 10px; padding: 1px 6px; border-radius: 8px; font-weight: 700; background: rgba(255,255,255,.25); }
+    .glue-cat-chip:not(.active) .chip-count { background: var(--teal-50); color: var(--teal); }
+
+    .glue-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+    .glue-count { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    .glue-my-toggle { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--text-body); cursor: pointer; user-select: none; }
+    .glue-my-toggle input[type=checkbox] { display: none; }
+    .glue-tog-track { width: 40px; height: 22px; background: var(--border); border-radius: 11px; position: relative; transition: background .2s; flex-shrink: 0; }
+    .glue-tog-track::after { content: ''; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+    .glue-my-toggle input:checked + .glue-tog-track { background: var(--teal); }
+    .glue-my-toggle input:checked + .glue-tog-track::after { transform: translateX(18px); }
+
+    .glue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .glue-tile { background: #fff; border: 1.5px solid var(--border); border-radius: 20px; padding: 20px; cursor: pointer; transition: box-shadow .15s, transform .15s, border-color .15s; position: relative; display: flex; flex-direction: column; gap: 12px; }
+    .glue-tile:hover { box-shadow: 0 8px 24px rgba(10,92,94,.12); transform: translateY(-2px); border-color: var(--teal-light); }
+    .glue-tile-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .glue-tile-logo { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: #fff; flex-shrink: 0; letter-spacing: -.5px; font-family: var(--font-display); }
+    .glue-tile-bm { width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 13px; transition: all .15s; flex-shrink: 0; }
+    .glue-tile-bm:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-50); }
+    .glue-tile-name { font-size: 13px; font-weight: 700; color: var(--teal-dark); line-height: 1.35; }
+    .glue-tile-cat { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+    .glue-tile-vendor { font-size: 11px; color: var(--teal-mid); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .glue-empty { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+    .glue-empty-icon { font-size: 52px; margin-bottom: 16px; }
+    .glue-empty h3 { font-family: var(--font-display); font-size: 20px; color: var(--teal-dark); margin: 0 0 8px; }
+    .glue-empty p { font-size: 13px; max-width: 320px; margin: 0 auto; line-height: 1.6; }
+
+    /* Panel overlay + drawer */
+    .glue-overlay { position: fixed; inset: 0; background: rgba(1,55,72,.4); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .glue-overlay.open { opacity: 1; pointer-events: all; }
+    .glue-panel { position: fixed; right: -440px; top: 0; bottom: 0; width: 420px; background: #F8FAFA; z-index: 201; display: flex; flex-direction: column; transition: right .3s cubic-bezier(.4,0,.2,1); box-shadow: -8px 0 40px rgba(0,0,0,.15); overflow: hidden; }
+    .glue-panel.open { right: 0; }
+    .glue-panel-hdr { background: #fff; padding: 20px 24px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .glue-panel-hdr-left { display: flex; align-items: center; gap: 16px; min-width: 0; }
+    .glue-panel-logo { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #fff; flex-shrink: 0; font-family: var(--font-display); }
+    .glue-panel-title { font-family: var(--font-display); font-size: 17px; color: var(--teal-dark); line-height: 1.25; }
+    .glue-panel-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+    .glue-panel-close { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--border); background: transparent; cursor: pointer; font-size: 15px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+    .glue-panel-close:hover { border-color: var(--berry); color: var(--berry); background: #FDF4F7; }
+    .glue-panel-body { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 22px; }
+    .glue-panel-section { display: flex; flex-direction: column; gap: 10px; }
+    .glue-panel-section-label { font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; color: var(--text-muted); padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .glue-panel-link { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 16px; cursor: pointer; transition: all .15s; text-decoration: none; }
+    .glue-panel-link:hover { border-color: var(--teal); box-shadow: 0 2px 10px rgba(10,92,94,.1); }
+    .glue-panel-link-name { font-size: 13px; font-weight: 600; color: var(--text-body); }
+    .glue-panel-link-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .glue-panel-link-arrow { color: var(--teal); font-size: 15px; flex-shrink: 0; }
+    .glue-panel-option { display: flex; align-items: flex-start; gap: 12px; background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+    .glue-panel-option-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; margin-top: 4px; }
+    .glue-panel-option-name { font-size: 13px; font-weight: 600; color: var(--text-body); line-height: 1.35; }
+    .glue-panel-option-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .glue-panel-footer { background: #fff; border-top: 1px solid var(--border); padding: 20px 24px; flex-shrink: 0; }
+    .glue-panel-cta { width: 100%; padding: 14px; background: var(--teal); color: #fff; border: none; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .15s; letter-spacing: .01em; font-family: inherit; }
+    .glue-panel-cta:hover { background: var(--teal-dark); }
+    .glue-support-pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; }
+    .glue-support-pill.best    { background: #E3F5EC; color: #1A7A40; }
+    .glue-support-pill.partial { background: var(--teal-50); color: var(--teal); }
+    .glue-support-pill.basic   { background: #EAF5F5; color: var(--teal-mid); }
+    .glue-support-pill.minimal { background: #FFF8EE; color: #9A6B00; }
+    .glue-support-pill.none    { background: #F5F5F5; color: #888; }
   </style>
 </head>
 <body>
@@ -1304,6 +1378,7 @@
     <button class="view-tab active" id="tabGap"  onclick="showView('gap')">📊 Gap Analysis</button>
     <button class="view-tab"        id="tabExec" onclick="showView('exec')">📋 Executive Summary</button>
     <button class="view-tab"        id="tabROI"  onclick="showView('roi')">💰 ROI &amp; Value</button>
+    <button class="view-tab"        id="tabGlue" onclick="showView('glue')">✨ GLUE</button>
   </div>
 
   <!-- ═══ GAP ANALYSIS VIEW ═══ -->
@@ -1822,6 +1897,47 @@
     </div>
 
   </div><!-- end #roiView -->
+
+  <!-- ─────────── GLUE VIEW ─────────── -->
+  <div id="glueView" style="display:none">
+    <div class="glue-view">
+      <div class="glue-header">
+        <h2>✨ GLUE — Benefits Experience Preview</h2>
+        <div class="glue-search">
+          <span style="color:var(--text-muted)">🔍</span>
+          <input type="text" id="glueSearch" placeholder="Search benefits…" oninput="renderGLUEView()">
+        </div>
+      </div>
+      <div class="glue-cat-row" id="glueCatRow"></div>
+      <div class="glue-toolbar">
+        <span class="glue-count" id="glueCount"></span>
+        <label class="glue-my-toggle">
+          <input type="checkbox" id="glueMyBenefits" onchange="renderGLUEView()">
+          <span class="glue-tog-track"></span>
+          Show only my benefits
+        </label>
+      </div>
+      <div id="glueGrid"></div>
+    </div>
+    <!-- Overlay + Panel -->
+    <div class="glue-overlay" id="glueOverlay" onclick="closeGluePanel()"></div>
+    <div class="glue-panel" id="gluePanel">
+      <div class="glue-panel-hdr">
+        <div class="glue-panel-hdr-left">
+          <div class="glue-panel-logo" id="gluePanelLogo"></div>
+          <div>
+            <div class="glue-panel-title"    id="gluePanelTitle"></div>
+            <div class="glue-panel-subtitle" id="gluePanelSubtitle"></div>
+          </div>
+        </div>
+        <button class="glue-panel-close" onclick="closeGluePanel()">✕</button>
+      </div>
+      <div class="glue-panel-body" id="gluePanelBody"></div>
+      <div class="glue-panel-footer">
+        <button class="glue-panel-cta">🤝 Get help from Overalls</button>
+      </div>
+    </div>
+  </div><!-- end #glueView -->
 
   <!-- KPI detail modal -->
   <div class="kpi-modal-backdrop" id="kpiModalBackdrop" onclick="closeKpiModal(event)">
@@ -3856,11 +3972,14 @@ function showView(name) {
   document.getElementById('gapView').style.display  = name === 'gap'  ? '' : 'none';
   document.getElementById('execView').style.display = name === 'exec' ? '' : 'none';
   document.getElementById('roiView').style.display  = name === 'roi'  ? '' : 'none';
+  document.getElementById('glueView').style.display = name === 'glue' ? '' : 'none';
   document.getElementById('tabGap').classList.toggle('active',  name === 'gap');
   document.getElementById('tabExec').classList.toggle('active', name === 'exec');
   document.getElementById('tabROI').classList.toggle('active',  name === 'roi');
+  document.getElementById('tabGlue').classList.toggle('active', name === 'glue');
   if (name === 'exec' && currentData) renderExecSummary(currentData);
-  if (name === 'roi') renderROIView();
+  if (name === 'roi')  renderROIView();
+  if (name === 'glue') renderGLUEView();
 }
 
 function openKpiModal(type) {
@@ -4805,6 +4924,215 @@ function renderROIView() {
     roiDonutChartInst.data.datasets[0].backgroundColor = donutColors.slice(0, donutRaw.length);
     roiDonutChartInst.update('none');
   }
+}
+
+/* ═══════════════════════════════════════════
+   GLUE TAB
+═══════════════════════════════════════════ */
+let glueCatFilter = 'all';
+
+// Deterministic colour from vendor/benefit name
+const GLUE_PALETTE = [
+  '#0A5C5E','#013748','#1565C0','#4A6FA5','#6B4C93',
+  '#2D7D46','#7B3F00','#9A3030','#B5631A','#3D6B5E'
+];
+function glueVendorColor(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return GLUE_PALETTE[h % GLUE_PALETTE.length];
+}
+function glueInitials(name) {
+  const words = String(name || '').replace(/[^a-zA-Z\s]/g, ' ').trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '?';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+function glueSupportPillClass(support) {
+  const s = String(support || '').toLowerCase();
+  if (s.includes('best'))    return 'best';
+  if (s.includes('partial')) return 'partial';
+  if (s.includes('basic'))   return 'basic';
+  if (s.includes('minimal')) return 'minimal';
+  return 'none';
+}
+
+// Flatten all items across categories into tile objects
+function glueAllTiles() {
+  if (!currentData) return [];
+  const tiles = [];
+  currentData.categories.forEach((cat, ci) => {
+    (cat.items || []).forEach((item, ii) => {
+      // Use primary solution vendor for logo; fall back to benefit name
+      const vendor = (item.solutions || '').split(/[,\/;]+/)[0].trim() || item.name;
+      tiles.push({ ci, ii, cat: cat.name, name: item.name, vendor, solutions: item.solutions || '', support: item.support || '', tasks: item.tasks || [] });
+    });
+  });
+  return tiles;
+}
+
+function renderGLUEView() {
+  if (!currentData) {
+    document.getElementById('glueCatRow').innerHTML = '';
+    document.getElementById('glueGrid').innerHTML = `
+      <div class="glue-empty">
+        <div class="glue-empty-icon">📄</div>
+        <h3>Upload a benefits document first</h3>
+        <p>Once you upload a guide or spreadsheet, GLUE will preview every benefit as it would appear in the Overalls employee app.</p>
+      </div>`;
+    document.getElementById('glueCount').textContent = '';
+    return;
+  }
+
+  const searchQ   = (document.getElementById('glueSearch')?.value || '').toLowerCase().trim();
+  const myOnly    = document.getElementById('glueMyBenefits')?.checked;
+  const allTiles  = glueAllTiles();
+
+  // Build category chip counts (before search filter, after myOnly)
+  const countByCat = {};
+  allTiles.forEach(t => {
+    if (myOnly && t.support.toLowerCase().includes('no support')) return;
+    countByCat[t.cat] = (countByCat[t.cat] || 0) + 1;
+  });
+  const totalVisible = Object.values(countByCat).reduce((a,b)=>a+b,0);
+
+  // Render category chips
+  const catRow = document.getElementById('glueCatRow');
+  catRow.innerHTML = `<div class="glue-cat-chip${glueCatFilter==='all'?' active':''}" onclick="setGlueCatFilter('all')">All <span class="chip-count">${totalVisible}</span></div>`;
+  currentData.categories.forEach(cat => {
+    const cnt = countByCat[cat.name] || 0;
+    if (cnt === 0) return; // hide empty cats
+    const icon = CAT_ICONS[cat.name] || '●';
+    catRow.innerHTML += `<div class="glue-cat-chip${glueCatFilter===cat.name?' active':''}" onclick="setGlueCatFilter(${JSON.stringify(cat.name)})">${icon} ${escHtml(cat.name)} <span class="chip-count">${cnt}</span></div>`;
+  });
+
+  // Filter tiles
+  let filtered = allTiles.filter(t => {
+    if (myOnly && t.support.toLowerCase().includes('no support')) return false;
+    if (glueCatFilter !== 'all' && t.cat !== glueCatFilter) return false;
+    if (searchQ && !t.name.toLowerCase().includes(searchQ) && !t.vendor.toLowerCase().includes(searchQ) && !t.cat.toLowerCase().includes(searchQ)) return false;
+    return true;
+  });
+
+  document.getElementById('glueCount').textContent = filtered.length + ' benefit' + (filtered.length !== 1 ? 's' : '');
+
+  if (filtered.length === 0) {
+    document.getElementById('glueGrid').innerHTML = `
+      <div class="glue-empty">
+        <div class="glue-empty-icon">🔍</div>
+        <h3>No benefits found</h3>
+        <p>Try a different search term or category filter.</p>
+      </div>`;
+    return;
+  }
+
+  // Render tile grid
+  document.getElementById('glueGrid').innerHTML = `<div class="glue-grid">${
+    filtered.map(t => {
+      const color    = glueVendorColor(t.vendor);
+      const initials = glueInitials(t.vendor);
+      const catIcon  = CAT_ICONS[t.cat] || '●';
+      return `
+        <div class="glue-tile" onclick="openGlueTile(${t.ci},${t.ii})">
+          <div class="glue-tile-top">
+            <div class="glue-tile-logo" style="background:${color}">${escHtml(initials)}</div>
+            <div class="glue-tile-bm" onclick="event.stopPropagation()" title="Bookmark">🔖</div>
+          </div>
+          <div>
+            <div class="glue-tile-name">${escHtml(t.name)}</div>
+            ${t.vendor && t.vendor !== t.name ? `<div class="glue-tile-vendor">${escHtml(t.vendor)}</div>` : ''}
+            <div class="glue-tile-cat">${catIcon} ${escHtml(t.cat)}</div>
+          </div>
+        </div>`;
+    }).join('')
+  }</div>`;
+}
+
+function setGlueCatFilter(cat) {
+  glueCatFilter = cat;
+  renderGLUEView();
+}
+
+function openGlueTile(ci, ii) {
+  if (!currentData) return;
+  const cat  = currentData.categories[ci];
+  if (!cat) return;
+  const item = cat.items[ii];
+  if (!item) return;
+
+  const vendor   = (item.solutions || '').split(/[,\/;]+/)[0].trim() || item.name;
+  const color    = glueVendorColor(vendor);
+  const initials = glueInitials(vendor);
+
+  // Header
+  document.getElementById('gluePanelLogo').style.background = color;
+  document.getElementById('gluePanelLogo').textContent      = initials;
+  document.getElementById('gluePanelTitle').textContent     = item.name;
+  document.getElementById('gluePanelSubtitle').textContent  = cat.name;
+
+  // Body
+  const body = document.getElementById('gluePanelBody');
+  let html = '';
+
+  // Support pill
+  const pillClass = glueSupportPillClass(item.support);
+  html += `<div><span class="glue-support-pill ${pillClass}">${escHtml(item.support || 'Not assessed')}</span></div>`;
+
+  // Quick Links — each unique vendor in solutions field
+  const vendors = (item.solutions || '')
+    .split(/[,\/;]+/)
+    .map(v => v.trim())
+    .filter(Boolean);
+  if (vendors.length) {
+    html += `<div class="glue-panel-section">
+      <div class="glue-panel-section-label">Quick Links</div>
+      ${vendors.map(v => `
+        <div class="glue-panel-link">
+          <div>
+            <div class="glue-panel-link-name">${escHtml(v)}</div>
+            <div class="glue-panel-link-sub">Visit vendor portal</div>
+          </div>
+          <span class="glue-panel-link-arrow">↗</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  // Plan Options — tasks if present, otherwise support level note
+  const tasks = item.tasks || [];
+  if (tasks.length) {
+    html += `<div class="glue-panel-section">
+      <div class="glue-panel-section-label">Plan Options</div>
+      ${tasks.map(t => `
+        <div class="glue-panel-option">
+          <div class="glue-panel-option-dot"></div>
+          <div>
+            <div class="glue-panel-option-name">${escHtml(t.name)}</div>
+            ${t.solutions ? `<div class="glue-panel-option-sub">${escHtml(t.solutions)}</div>` : ''}
+          </div>
+        </div>`).join('')}
+    </div>`;
+  } else {
+    html += `<div class="glue-panel-section">
+      <div class="glue-panel-section-label">Plan Options</div>
+      <div class="glue-panel-option">
+        <div class="glue-panel-option-dot"></div>
+        <div>
+          <div class="glue-panel-option-name">${escHtml(item.support || 'See HR for details')}</div>
+          ${item.solutions ? `<div class="glue-panel-option-sub">${escHtml(item.solutions)}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  body.innerHTML = html;
+
+  // Open
+  document.getElementById('glueOverlay').classList.add('open');
+  document.getElementById('gluePanel').classList.add('open');
+}
+
+function closeGluePanel() {
+  document.getElementById('glueOverlay').classList.remove('open');
+  document.getElementById('gluePanel').classList.remove('open');
 }
 </script>
 
