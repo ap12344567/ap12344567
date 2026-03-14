@@ -90,9 +90,25 @@
     #toast .toast-close:hover { opacity: 1; }
 
     /* ── SETUP CARD ── */
-    .setup-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border); padding: 32px 36px; margin-bottom: 28px; }
+    .setup-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border); padding: 32px 36px; margin-bottom: 28px; transition: padding .2s; }
     .setup-card .overline { margin-bottom: 4px; }
     .setup-card h2 { font-family: var(--font-display); font-size: 26px; color: var(--teal); margin-bottom: 20px; line-height: 1.2; }
+
+    /* Collapsed state — slim summary bar */
+    .setup-card.collapsed { padding: 14px 20px; }
+    .setup-card.collapsed .setup-card-full { display: none; }
+    .setup-card-summary { display: none; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .setup-card.collapsed .setup-card-summary { display: flex; }
+    .setup-summary-name { font-weight: 700; font-size: 15px; color: var(--teal-dark); }
+    .setup-summary-meta { font-size: 12px; color: var(--text-muted); }
+    .setup-summary-meta span { margin-right: 12px; }
+    .setup-summary-edit {
+      margin-left: auto; font-size: 12px; font-weight: 600;
+      color: var(--teal); cursor: pointer; padding: 5px 12px;
+      border: 1.5px solid var(--teal); border-radius: 20px;
+      background: none; transition: background .15s;
+    }
+    .setup-summary-edit:hover { background: var(--teal-50); }
 
     /* How it works strip */
     .hiw-strip {
@@ -329,11 +345,14 @@
     .search-input { font-family: var(--font-body); font-size: 13px; padding: 8px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-mint); color: var(--text-primary); min-width: 220px; transition: border-color .15s; }
     .search-input:focus { outline: none; border-color: var(--teal); background: #fff; }
     .search-input::placeholder { color: var(--text-light); }
-    .controls-right { margin-left: auto; display: flex; gap: 8px; }
+    .controls-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    .completion-counter { font-size: 12px; color: var(--text-muted); white-space: nowrap; padding-right: 8px; border-right: 1px solid var(--border); }
+    .completion-counter .cnt-gap   { color: var(--berry); font-weight: 700; }
+    .completion-counter .cnt-done  { color: var(--green); font-weight: 700; }
 
     /* ── ANALYSIS SECTIONS ── */
     .analysis-section { margin-bottom: 20px; }
-    .category-header { display: flex; align-items: center; gap: 12px; padding: 14px 24px; background: var(--teal-dark); color: #fff; border-radius: var(--radius) var(--radius) 0 0; cursor: pointer; user-select: none; transition: background .15s; }
+    .category-header { display: flex; align-items: center; gap: 12px; padding: 14px 24px; background: var(--teal-dark); color: #fff; border-radius: var(--radius) var(--radius) 0 0; cursor: pointer; user-select: none; transition: background .15s; position: sticky; top: 68px; z-index: 50; }
     .category-header:hover { background: var(--teal); }
     .category-header.collapsed { border-radius: var(--radius); }
     .cat-icon { font-size: 18px; }
@@ -355,10 +374,13 @@
     .data-row { display: grid; grid-template-columns: var(--col); align-items: center; padding: 9px 24px; border-bottom: 1px solid #F2F7F7; transition: background .1s; font-size: 13px; }
     .data-row:last-child { border-bottom: none; }
     .data-row:hover { background: var(--teal-50); }
-    .data-row.row-gap { background: #FFFBEE; }
+    .data-row.row-gap { background: #FFFBEE; border-left: 3px solid var(--amber); }
     .data-row.row-gap:hover { background: #FFF7D6; }
-    .data-row.row-critical { background: #FDF4F7; }
+    .data-row.row-critical { background: #FDF4F7; border-left: 3px solid var(--berry); }
     .data-row.row-critical:hover { background: #FAEAF0; }
+    .data-row.row-covered { opacity: .65; }
+    .subcat-row.row-gap { border-left: 3px solid var(--amber); }
+    .subcat-row.row-critical { border-left: 3px solid var(--berry); }
     .task-name { padding-left: 20px; color: var(--text-muted); font-size: 13px; }
     .col-solutions { font-size: 11px; color: var(--text-light); }
 
@@ -477,6 +499,12 @@
 
     [data-tip] { position: relative; }
     [data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--teal-dark); color: #fff; font-size: 11px; padding: 4px 10px; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 999; font-family: var(--font-body); }
+
+    /* ── COLUMN TOGGLE: hide Exp. Score (6th col) by default ── */
+    #analysisGrid.col-exp-hidden { --col: 28px 1fr 150px 130px 110px 100px 120px 100px 80px 32px; }
+    #analysisGrid.col-exp-hidden .col-headers > *:nth-child(6),
+    #analysisGrid.col-exp-hidden .subcat-row  > *:nth-child(6),
+    #analysisGrid.col-exp-hidden .data-row    > *:nth-child(6) { display: none; }
 
     @media (max-width: 960px) {
       :root { --col: 20px 1fr 100px 90px 70px 70px 55px 60px 60px 0 0; }
@@ -1042,9 +1070,14 @@
       <label>Anthropic API Key</label>
       <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeAiModal()">Cancel</button>
-      <button class="btn btn-ai" onclick="runClaudeEnrich()">✨ Run AI Review</button>
+    <div class="modal-footer" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="closeAiModal()" style="flex:1">Cancel</button>
+        <button class="btn btn-ai" onclick="runClaudeEnrich()" style="flex:2">✨ Run AI Review</button>
+      </div>
+      <button class="btn btn-ghost" onclick="runMockReview()" style="font-size:11px;color:var(--text-light)">
+        🧪 Test with mock data (no API key needed)
+      </button>
     </div>
   </div>
 </div>
@@ -1096,7 +1129,18 @@
 <div class="page">
 
   <!-- Setup -->
-  <div class="setup-card">
+  <div class="setup-card" id="setupCard">
+    <!-- Collapsed summary bar (shown after data loads) -->
+    <div class="setup-card-summary">
+      <div class="setup-summary-name" id="summaryCompanyName">Gap Analysis</div>
+      <div class="setup-summary-meta">
+        <span id="summaryIndustry"></span>
+        <span id="summaryEmpCount"></span>
+      </div>
+      <button class="setup-summary-edit" onclick="expandSetupCard()">Edit ↓</button>
+    </div>
+    <!-- Full form (hidden when collapsed) -->
+    <div class="setup-card-full">
     <div class="overline">Configure</div>
     <h2>Gap Analysis</h2>
 
@@ -1166,7 +1210,8 @@
       <button class="btn btn-ghost" onclick="window.print()">⎙ Print / PDF</button>
     </div>
     <input type="file" id="loadSessionInput" accept=".json" style="display:none" onchange="loadSession(event)" />
-  </div>
+    </div><!-- /.setup-card-full -->
+  </div><!-- /.setup-card -->
 
   <!-- AI Strip (shown after upload) -->
   <div class="ai-strip" id="aiStrip">
@@ -1287,13 +1332,15 @@
     </div>
     <input type="text" class="search-input" id="searchInput" placeholder="Search capabilities…" oninput="applyFilters()" />
     <div class="controls-right">
+      <div class="completion-counter" id="completionCounter"></div>
+      <button class="btn btn-ghost" id="colToggleBtn" onclick="toggleExpCol()" title="Show or hide the Exp. Score column">+ Exp. Score</button>
       <button class="btn btn-ghost" onclick="expandAll()">Expand All</button>
       <button class="btn btn-ghost" onclick="collapseAll()">Collapse All</button>
     </div>
   </div>
 
   <!-- Analysis Grid -->
-  <div id="analysisGrid"></div>
+  <div id="analysisGrid" class="col-exp-hidden"></div>
 
   </div><!-- end #gapView -->
 
@@ -2762,6 +2809,123 @@ ${lastUploadedText.slice(0, 14000)}`;
 }
 
 /* ═══════════════════════════════════════════
+   MOCK AI REVIEW (for local testing)
+═══════════════════════════════════════════ */
+function runMockReview() {
+  if (!currentData) { showToast('⚠ Load or upload data first.', 4000); return; }
+  closeAiModal();
+  showToast('🧪 Running mock AI review…', 0);
+
+  // Build a fake Claude response against the current grid:
+  // - Pick the first few filled items and "correct" their support level down one step
+  // - Pick the first few empty items and "fill" them with plausible values
+  // - Flag a couple of items as low-confidence
+  const allItems = [];
+  currentData.categories.forEach(cat => {
+    cat.items.forEach(item => allItems.push(item));
+  });
+
+  const supportOrder = ['No Support','Minimal','Basic','Partial','Best-in-Class'];
+  const filled   = allItems.filter(i => i.support && i.support !== 'No Support');
+  const empty    = allItems.filter(i => !i.support || i.support === 'No Support');
+
+  // Simulate: correct 3 filled items, fill 3 empty ones, flag 2 as uncertain
+  const toCorrect = filled.slice(0, 3);
+  const toFill    = empty.slice(0, 3);
+  const toFlag    = filled.slice(3, 5);
+
+  const mockMap = {};
+  toCorrect.forEach(item => {
+    const idx = supportOrder.indexOf(item.support);
+    const newSupport = supportOrder[Math.max(0, idx - 1)];
+    mockMap[item.name] = { support: newSupport, solutions: item.solutions || '', _confidence: 'high' };
+  });
+  toFill.forEach((item, i) => {
+    const mockVendors = [['Lyra Health','Spring Health'],['Carrot Fertility'],['Hinge Health']][i] || [];
+    const mockLevels  = ['Partial','Basic','Minimal'];
+    mockMap[item.name] = { support: mockLevels[i] || 'Basic', solutions: mockVendors.join(', '), _confidence: 'medium' };
+  });
+  toFlag.forEach(item => {
+    mockMap[item.name] = { support: item.support, solutions: item.solutions || '', _confidence: 'low' };
+  });
+
+  // Apply using the same logic as the real enrichment
+  const corrected = [], newlyFilled = [], flagged = [];
+  const enriched = JSON.parse(JSON.stringify(currentData));
+  enriched.categories.forEach(cat => {
+    cat.items.forEach(item => {
+      const c = mockMap[item.name];
+      if (!c) return;
+      const prevSupport   = item.support   || 'No Support';
+      const prevSolutions = item.solutions || '';
+      item.support   = c.support;
+      item.solutions = c.solutions;
+      item._claudeFilled = true;
+      item._autoFilled   = true;
+      if (c._confidence === 'low') {
+        item._claudeReview = true;
+        flagged.push({ name: item.name, reason: 'Claude is uncertain — verify manually' });
+      } else {
+        item._claudeReview = false;
+      }
+      if (prevSupport === 'No Support' && item.support !== 'No Support') {
+        newlyFilled.push({ name: item.name, support: item.support, solutions: item.solutions });
+      } else if (prevSupport !== item.support || prevSolutions !== item.solutions) {
+        corrected.push({ name: item.name, prevSupport, prevSolutions, newSupport: item.support, newSolutions: item.solutions });
+      }
+    });
+  });
+
+  if (!enriched.company)  enriched.company  = currentData.company;
+  if (!enriched.industry) enriched.industry = currentData.industry;
+  if (!enriched.empCount) enriched.empCount = currentData.empCount;
+  render(enriched);
+  showToast('');
+
+  const totalChanged = corrected.length + newlyFilled.length;
+  document.getElementById('aiReviewHeadline').textContent =
+    `${totalChanged} rows updated · ${flagged.length} flagged for review`;
+
+  let bodyHtml = '';
+  if (newlyFilled.length) {
+    bodyHtml += `<div class="ai-review-section">
+      <div class="ai-review-section-title">Newly filled (${newlyFilled.length})</div>
+      ${newlyFilled.map(r => `<div class="ai-review-row">
+        <div class="ai-review-name">${escHtml(r.name)}</div>
+        <div class="ai-review-change"><strong>${escHtml(r.support)}</strong>${r.solutions ? ' · ' + escHtml(r.solutions) : ''}</div>
+      </div>`).join('')}
+    </div>`;
+  }
+  if (corrected.length) {
+    bodyHtml += `<div class="ai-review-section">
+      <div class="ai-review-section-title">Corrected by Claude (${corrected.length})</div>
+      ${corrected.map(r => `<div class="ai-review-row">
+        <div class="ai-review-name">${escHtml(r.name)}</div>
+        <div class="ai-review-change">
+          <s>${escHtml(r.prevSupport)}${r.prevSolutions ? ' · ' + escHtml(r.prevSolutions) : ''}</s>
+          → <strong>${escHtml(r.newSupport)}${r.newSolutions ? ' · ' + escHtml(r.newSolutions) : ''}</strong>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }
+  if (flagged.length) {
+    bodyHtml += `<div class="ai-review-section">
+      <div class="ai-review-section-title">Flagged for manual review (${flagged.length})</div>
+      ${flagged.map(r => `<div class="ai-review-row">
+        <div class="ai-review-name">${escHtml(r.name)}</div>
+        <div class="ai-review-flag">⚠ ${escHtml(r.reason)}</div>
+      </div>`).join('')}
+    </div>`;
+  }
+  if (!bodyHtml) bodyHtml = '<p style="color:var(--text-muted);font-size:13px">No changes to demonstrate — try uploading a document first.</p>';
+
+  document.getElementById('aiReviewBody').innerHTML = bodyHtml;
+  document.getElementById('aiReviewModal').classList.add('open');
+  document.getElementById('aiStripText').innerHTML =
+    `<strong>Mock AI review complete.</strong> ${totalChanged} rows updated, ${flagged.length} flagged. Rows marked <span class="conf-badge conf-review" style="display:inline-flex">Review</span> need manual verification.`;
+}
+
+/* ═══════════════════════════════════════════
    SCORING
 ═══════════════════════════════════════════ */
 function supportLevel(s) {
@@ -2819,6 +2983,15 @@ function render(data) {
   document.getElementById('industry').value      = data.industry  || '';
   document.getElementById('empCount').value      = data.empCount  || '';
   document.getElementById('analysisTitle').value = (data.company ? data.company + ' — ' : '') + 'Gap Analysis';
+
+  // Collapse setup card to summary bar
+  const setupCard = document.getElementById('setupCard');
+  setupCard.classList.add('collapsed');
+  document.getElementById('summaryCompanyName').textContent = data.company || 'Gap Analysis';
+  const summInd = data.industry || '';
+  const summEmp = data.empCount ? data.empCount + ' employees' : '';
+  document.getElementById('summaryIndustry').textContent = summInd;
+  document.getElementById('summaryEmpCount').textContent = summInd && summEmp ? ' · ' + summEmp : summEmp;
 
   const chips = document.getElementById('catChips');
   chips.innerHTML = `<div class="chip active" data-cat="all" onclick="setCatFilter('all',this)">All</div>`;
@@ -2899,9 +3072,12 @@ function renderItems(items, search, ci) {
     const gap  = gapType(item);
     const isNA = item.overalls === 'N/A';
     const path = `${ci},${ii},-1`;
+    const subcatRowCls = (!item.support || item.support === 'No Support') ? 'row-critical' :
+                         gap === 'opportunity' ? 'row-gap' :
+                         gap === 'covered' ? 'row-covered' : '';
 
     html += `
-      <div class="subcat-row" id="row_${ci}_${ii}">
+      <div class="subcat-row ${subcatRowCls}" id="row_${ci}_${ii}">
         <div></div>
         <div>${editableName(item, path, false)}</div>
         <div>${editableSolutions(item, path)}</div>
@@ -2924,7 +3100,8 @@ function renderItems(items, search, ci) {
         const tg   = gapType(task);
         const tpath= `${ci},${ii},${ti}`;
         const rowCls = (!task.support || task.support === 'No Support') ? 'row-critical' :
-                       tg === 'opportunity' ? 'row-gap' : '';
+                       tg === 'opportunity' ? 'row-gap' :
+                       tg === 'covered' ? 'row-covered' : '';
         html += `
           <div class="data-row ${rowCls}" id="row_${ci}_${ii}_${ti}">
             <div></div>
@@ -3086,11 +3263,12 @@ function activateSupportEdit(el, path) {
     const parts = path.split(',');
     const rowId = parts[2] === '-1' ? `row_${parts[0]}_${parts[1]}` : `row_${parts[0]}_${parts[1]}_${parts[2]}`;
     const row = document.getElementById(rowId);
-    if (row && parts[2] !== '-1') {
-      row.classList.remove('row-gap','row-critical');
+    if (row) {
+      row.classList.remove('row-gap','row-critical','row-covered');
       const g = gapType(item);
-      if (g === 'critical') row.classList.add('row-critical');
+      if (!item.support || item.support === 'No Support') row.classList.add('row-critical');
       else if (g === 'opportunity') row.classList.add('row-gap');
+      else if (g === 'covered') row.classList.add('row-covered');
     }
   };
   sel.onchange = commit;
@@ -3274,6 +3452,18 @@ function renderSummary(data) {
         </div>
       </div>`;
   }).join('');
+
+  // ── Completion counter
+  const counter = document.getElementById('completionCounter');
+  if (counter) {
+    const total  = withO.length;
+    const gaps   = gapItems.length;
+    const done   = covered;
+    counter.innerHTML =
+      `<span class="cnt-gap">${gaps} gap${gaps !== 1 ? 's' : ''}</span> · ` +
+      `<span class="cnt-done">${done} covered</span> · ` +
+      `${total} total`;
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -3594,6 +3784,16 @@ function collapseAll() {
   document.querySelectorAll('.section-body').forEach(b => b.style.display = 'none');
   document.querySelectorAll('.category-header').forEach(h => h.classList.add('collapsed'));
   if (currentData) currentData.categories.forEach(c => collapsedCats.add(c.name));
+}
+
+function expandSetupCard() {
+  document.getElementById('setupCard').classList.remove('collapsed');
+}
+
+function toggleExpCol() {
+  const grid = document.getElementById('analysisGrid');
+  const nowHidden = grid.classList.toggle('col-exp-hidden');
+  document.getElementById('colToggleBtn').textContent = nowHidden ? '+ Exp. Score' : '− Exp. Score';
 }
 
 function startBlank() {
