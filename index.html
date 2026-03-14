@@ -1187,6 +1187,64 @@
     .glue-support-pill.basic   { background: #EAF5F5; color: var(--teal-mid); }
     .glue-support-pill.minimal { background: #FFF8EE; color: #9A6B00; }
     .glue-support-pill.none    { background: #F5F5F5; color: #888; }
+
+    /* ── GLUE mode bar ── */
+    .glue-mode-bar { display: flex; gap: 4px; background: var(--bg-mint); border-radius: 12px; padding: 4px; }
+    .glue-mode-btn { padding: 8px 18px; border-radius: 9px; border: none; background: transparent; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: all .15s; font-family: inherit; letter-spacing: .01em; }
+    .glue-mode-btn.active { background: #fff; color: var(--teal-dark); box-shadow: 0 1px 5px rgba(0,0,0,.1); }
+
+    /* ── Before / After strip ── */
+    .glue-ba-strip { display: grid; grid-template-columns: 1fr 52px 1fr; margin-bottom: 28px; border: 1.5px solid var(--border); border-radius: 20px; overflow: hidden; }
+    .glue-ba-before { background: #FDF4F7; padding: 24px 28px; }
+    .glue-ba-after  { background: #EDF8F5; padding: 24px 28px; }
+    .glue-ba-sep { display: flex; align-items: center; justify-content: center; background: var(--border); position: relative; }
+    .glue-ba-sep-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--teal); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; position: absolute; box-shadow: 0 2px 8px rgba(10,92,94,.3); }
+    .glue-ba-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 6px; }
+    .glue-ba-eyebrow.before { color: var(--berry); }
+    .glue-ba-eyebrow.after  { color: var(--teal); }
+    .glue-ba-title { font-family: var(--font-display); font-size: 17px; color: var(--teal-dark); margin-bottom: 5px; }
+    .glue-ba-desc  { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px; }
+    .glue-ba-chaos { display: flex; flex-wrap: wrap; gap: 5px; }
+    .glue-ba-chaos-chip { background: rgba(205,44,92,.1); color: var(--berry); border-radius: 6px; padding: 3px 9px; font-size: 10px; font-weight: 600; }
+    .glue-ba-step  { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--teal-dark); font-weight: 600; margin-bottom: 6px; }
+    .glue-ba-step-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+
+    /* ── Orchestration diagram ── */
+    .glue-orch-diagram { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .glue-orch-employee { background: #fff; border: 2px solid var(--border); border-radius: 14px; padding: 12px 28px; font-size: 14px; font-weight: 700; color: var(--text-body); display: inline-flex; align-items: center; gap: 8px; }
+    .glue-orch-vline { width: 2px; height: 28px; background: linear-gradient(to bottom, var(--border), var(--teal-light)); }
+    .glue-orch-hub { background: linear-gradient(135deg, #0A5C5E 0%, #013748 100%); color: #fff; border-radius: 22px; padding: 22px 44px; text-align: center; box-shadow: 0 10px 36px rgba(10,92,94,.28); position: relative; min-width: 300px; }
+    .glue-orch-hub-ring { position: absolute; inset: -5px; border-radius: 27px; border: 2px solid rgba(91,187,189,.35); animation: orchPulse 2.8s ease-in-out infinite; pointer-events: none; }
+    @keyframes orchPulse { 0%,100%{opacity:.35;transform:scale(1)} 50%{opacity:.7;transform:scale(1.015)} }
+    .glue-orch-hub-badge { display: inline-block; background: rgba(255,255,255,.15); border-radius: 8px; padding: 3px 12px; font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 8px; }
+    .glue-orch-hub-name { font-family: var(--font-display); font-size: 26px; letter-spacing: -.5px; line-height: 1; }
+    .glue-orch-hub-sub  { font-size: 11px; opacity: .7; margin-top: 5px; }
+    .glue-orch-rail-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; }
+    .glue-orch-rail-label { font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; color: var(--text-muted); margin: 16px 0 12px; display: flex; align-items: center; gap: 10px; width: 100%; }
+    .glue-orch-rail-label::before, .glue-orch-rail-label::after { content:''; flex:1; height:1px; background:var(--border); }
+    .glue-orch-cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; width: 100%; }
+    .glue-orch-cat-card { background: #fff; border: 1.5px solid var(--border); border-radius: 16px; padding: 18px 16px; cursor: pointer; transition: all .15s; }
+    .glue-orch-cat-card:hover { border-color: var(--teal); box-shadow: 0 4px 18px rgba(10,92,94,.12); transform: translateY(-2px); }
+    .glue-orch-cat-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .glue-orch-cat-icon { font-size: 20px; line-height: 1; }
+    .glue-orch-cat-name { font-size: 13px; font-weight: 700; color: var(--teal-dark); line-height: 1.25; }
+    .glue-orch-vendor-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); padding: 2px 0; }
+    .glue-orch-vendor-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal-light); flex-shrink: 0; }
+    .glue-orch-cat-ft { font-size: 10px; color: var(--teal-mid); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-weight: 700; }
+    .glue-orch-overalls-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--teal); font-weight: 700; padding: 2px 0; }
+    .glue-orch-overalls-badge { background: var(--teal); color: #fff; border-radius: 4px; font-size: 9px; font-weight: 800; padding: 1px 5px; letter-spacing: .05em; flex-shrink: 0; }
+
+    /* ── Overalls routing card (panel) ── */
+    .glue-routing-card { background: linear-gradient(135deg, #E3F5F5 0%, #EDF8F5 100%); border: 1.5px solid var(--teal-light); border-radius: 13px; padding: 14px 16px; }
+    .glue-routing-card-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .glue-routing-logo { width: 26px; height: 26px; border-radius: 7px; background: var(--teal); color: #fff; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); flex-shrink: 0; }
+    .glue-routing-title { font-size: 11px; font-weight: 800; color: var(--teal); text-transform: uppercase; letter-spacing: .1em; }
+    .glue-routing-desc { font-size: 12px; color: var(--teal-dark); line-height: 1.55; }
+
+    /* ── Quote strip ── */
+    .glue-quote { background: linear-gradient(135deg, #0A5C5E 0%, #013748 100%); color: #fff; border-radius: 18px; padding: 22px 32px 22px 52px; margin-top: 24px; font-size: 14px; line-height: 1.7; font-style: italic; position: relative; }
+    .glue-quote::before { content: '"'; font-family: var(--font-display); font-size: 56px; line-height: 0; position: absolute; top: 38px; left: 22px; opacity: .25; font-style: normal; }
+    .glue-quote-footer { margin-top: 12px; font-size: 11px; font-weight: 700; opacity: .7; font-style: normal; letter-spacing: .08em; text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -1901,25 +1959,86 @@
   <!-- ─────────── GLUE VIEW ─────────── -->
   <div id="glueView" style="display:none">
     <div class="glue-view">
+
+      <!-- Shared header -->
       <div class="glue-header">
-        <h2>✨ GLUE — Benefits Experience Preview</h2>
-        <div class="glue-search">
-          <span style="color:var(--text-muted)">🔍</span>
-          <input type="text" id="glueSearch" placeholder="Search benefits…" oninput="renderGLUEView()">
+        <h2>✨ GLUE — Benefits Orchestration</h2>
+        <div class="glue-mode-bar">
+          <button class="glue-mode-btn active" id="glueModeOrch" onclick="setGlueMode('orch')">🎯 Orchestration</button>
+          <button class="glue-mode-btn"        id="glueModeExp"  onclick="setGlueMode('explorer')">🗂 Explorer</button>
         </div>
       </div>
-      <div class="glue-cat-row" id="glueCatRow"></div>
-      <div class="glue-toolbar">
-        <span class="glue-count" id="glueCount"></span>
-        <label class="glue-my-toggle">
-          <input type="checkbox" id="glueMyBenefits" onchange="renderGLUEView()">
-          <span class="glue-tog-track"></span>
-          Show only my benefits
-        </label>
-      </div>
-      <div id="glueGrid"></div>
-    </div>
-    <!-- Overlay + Panel -->
+
+      <!-- ── ORCHESTRATION VIEW (default) ── -->
+      <div id="glueOrchView">
+
+        <!-- Before / After strip -->
+        <div class="glue-ba-strip">
+          <div class="glue-ba-before">
+            <div class="glue-ba-eyebrow before">❌ Before Overalls</div>
+            <div class="glue-ba-title">Benefits Chaos</div>
+            <div class="glue-ba-desc">Employees must self-navigate a fragmented vendor landscape with no guidance.</div>
+            <div class="glue-ba-chaos" id="glueBeforeChaos"></div>
+          </div>
+          <div class="glue-ba-sep"><div class="glue-ba-sep-icon">→</div></div>
+          <div class="glue-ba-after">
+            <div class="glue-ba-eyebrow after">✅ After Overalls</div>
+            <div class="glue-ba-title">Single Front Door</div>
+            <div class="glue-ba-desc">One entry point. Intelligent routing. Every benefit activated automatically.</div>
+            <div class="glue-ba-step"><div class="glue-ba-step-dot"></div>Employee describes their need</div>
+            <div class="glue-ba-step"><div class="glue-ba-step-dot"></div>Overalls identifies the right benefit</div>
+            <div class="glue-ba-step"><div class="glue-ba-step-dot"></div>Routed to vendor — or solved directly by Overalls</div>
+          </div>
+        </div>
+
+        <!-- Orchestration flow diagram -->
+        <div class="glue-orch-diagram">
+          <div class="glue-orch-employee"><span>👤</span> Employee Need</div>
+          <div class="glue-orch-vline"></div>
+          <div class="glue-orch-hub">
+            <div class="glue-orch-hub-ring"></div>
+            <div class="glue-orch-hub-badge">Benefits Front Door · Life Concierge</div>
+            <div class="glue-orch-hub-name">Overalls</div>
+            <div class="glue-orch-hub-sub">Intelligent Routing &amp; Advocacy across your entire benefits ecosystem</div>
+          </div>
+          <div class="glue-orch-rail-wrap">
+            <div class="glue-orch-rail-label">Routes to your existing benefits</div>
+            <div class="glue-orch-cats" id="glueOrchCats"></div>
+          </div>
+        </div>
+
+        <!-- Quote -->
+        <div class="glue-quote">
+          Employees don't need to figure out which benefit to use. They simply tell Overalls what they need, and we route the request to the right program — or solve it directly when a benefit doesn't exist yet.
+          <div class="glue-quote-footer">— Overalls · Benefits Orchestration Layer</div>
+        </div>
+
+      </div><!-- end glueOrchView -->
+
+      <!-- ── EXPLORER VIEW ── -->
+      <div id="glueExplorerView" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+          <div class="glue-search" style="min-width:220px;flex:1;max-width:340px;">
+            <span style="color:var(--text-muted)">🔍</span>
+            <input type="text" id="glueSearch" placeholder="Search benefits…" oninput="renderGLUEExplorer()">
+          </div>
+          <label class="glue-my-toggle">
+            <input type="checkbox" id="glueMyBenefits" onchange="renderGLUEExplorer()">
+            <span class="glue-tog-track"></span>
+            Show only my benefits
+          </label>
+        </div>
+        <div class="glue-cat-row" id="glueCatRow"></div>
+        <div class="glue-toolbar">
+          <span class="glue-count" id="glueCount"></span>
+          <button class="btn btn-ghost" onclick="setGlueMode('orch')" style="font-size:12px">← Back to Orchestration</button>
+        </div>
+        <div id="glueGrid"></div>
+      </div><!-- end glueExplorerView -->
+
+    </div><!-- end .glue-view -->
+
+    <!-- Overlay + Panel (shared) -->
     <div class="glue-overlay" id="glueOverlay" onclick="closeGluePanel()"></div>
     <div class="glue-panel" id="gluePanel">
       <div class="glue-panel-hdr">
@@ -4930,6 +5049,7 @@ function renderROIView() {
    GLUE TAB
 ═══════════════════════════════════════════ */
 let glueCatFilter = 'all';
+let glueMode      = 'orch'; // 'orch' | 'explorer'
 
 // Deterministic colour from vendor/benefit name
 const GLUE_PALETTE = [
@@ -4970,24 +5090,91 @@ function glueAllTiles() {
   return tiles;
 }
 
+function setGlueMode(mode) {
+  glueMode = mode;
+  document.getElementById('glueModeOrch').classList.toggle('active', mode === 'orch');
+  document.getElementById('glueModeExp').classList.toggle('active',  mode === 'explorer');
+  document.getElementById('glueOrchView').style.display     = mode === 'orch'     ? '' : 'none';
+  document.getElementById('glueExplorerView').style.display = mode === 'explorer' ? '' : 'none';
+  if (mode === 'orch')     renderGLUEOrch();
+  if (mode === 'explorer') renderGLUEExplorer();
+}
+
 function renderGLUEView() {
   if (!currentData) {
-    document.getElementById('glueCatRow').innerHTML = '';
-    document.getElementById('glueGrid').innerHTML = `
-      <div class="glue-empty">
+    // Show empty state in orch view
+    setGlueMode('orch');
+    document.getElementById('glueOrchCats').innerHTML = `
+      <div class="glue-empty" style="grid-column:1/-1">
         <div class="glue-empty-icon">📄</div>
         <h3>Upload a benefits document first</h3>
-        <p>Once you upload a guide or spreadsheet, GLUE will preview every benefit as it would appear in the Overalls employee app.</p>
+        <p>Once you upload a guide or spreadsheet, GLUE will show how Overalls orchestrates every benefit in your ecosystem.</p>
       </div>`;
-    document.getElementById('glueCount').textContent = '';
+    document.getElementById('glueBeforeChaos').innerHTML = '';
     return;
   }
+  setGlueMode(glueMode);
+}
 
-  const searchQ   = (document.getElementById('glueSearch')?.value || '').toLowerCase().trim();
-  const myOnly    = document.getElementById('glueMyBenefits')?.checked;
-  const allTiles  = glueAllTiles();
+function renderGLUEOrch() {
+  if (!currentData) return;
 
-  // Build category chip counts (before search filter, after myOnly)
+  // Before chaos: collect all unique vendors from the data
+  const allVendors = [];
+  currentData.categories.forEach(cat => {
+    cat.items.forEach(item => {
+      (item.solutions || '').split(/[,\/;]+/).map(v=>v.trim()).filter(Boolean).forEach(v => {
+        if (!allVendors.includes(v)) allVendors.push(v);
+      });
+    });
+  });
+  document.getElementById('glueBeforeChaos').innerHTML =
+    allVendors.slice(0, 14).map(v => `<span class="glue-ba-chaos-chip">${escHtml(v)}</span>`).join('');
+
+  // Category orchestration nodes
+  document.getElementById('glueOrchCats').innerHTML = currentData.categories.map((cat, ci) => {
+    const icon = CAT_ICONS[cat.name] || '●';
+    const vendors = [];
+    cat.items.forEach(item => {
+      (item.solutions || '').split(/[,\/;]+/).map(v=>v.trim()).filter(Boolean).forEach(v => {
+        if (!vendors.includes(v)) vendors.push(v);
+      });
+    });
+    // Count how many items Overalls can handle directly (No Support or partial)
+    const overallsHandled = cat.items.filter(i => {
+      const s = (i.support || '').toLowerCase();
+      return s.includes('no support') || s.includes('partial') || s.includes('minimal');
+    }).length;
+
+    return `<div class="glue-orch-cat-card" onclick="glueOrchCardClick(${JSON.stringify(cat.name)})">
+      <div class="glue-orch-cat-hd">
+        <span class="glue-orch-cat-icon">${icon}</span>
+        <span class="glue-orch-cat-name">${escHtml(cat.name)}</span>
+      </div>
+      <div class="glue-orch-cat-vendors">
+        ${vendors.slice(0, 3).map(v => `<div class="glue-orch-vendor-row"><div class="glue-orch-vendor-dot"></div>${escHtml(v)}</div>`).join('')}
+        ${vendors.length > 3 ? `<div class="glue-orch-vendor-row" style="color:var(--teal-mid);font-weight:700">+${vendors.length-3} more</div>` : ''}
+        ${overallsHandled > 0 ? `<div class="glue-orch-overalls-row"><span class="glue-orch-overalls-badge">O</span>Overalls fills ${overallsHandled} gap${overallsHandled!==1?'s':''} directly</div>` : ''}
+      </div>
+      <div class="glue-orch-cat-ft">${cat.items.length} benefit${cat.items.length!==1?'s':''} · Explore →</div>
+    </div>`;
+  }).join('');
+}
+
+function glueOrchCardClick(catName) {
+  glueCatFilter = catName;
+  glueMode = 'explorer';
+  setGlueMode('explorer');
+}
+
+function renderGLUEExplorer() {
+  if (!currentData) return;
+
+  const searchQ  = (document.getElementById('glueSearch')?.value || '').toLowerCase().trim();
+  const myOnly   = document.getElementById('glueMyBenefits')?.checked;
+  const allTiles = glueAllTiles();
+
+  // Build category chip counts
   const countByCat = {};
   allTiles.forEach(t => {
     if (myOnly && t.support.toLowerCase().includes('no support')) return;
@@ -4995,17 +5182,15 @@ function renderGLUEView() {
   });
   const totalVisible = Object.values(countByCat).reduce((a,b)=>a+b,0);
 
-  // Render category chips
   const catRow = document.getElementById('glueCatRow');
   catRow.innerHTML = `<div class="glue-cat-chip${glueCatFilter==='all'?' active':''}" onclick="setGlueCatFilter('all')">All <span class="chip-count">${totalVisible}</span></div>`;
   currentData.categories.forEach(cat => {
     const cnt = countByCat[cat.name] || 0;
-    if (cnt === 0) return; // hide empty cats
+    if (cnt === 0) return;
     const icon = CAT_ICONS[cat.name] || '●';
     catRow.innerHTML += `<div class="glue-cat-chip${glueCatFilter===cat.name?' active':''}" onclick="setGlueCatFilter(${JSON.stringify(cat.name)})">${icon} ${escHtml(cat.name)} <span class="chip-count">${cnt}</span></div>`;
   });
 
-  // Filter tiles
   let filtered = allTiles.filter(t => {
     if (myOnly && t.support.toLowerCase().includes('no support')) return false;
     if (glueCatFilter !== 'all' && t.cat !== glueCatFilter) return false;
@@ -5016,23 +5201,18 @@ function renderGLUEView() {
   document.getElementById('glueCount').textContent = filtered.length + ' benefit' + (filtered.length !== 1 ? 's' : '');
 
   if (filtered.length === 0) {
-    document.getElementById('glueGrid').innerHTML = `
-      <div class="glue-empty">
-        <div class="glue-empty-icon">🔍</div>
-        <h3>No benefits found</h3>
-        <p>Try a different search term or category filter.</p>
-      </div>`;
+    document.getElementById('glueGrid').innerHTML = `<div class="glue-empty"><div class="glue-empty-icon">🔍</div><h3>No benefits found</h3><p>Try a different search term or category filter.</p></div>`;
     return;
   }
 
-  // Render tile grid
   document.getElementById('glueGrid').innerHTML = `<div class="glue-grid">${
     filtered.map(t => {
       const color    = glueVendorColor(t.vendor);
       const initials = glueInitials(t.vendor);
       const catIcon  = CAT_ICONS[t.cat] || '●';
-      return `
-        <div class="glue-tile" onclick="openGlueTile(${t.ci},${t.ii})">
+      // Flag items Overalls can handle directly
+      const isGap = t.support.toLowerCase().includes('no support') || t.support.toLowerCase().includes('partial') || t.support.toLowerCase().includes('minimal');
+      return `<div class="glue-tile" onclick="openGlueTile(${t.ci},${t.ii})">
           <div class="glue-tile-top">
             <div class="glue-tile-logo" style="background:${color}">${escHtml(initials)}</div>
             <div class="glue-tile-bm" onclick="event.stopPropagation()" title="Bookmark">🔖</div>
@@ -5041,6 +5221,7 @@ function renderGLUEView() {
             <div class="glue-tile-name">${escHtml(t.name)}</div>
             ${t.vendor && t.vendor !== t.name ? `<div class="glue-tile-vendor">${escHtml(t.vendor)}</div>` : ''}
             <div class="glue-tile-cat">${catIcon} ${escHtml(t.cat)}</div>
+            ${isGap ? `<div style="margin-top:6px;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-50);border-radius:5px;padding:2px 7px;display:inline-block">⚡ Overalls can help</div>` : ''}
           </div>
         </div>`;
     }).join('')
@@ -5049,7 +5230,7 @@ function renderGLUEView() {
 
 function setGlueCatFilter(cat) {
   glueCatFilter = cat;
-  renderGLUEView();
+  renderGLUEExplorer();
 }
 
 function openGlueTile(ci, ii) {
@@ -5072,6 +5253,20 @@ function openGlueTile(ci, ii) {
   // Body
   const body = document.getElementById('gluePanelBody');
   let html = '';
+
+  // ── Overalls routing card (always first) ──
+  const supLower = (item.support || '').toLowerCase();
+  const hasVendor = (item.solutions || '').trim().length > 0 && !supLower.includes('no support');
+  const orchDesc = hasVendor
+    ? `Overalls routes employee requests for this benefit directly to <strong>${escHtml((item.solutions||'').split(/[,\/;]+/)[0].trim())}</strong> — no searching, no friction. Employee just tells Overalls what they need.`
+    : `Your current benefits package doesn't cover this need. Overalls steps in and <strong>solves it directly</strong> through our Life Concierge team, so employees are never left without support.`;
+  html += `<div class="glue-routing-card">
+    <div class="glue-routing-card-hd">
+      <div class="glue-routing-logo">O</div>
+      <div class="glue-routing-title">How Overalls handles this</div>
+    </div>
+    <div class="glue-routing-desc">${orchDesc}</div>
+  </div>`;
 
   // Support pill
   const pillClass = glueSupportPillClass(item.support);
