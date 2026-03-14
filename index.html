@@ -1138,17 +1138,29 @@
     .glue-my-toggle input:checked + .glue-tog-track { background: var(--teal); }
     .glue-my-toggle input:checked + .glue-tog-track::after { transform: translateX(18px); }
 
-    .glue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-    .glue-tile { background: #fff; border: 1.5px solid var(--border); border-radius: 20px; padding: 20px; cursor: pointer; transition: box-shadow .15s, transform .15s, border-color .15s; position: relative; display: flex; flex-direction: column; gap: 12px; }
-    .glue-tile:hover { box-shadow: 0 8px 24px rgba(10,92,94,.12); transform: translateY(-2px); border-color: var(--teal-light); }
-    .glue-tile-top { display: flex; justify-content: space-between; align-items: flex-start; }
-    .glue-tile-logo { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: #fff; flex-shrink: 0; letter-spacing: -.5px; font-family: var(--font-display); overflow: hidden; }
-    .glue-tile-logo img, .glue-panel-logo img { width: 100%; height: 100%; object-fit: contain; padding: 8px; box-sizing: border-box; display: block; }
-    .glue-tile-bm { width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 13px; transition: all .15s; flex-shrink: 0; }
+    .glue-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 900px) { .glue-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 580px) { .glue-grid { grid-template-columns: 1fr; } }
+
+    /* Redesigned landscape tile */
+    .glue-tile { background: #fff; border: 1px solid #E5E9EE; border-radius: 16px; padding: 22px 20px 18px; cursor: pointer; transition: box-shadow .15s, transform .12s, border-color .15s; position: relative; display: flex; flex-direction: column; gap: 14px; overflow: hidden; min-height: 150px; }
+    .glue-tile:hover { box-shadow: 0 6px 22px rgba(10,92,94,.1); transform: translateY(-2px); border-color: var(--teal-light); }
+    /* Diagonal stripe texture — right portion of tile */
+    .glue-tile-stripe { position: absolute; top: 0; right: 0; bottom: 0; width: 45%; background: repeating-linear-gradient(135deg, transparent, transparent 7px, rgba(0,0,0,.018) 7px, rgba(0,0,0,.018) 14px); pointer-events: none; }
+    /* Logo area — full-width row, logo left-aligned */
+    .glue-tile-logo-area { height: 50px; display: flex; align-items: center; }
+    .glue-tile-logo-img { max-height: 46px; max-width: 170px; width: auto; height: auto; object-fit: contain; display: block; }
+    /* Initials fallback box */
+    .glue-tile-initials { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -.5px; font-family: var(--font-display); flex-shrink: 0; }
+    /* Bookmark — absolute top-right */
+    .glue-tile-bm { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 13px; transition: all .15s; z-index: 1; background: rgba(255,255,255,.9); }
     .glue-tile-bm:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-50); }
-    .glue-tile-name { font-size: 13px; font-weight: 700; color: var(--teal-dark); line-height: 1.35; }
-    .glue-tile-cat { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
-    .glue-tile-vendor { font-size: 11px; color: var(--teal-mid); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* Text info area */
+    .glue-tile-info { display: flex; flex-direction: column; gap: 3px; }
+    .glue-tile-name { font-size: 15px; font-weight: 700; color: #1a1a2e; line-height: 1.3; }
+    .glue-tile-vendor-sub { font-size: 12px; color: var(--text-muted); }
+    /* Keep panel logo img style */
+    .glue-panel-logo img { width: 100%; height: 100%; object-fit: contain; padding: 8px; box-sizing: border-box; display: block; }
 
     .glue-empty { text-align: center; padding: 80px 20px; color: var(--text-muted); }
     .glue-empty-icon { font-size: 52px; margin-bottom: 16px; }
@@ -5165,6 +5177,7 @@ function glueDomain(name) {
 
 // Called by onerror on logo images — swaps to colored initials
 function glueLogoErr(img, color, initials) {
+  // Used by panel header and orch view logos (inside a container div)
   const p = img.parentElement;
   if (!p) return;
   p.style.background = color;
@@ -5174,6 +5187,18 @@ function glueLogoErr(img, color, initials) {
   s.textContent = initials;
   s.style.cssText = 'color:#fff;font-weight:800;letter-spacing:-.5px;font-family:var(--font-display)';
   p.appendChild(s);
+}
+
+function glueTileLogoErr(img, color, initials) {
+  // Used by Explorer tile logos — replace img with initials box
+  const area = img.parentElement;
+  if (!area) return;
+  img.remove();
+  const d = document.createElement('div');
+  d.className = 'glue-tile-initials';
+  d.style.background = color;
+  d.textContent = initials;
+  area.appendChild(d);
 }
 
 // Returns the inner HTML for a logo container (img tag or initials span)
@@ -5363,20 +5388,21 @@ function renderGLUEExplorer() {
     filtered.map(t => {
       const color    = glueVendorColor(t.vendor);
       const initials = glueInitials(t.vendor);
-      const catIcon  = CAT_ICONS[t.cat] || '●';
-      const hasDomain = !!glueDomain(t.vendor);
-      const isGap = t.support.toLowerCase().includes('no support') || t.support.toLowerCase().includes('partial') || t.support.toLowerCase().includes('minimal');
-      const logoStyle = hasDomain ? 'background:#f8f9f9;border:1.5px solid #ebebeb' : `background:${color}`;
+      const domain   = glueDomain(t.vendor);
+      const isGap    = t.support.toLowerCase().includes('no support') || t.support.toLowerCase().includes('partial') || t.support.toLowerCase().includes('minimal');
+      const safeColor    = color.replace(/'/g,"\\'");
+      const safeInitials = initials.replace(/'/g,"\\'");
+      const logoHTML = domain
+        ? `<img class="glue-tile-logo-img" src="https://logo.clearbit.com/${domain}" loading="lazy" onerror="glueTileLogoErr(this,'${safeColor}','${safeInitials}')">`
+        : `<div class="glue-tile-initials" style="background:${color}">${escHtml(initials)}</div>`;
       return `<div class="glue-tile" onclick="openGlueTile(${t.ci},${t.ii})">
-          <div class="glue-tile-top">
-            <div class="glue-tile-logo" style="${logoStyle}">${glueLogoInner(t.vendor, color, initials)}</div>
-            <div class="glue-tile-bm" onclick="event.stopPropagation()" title="Bookmark">🔖</div>
-          </div>
-          <div>
+          <div class="glue-tile-stripe"></div>
+          <div class="glue-tile-logo-area">${logoHTML}</div>
+          <div class="glue-tile-bm" onclick="event.stopPropagation()" title="Bookmark">🔖</div>
+          <div class="glue-tile-info">
             <div class="glue-tile-name">${escHtml(t.name)}</div>
-            ${t.vendor && t.vendor !== t.name ? `<div class="glue-tile-vendor">${escHtml(t.vendor)}</div>` : ''}
-            <div class="glue-tile-cat">${catIcon} ${escHtml(t.cat)}</div>
-            ${isGap ? `<div style="margin-top:6px;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-50);border-radius:5px;padding:2px 7px;display:inline-block">⚡ Overalls can help</div>` : ''}
+            ${t.vendor && t.vendor !== t.name ? `<div class="glue-tile-vendor-sub">${escHtml(t.vendor)}</div>` : ''}
+            ${isGap ? `<div style="margin-top:5px;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-50);border-radius:5px;padding:2px 7px;display:inline-block">⚡ Overalls can help</div>` : ''}
           </div>
         </div>`;
     }).join('')
