@@ -1142,7 +1142,8 @@
     .glue-tile { background: #fff; border: 1.5px solid var(--border); border-radius: 20px; padding: 20px; cursor: pointer; transition: box-shadow .15s, transform .15s, border-color .15s; position: relative; display: flex; flex-direction: column; gap: 12px; }
     .glue-tile:hover { box-shadow: 0 8px 24px rgba(10,92,94,.12); transform: translateY(-2px); border-color: var(--teal-light); }
     .glue-tile-top { display: flex; justify-content: space-between; align-items: flex-start; }
-    .glue-tile-logo { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: #fff; flex-shrink: 0; letter-spacing: -.5px; font-family: var(--font-display); }
+    .glue-tile-logo { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: #fff; flex-shrink: 0; letter-spacing: -.5px; font-family: var(--font-display); overflow: hidden; }
+    .glue-tile-logo img, .glue-panel-logo img { width: 100%; height: 100%; object-fit: contain; padding: 8px; box-sizing: border-box; display: block; }
     .glue-tile-bm { width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 13px; transition: all .15s; flex-shrink: 0; }
     .glue-tile-bm:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-50); }
     .glue-tile-name { font-size: 13px; font-weight: 700; color: var(--teal-dark); line-height: 1.35; }
@@ -1161,7 +1162,7 @@
     .glue-panel.open { right: 0; }
     .glue-panel-hdr { background: #fff; padding: 20px 24px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .glue-panel-hdr-left { display: flex; align-items: center; gap: 16px; min-width: 0; }
-    .glue-panel-logo { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #fff; flex-shrink: 0; font-family: var(--font-display); }
+    .glue-panel-logo { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #fff; flex-shrink: 0; font-family: var(--font-display); overflow: hidden; }
     .glue-panel-title { font-family: var(--font-display); font-size: 17px; color: var(--teal-dark); line-height: 1.25; }
     .glue-panel-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
     .glue-panel-close { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--border); background: transparent; cursor: pointer; font-size: 15px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
@@ -1228,8 +1229,10 @@
     .glue-orch-cat-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .glue-orch-cat-icon { font-size: 20px; line-height: 1; }
     .glue-orch-cat-name { font-size: 13px; font-weight: 700; color: var(--teal-dark); line-height: 1.25; }
-    .glue-orch-vendor-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); padding: 2px 0; }
+    .glue-orch-vendor-row { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--text-muted); padding: 3px 0; }
     .glue-orch-vendor-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal-light); flex-shrink: 0; }
+    .glue-orch-vlogo { width: 18px; height: 18px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+    .glue-orch-vlogo img { width: 100%; height: 100%; object-fit: contain; padding: 2px; box-sizing: border-box; display: block; }
     .glue-orch-cat-ft { font-size: 10px; color: var(--teal-mid); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-weight: 700; }
     .glue-orch-overalls-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--teal); font-weight: 700; padding: 2px 0; }
     .glue-orch-overalls-badge { background: var(--teal); color: #fff; border-radius: 4px; font-size: 9px; font-weight: 800; padding: 1px 5px; letter-spacing: .05em; flex-shrink: 0; }
@@ -5056,6 +5059,132 @@ const GLUE_PALETTE = [
   '#0A5C5E','#013748','#1565C0','#4A6FA5','#6B4C93',
   '#2D7D46','#7B3F00','#9A3030','#B5631A','#3D6B5E'
 ];
+
+// ── Vendor → domain map (196 from vendor landscape + common carriers) ──
+const VENDOR_DOMAINS = {
+  // Employee Concierge
+  "Overalls":"overalls.com","Circles":"circles.com","Best Upon Request":"bestuponrequest.com","LifeSpeak":"lifespeak.com",
+  // Fertility & Family
+  "Maven Clinic":"mavenclinic.com","Carrot Fertility":"get-carrot.com","Progyny":"progyny.com","Kindbody":"kindbody.com",
+  "Stork Club":"storkclub.com","WIN Fertility":"winfertility.com","Cleo":"hicleo.com","Ovia Health":"oviahealth.com",
+  "Modern Fertility":"modernfertility.com","Lilia":"lilia.com","ARC Fertility":"arcfertility.com",
+  "The Lactation Network":"lactationnetwork.com","Cofertility":"cofertility.com",
+  // Caregiving
+  "Care.com":"care.com","Wellthy":"wellthy.com","Cariloop":"cariloop.com","Torchlight":"torchlight.care",
+  "Homethrive":"homethrive.com","ianacare":"ianacare.com","Carallel":"carallel.com","Honor":"honorcare.com",
+  // Childcare
+  "Bright Horizons":"brighthorizons.com","KinderCare":"kindercare.com","TOOTRiS":"tootris.com","Vivvi":"vivvi.com",
+  "Eri":"eri.com","WeeCare":"weecare.co","Upwards":"upwards.com",
+  // Mental Health
+  "Lyra Health":"lyrahealth.com","Spring Health":"springhealth.com","Headspace":"headspace.com",
+  "Modern Health":"modernhealth.com","Talkspace":"talkspace.com","BetterUp":"betterup.com","Calm":"calm.com",
+  "Unmind":"unmind.com","Brightside Health":"brightside.com","SonderMind":"sondermind.com",
+  "Journey":"journey.live","Big Health":"bighealth.com","Quartet Health":"quartethealth.com",
+  // Healthcare Navigation
+  "Transcarent":"transcarent.com","Accolade":"accolade.com","Quantum Health":"quantum-health.com",
+  "Included Health":"includedhealth.com","Rightway":"rightwayhealthcare.com","HealthJoy":"healthjoy.com",
+  "Health Advocate":"healthadvocate.com","Collective Health":"collectivehealth.com","Alight":"alight.com",
+  "Sharecare":"sharecare.com","Personify Health":"personifyhealth.com","Healthee":"healthee.co",
+  // Benefits Admin
+  "Benefitfocus":"benefitfocus.com","bswift":"bswift.com","Businessolver":"businessolver.com",
+  "PlanSource":"plansource.com","Ease":"ease.com","Nayya":"nayya.com","Jellyvision":"jellyvision.com",
+  "Liazon":"liazon.com",
+  // MSK & Chronic
+  "Hinge Health":"hingehealth.com","Sword Health":"swordhealth.com","Omada Health":"omadahealth.com",
+  "Virta Health":"virtahealth.com","Livongo":"livongo.com","Dario Health":"dariohealth.com","Noom":"noom.com",
+  "Vida Health":"vida.com","Kaia Health":"kaiahealth.com","RecoveryOne":"recoveryone.com","Vori Health":"vorihealth.com",
+  "Hello Heart":"helloheart.com","Lark Health":"lark.com","Cylinder":"cylinder.com","Wondr Health":"wondrhealth.com",
+  // Telemedicine
+  "Teladoc":"teladochealth.com","One Medical":"onemedical.com","Amazon One Medical":"onemedical.com",
+  "Hims & Hers":"forhims.com","K Health":"khealth.com","Cerebral":"cerebral.com",
+  // Financial Wellness
+  "DailyPay":"dailypay.com","PayActiv":"payactiv.com","Branch":"branchapp.com","Origin Financial":"useorigin.com",
+  "LearnLux":"learnlux.com","Northstar":"northstarmoney.com","SoFi":"sofi.com","SmartDollar":"smartdollar.com",
+  "Salary Finance":"salaryfinance.com","Goodly":"goodlyapp.com","Guild Education":"guild.com","InStride":"instride.com",
+  "Gradifi":"gradifi.com","Forma":"joinforma.com","Benepass":"getbenepass.com","Compt":"compt.io",
+  "Fringe":"fringe.us","Joon":"joon.io","Espresa":"espresa.com",
+  // HSA/FSA
+  "WEX Benefits":"wexinc.com","Lively":"livelyme.com","Optum Financial":"optum.com","HealthEquity":"healthequity.com",
+  // Wellness
+  "Gympass":"wellhub.com","Wellhub":"wellhub.com","ClassPass":"classpass.com","Peloton":"onepeloton.com",
+  "Wellable":"wellable.co","WellRight":"wellright.com","Vitality":"vitalitygroup.com",
+  // Recognition
+  "Bonusly":"bonusly.com","Workhuman":"workhuman.com","O.C. Tanner":"octanner.com","Achievers":"achievers.com",
+  "Motivosity":"motivosity.com","Nectar":"nectarhr.com","Kudos":"kudos.com","Awardco":"awardco.com",
+  // Insurance / Voluntary
+  "Bestow":"bestow.com","MetLife":"metlife.com","Aflac":"aflac.com","Colonial Life":"coloniallife.com",
+  "LegalShield":"legalshield.com","ARAG":"araglegal.com","Nationwide Pet":"petinsurance.com",
+  "Wagmo":"wagmo.io","Trupanion":"trupanion.com","Unum":"unum.com","Guardian":"guardianlife.com",
+  // HCM Platforms
+  "Workday":"workday.com","ADP":"adp.com","BambooHR":"bamboohr.com","UKG":"ukg.com","Rippling":"rippling.com",
+  "Gusto":"gusto.com","Paylocity":"paylocity.com","Paycom":"paycom.com","Namely":"namely.com",
+  "Darwinbox":"darwinbox.com","SAP SuccessFactors":"sap.com","Oracle HCM":"oracle.com",
+  "Ceridian Dayforce":"dayforce.com","Dayforce":"dayforce.com","Justworks":"justworks.com","Zenefits":"zenefits.com",
+  // Weight / GLP-1
+  "Ro":"ro.co","Found":"joinfound.com","Calibrate":"calibrate.com","Solera Health":"soleranetwork.com",
+  // Pharmacy
+  "GoodRx":"goodrx.com","Capsule Pharmacy":"capsule.com","Amazon Pharmacy":"pharmacy.amazon.com",
+  "Cost Plus Drugs":"costplusdrugs.com","RxSavings Solutions":"rxsavingssolutions.com",
+  // Commuter / Food
+  "Edenred":"edenred.com","TransitChek":"transitchek.com","WageWorks":"wageworks.com","Sharebite":"sharebite.com",
+  "Grubhub":"grubhub.com","ezCater":"ezcater.com",
+  // Leave
+  "Sparrow":"trysparrow.com","Tilt":"hellotilt.com","AbsenceSoft":"absencesoft.com","Cocoon":"meetcocoon.com",
+  // Major carriers (not in Excel but appear in benefits docs)
+  "Aetna":"aetna.com","UnitedHealthcare":"uhc.com","United Healthcare":"uhc.com","Cigna":"cigna.com",
+  "Humana":"humana.com","Anthem":"anthem.com","Kaiser":"kp.org","Kaiser Permanente":"kp.org",
+  "Blue Cross":"bcbs.com","Blue Shield":"blueshieldca.com","BCBS":"bcbs.com",
+  "Delta Dental":"deltadental.com","VSP":"vsp.com","EyeMed":"eyemed.com",
+  "Fidelity":"fidelity.com","Vanguard":"vanguard.com","Principal":"principal.com",
+  "TIAA":"tiaa.org","Empower":"empower.com","Lincoln Financial":"lfg.com",
+  "Sun Life":"sunlife.com","Hartford":"thehartford.com","Standard Insurance":"standard.com",
+  "CVS Health":"cvshealth.com","Walgreens":"walgreens.com","Express Scripts":"express-scripts.com",
+  "Optum":"optum.com","Mercer":"mercer.com","Aon":"aon.com",
+  "Ameritas":"ameritas.com","Allstate":"allstate.com","Nationwide":"nationwide.com",
+};
+
+// Pre-build lowercase index for fast fuzzy lookup
+const _GLUE_DOMAIN_IDX = {};
+Object.entries(VENDOR_DOMAINS).forEach(([n, d]) => {
+  _GLUE_DOMAIN_IDX[n.toLowerCase()] = d;
+  // Also index simplified name (strip parenthetical notes like "(by Sodexo)")
+  const simp = n.replace(/\s*[\(\[].*?[\)\]]\s*/g,'').trim().toLowerCase();
+  if (simp) _GLUE_DOMAIN_IDX[simp] = d;
+});
+
+function glueDomain(name) {
+  if (!name) return null;
+  const key = name.toLowerCase().trim();
+  if (_GLUE_DOMAIN_IDX[key]) return _GLUE_DOMAIN_IDX[key];
+  // Try prefix/substring match for vendor names not exactly matching
+  for (const [k, v] of Object.entries(_GLUE_DOMAIN_IDX)) {
+    if (k.length >= 4 && (key.startsWith(k) || k.startsWith(key))) return v;
+  }
+  return null;
+}
+
+// Called by onerror on logo images — swaps to colored initials
+function glueLogoErr(img, color, initials) {
+  const p = img.parentElement;
+  if (!p) return;
+  p.style.background = color;
+  p.style.border = 'none';
+  img.remove();
+  const s = document.createElement('span');
+  s.textContent = initials;
+  s.style.cssText = 'color:#fff;font-weight:800;letter-spacing:-.5px;font-family:var(--font-display)';
+  p.appendChild(s);
+}
+
+// Returns the inner HTML for a logo container (img tag or initials span)
+function glueLogoInner(vendorName, fallbackColor, initials) {
+  const domain = glueDomain(vendorName);
+  if (!domain) return `<span style="color:#fff;font-weight:800;letter-spacing:-.5px;font-family:var(--font-display)">${escHtml(initials)}</span>`;
+  const safeColor    = fallbackColor.replace(/'/g,"\\'");
+  const safeInitials = initials.replace(/'/g,"\\'");
+  return `<img src="https://logo.clearbit.com/${domain}" loading="lazy" onerror="glueLogoErr(this,'${safeColor}','${safeInitials}')">`;
+}
+
 function glueVendorColor(name) {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
@@ -5168,7 +5297,15 @@ function renderGLUEOrch() {
         <span class="glue-orch-cat-name">${escHtml(cat.name)}</span>
       </div>
       <div class="glue-orch-cat-vendors">
-        ${vendors.slice(0, 3).map(v => `<div class="glue-orch-vendor-row"><div class="glue-orch-vendor-dot"></div>${escHtml(v)}</div>`).join('')}
+        ${vendors.slice(0, 3).map(v => {
+          const vDomain = glueDomain(v);
+          const vColor  = glueVendorColor(v);
+          const vInit   = glueInitials(v);
+          const logoHtml = vDomain
+            ? `<div class="glue-orch-vlogo" style="background:#f8f9f9;border:1px solid #eee"><img src="https://logo.clearbit.com/${vDomain}" loading="lazy" onerror="glueLogoErr(this,'${vColor.replace(/'/g,"\\'")}','${vInit.replace(/'/g,"\\'")}')"></div>`
+            : `<div class="glue-orch-vlogo" style="background:${vColor}"><span style="color:#fff;font-weight:800;font-size:7px">${escHtml(vInit)}</span></div>`;
+          return `<div class="glue-orch-vendor-row">${logoHtml}${escHtml(v)}</div>`;
+        }).join('')}
         ${vendors.length > 3 ? `<div class="glue-orch-vendor-row" style="color:var(--teal-mid);font-weight:700">+${vendors.length-3} more</div>` : ''}
         ${vendors.length === 0 ? `<div class="glue-orch-vendor-row" style="color:var(--text-muted);font-style:italic">No additional vendors</div>` : ''}
         ${overallsHandled > 0 ? `<div class="glue-orch-overalls-row"><span class="glue-orch-overalls-badge">O</span>Overalls fills ${overallsHandled} gap${overallsHandled!==1?'s':''} directly</div>` : ''}
@@ -5227,11 +5364,12 @@ function renderGLUEExplorer() {
       const color    = glueVendorColor(t.vendor);
       const initials = glueInitials(t.vendor);
       const catIcon  = CAT_ICONS[t.cat] || '●';
-      // Flag items Overalls can handle directly
+      const hasDomain = !!glueDomain(t.vendor);
       const isGap = t.support.toLowerCase().includes('no support') || t.support.toLowerCase().includes('partial') || t.support.toLowerCase().includes('minimal');
+      const logoStyle = hasDomain ? 'background:#f8f9f9;border:1.5px solid #ebebeb' : `background:${color}`;
       return `<div class="glue-tile" onclick="openGlueTile(${t.ci},${t.ii})">
           <div class="glue-tile-top">
-            <div class="glue-tile-logo" style="background:${color}">${escHtml(initials)}</div>
+            <div class="glue-tile-logo" style="${logoStyle}">${glueLogoInner(t.vendor, color, initials)}</div>
             <div class="glue-tile-bm" onclick="event.stopPropagation()" title="Bookmark">🔖</div>
           </div>
           <div>
@@ -5261,9 +5399,18 @@ function openGlueTile(ci, ii) {
   const color    = glueVendorColor(vendor);
   const initials = glueInitials(vendor);
 
-  // Header
-  document.getElementById('gluePanelLogo').style.background = color;
-  document.getElementById('gluePanelLogo').textContent      = initials;
+  // Header — use real logo if we have a domain, else colored initials
+  const panelLogoEl = document.getElementById('gluePanelLogo');
+  const domain = glueDomain(vendor);
+  if (domain) {
+    panelLogoEl.style.background = '#f8f9f9';
+    panelLogoEl.style.border     = '1.5px solid #ebebeb';
+    panelLogoEl.innerHTML = `<img src="https://logo.clearbit.com/${domain}" loading="lazy" onerror="glueLogoErr(this,'${color.replace(/'/g,"\\'")}','${initials.replace(/'/g,"\\'")}')">`;
+  } else {
+    panelLogoEl.style.background = color;
+    panelLogoEl.style.border     = 'none';
+    panelLogoEl.textContent      = initials;
+  }
   document.getElementById('gluePanelTitle').textContent     = item.name;
   document.getElementById('gluePanelSubtitle').textContent  = cat.name;
 
