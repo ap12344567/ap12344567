@@ -1810,14 +1810,6 @@
             <input class="roi-slider" type="range" min="0" max="50" step="1" value="15"
               oninput="document.getElementById('roiValTurnover').textContent=this.value+'%'; updateROIInput('currentTurnoverRate', +this.value)" />
           </div>
-          <div class="roi-slider-row">
-            <div class="roi-slider-header">
-              <span class="roi-slider-label">ER Diversion Rate</span>
-              <span class="roi-slider-val" id="roiValER">2%</span>
-            </div>
-            <input class="roi-slider" type="range" min="0" max="20" step="0.5" value="2"
-              oninput="document.getElementById('roiValER').textContent=this.value+'%'; updateROIInput('erDiversionRate', this.value/100)" />
-          </div>
         </div>
 
         <!-- Module Toggles -->
@@ -1865,6 +1857,10 @@
       <div class="roi-levers-body" id="roiLeversBody" style="display:none">
         <div class="roi-lever-col">
           <h4>Direct Claims</h4>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% of medical requests redirected from the ER to urgent care, saving ~$2,250 per diversion.">ER Diversion Rate</span><span class="roi-slider-val" id="roiValER">2%</span></div>
+            <input class="roi-slider" type="range" min="0" max="20" step="0.5" value="2" oninput="document.getElementById('roiValER').textContent=this.value+'%'; updateROIInput('erDiversionRate', this.value/100)" />
+          </div>
           <div class="roi-slider-row">
             <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% of employees guided to in-network providers, avoiding out-of-network premium costs.">In-Network Steer</span><span class="roi-slider-val" id="roiValInNet">3%</span></div>
             <input class="roi-slider" type="range" min="0" max="20" step="0.5" value="3" oninput="document.getElementById('roiValInNet').textContent=this.value+'%'; updateROIInput('inNetworkRate', this.value/100)" />
