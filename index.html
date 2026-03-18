@@ -1070,6 +1070,24 @@
     .roi-slider-row { margin-bottom: 10px; }
     .roi-slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
     .roi-slider-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+    /* Tooltip on slider label hover */
+    .roi-slider-label[data-tip] { cursor: help; position: relative; }
+    .roi-slider-label[data-tip]::before {
+      content: attr(data-tip);
+      position: absolute; bottom: calc(100% + 9px); left: 50%; transform: translateX(-50%);
+      background: #1a1a2e; color: #fff; font-size: 11px; font-weight: 500; line-height: 1.5;
+      padding: 8px 11px; border-radius: 9px; white-space: normal; width: 210px;
+      text-transform: none; letter-spacing: 0; pointer-events: none; opacity: 0;
+      transition: opacity .15s; z-index: 200; text-align: left;
+      box-shadow: 0 4px 18px rgba(0,0,0,.28);
+    }
+    .roi-slider-label[data-tip]::after {
+      content: ''; position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%);
+      border: 5px solid transparent; border-top-color: #1a1a2e;
+      pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 200;
+    }
+    .roi-slider-label[data-tip]:hover::before,
+    .roi-slider-label[data-tip]:hover::after { opacity: 1; }
     .roi-slider-val { font-size: 11px; font-weight: 700; color: var(--teal); background: var(--teal-50); border-radius: 10px; padding: 1px 7px; }
     .roi-slider { width: 100%; height: 4px; border-radius: 2px; appearance: none; -webkit-appearance: none; background: var(--border); cursor: pointer; outline: none; }
     .roi-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--teal); cursor: pointer; box-shadow: 0 1px 4px rgba(10,92,94,.3); }
@@ -1087,7 +1105,7 @@
     .roi-levers-hdr { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px; cursor: pointer; user-select: none; }
     .roi-levers-hdr:hover { background: var(--teal-50); }
     .roi-levers-hdr h3 { font-family: var(--font-display); font-size: 16px; color: var(--teal-dark); }
-    .roi-levers-body { padding: 20px 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 28px; border-top: 1px solid var(--border); }
+    .roi-levers-body { padding: 20px 22px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 24px; border-top: 1px solid var(--border); }
     .roi-lever-col h4 { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
     .roi-subtotal { background: var(--teal-50); border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; margin-top: 10px; }
     .roi-subtotal-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-muted); }
@@ -1848,15 +1866,15 @@
         <div class="roi-lever-col">
           <h4>Direct Claims</h4>
           <div class="roi-slider-row">
-            <div class="roi-slider-header"><span class="roi-slider-label">In-Network Steer</span><span class="roi-slider-val" id="roiValInNet">3%</span></div>
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% of employees guided to in-network providers, avoiding out-of-network premium costs.">In-Network Steer</span><span class="roi-slider-val" id="roiValInNet">3%</span></div>
             <input class="roi-slider" type="range" min="0" max="20" step="0.5" value="3" oninput="document.getElementById('roiValInNet').textContent=this.value+'%'; updateROIInput('inNetworkRate', this.value/100)" />
           </div>
           <div class="roi-slider-row">
-            <div class="roi-slider-header"><span class="roi-slider-label">Claims Review Rate</span><span class="roi-slider-val" id="roiValClaims">8%</span></div>
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% of medical requests that surface billing errors or overcoding, corrected before payment.">Claims Review Rate</span><span class="roi-slider-val" id="roiValClaims">8%</span></div>
             <input class="roi-slider" type="range" min="0" max="30" step="1" value="8" oninput="document.getElementById('roiValClaims').textContent=this.value+'%'; updateROIInput('claimsRate', this.value/100)" />
           </div>
           <div class="roi-slider-row">
-            <div class="roi-slider-header"><span class="roi-slider-label">Care Pathway Rate</span><span class="roi-slider-val" id="roiValCare">2%</span></div>
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% of requests redirected to lower-cost care (e.g. urgent care or telehealth instead of ER).">Care Pathway Rate</span><span class="roi-slider-val" id="roiValCare">2%</span></div>
             <input class="roi-slider" type="range" min="0" max="20" step="0.5" value="2" oninput="document.getElementById('roiValCare').textContent=this.value+'%'; updateROIInput('carePathwayRate', this.value/100)" />
           </div>
           <div class="roi-subtotal"><span class="roi-subtotal-label">Claims Subtotal</span><span class="roi-subtotal-val" id="roiSubClaims">—</span></div>
@@ -1864,15 +1882,15 @@
         <div class="roi-lever-col">
           <h4>Retention &amp; Recruitment</h4>
           <div class="roi-slider-row">
-            <div class="roi-slider-header"><span class="roi-slider-label">Retention Improvement</span><span class="roi-slider-val" id="roiValRetImp">5%</span></div>
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="Reduction in annual voluntary turnover attributed to employees valuing and using Overalls.">Retention Improvement</span><span class="roi-slider-val" id="roiValRetImp">5%</span></div>
             <input class="roi-slider" type="range" min="0" max="30" step="1" value="5" oninput="document.getElementById('roiValRetImp').textContent=this.value+'%'; updateROIInput('retentionImprovement', +this.value)" />
           </div>
           <div class="roi-slider-row">
-            <div class="roi-slider-header"><span class="roi-slider-label">Turnover Cost Multiplier</span><span class="roi-slider-val" id="roiValTurnMult">0.75x</span></div>
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="Total replacement cost as a fraction of salary — covers recruiting, onboarding, and lost productivity.">Turnover Cost Multiplier</span><span class="roi-slider-val" id="roiValTurnMult">0.75x</span></div>
             <input class="roi-slider" type="range" min="0" max="2" step="0.05" value="0.75" oninput="document.getElementById('roiValTurnMult').textContent=parseFloat(this.value).toFixed(2)+'x'; updateROIInput('turnoverCostMultiplier', +this.value)" />
           </div>
           <div class="roi-slider-row">
-            <div class="roi-slider-header"><span class="roi-slider-label">Recruitment Efficiency</span><span class="roi-slider-val" id="roiValRecEff">10%</span></div>
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="Reduction in cost-per-hire driven by Overalls as a differentiating benefit during talent acquisition.">Recruitment Efficiency</span><span class="roi-slider-val" id="roiValRecEff">10%</span></div>
             <input class="roi-slider" type="range" min="0" max="50" step="1" value="10" oninput="document.getElementById('roiValRecEff').textContent=this.value+'%'; updateROIInput('recruitmentEfficiency', +this.value)" />
           </div>
           <div class="roi-subtotal"><span class="roi-subtotal-label">Retention + Recruit</span><span class="roi-subtotal-val" id="roiSubRetRec">—</span></div>
@@ -1880,18 +1898,40 @@
         <div class="roi-lever-col">
           <h4>Clinical Modules</h4>
           <div class="roi-slider-row">
-            <div class="roi-slider-header"><span class="roi-slider-label">MSK Prevalence</span><span class="roi-slider-val" id="roiValMSK">40%</span></div>
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% of the workforce with musculoskeletal issues — national average is ~40%. Higher rates increase surgery-avoidance savings.">MSK Prevalence</span><span class="roi-slider-val" id="roiValMSK">40%</span></div>
             <input class="roi-slider" type="range" min="0" max="80" step="1" value="40" oninput="document.getElementById('roiValMSK').textContent=this.value+'%'; updateROIInput('mskIssueRate', this.value/100)" />
           </div>
           <div class="roi-slider-row">
-            <div class="roi-slider-header"><span class="roi-slider-label">GLP-1 Eligible %</span><span class="roi-slider-val" id="roiValGLP1">34%</span></div>
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% of employees qualifying for GLP-1 therapy (BMI ≥30, or ≥27 with a comorbidity). Drives formulary and lifestyle diversion savings.">GLP-1 Eligible %</span><span class="roi-slider-val" id="roiValGLP1">34%</span></div>
             <input class="roi-slider" type="range" min="0" max="60" step="1" value="34" oninput="document.getElementById('roiValGLP1').textContent=this.value+'%'; updateROIInput('glp1EligiblePct', this.value/100)" />
           </div>
           <div class="roi-slider-row">
-            <div class="roi-slider-header"><span class="roi-slider-label">Renewal Reduction (pp)</span><span class="roi-slider-val" id="roiValRenewal">1%</span></div>
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="Percentage-point reduction in premium renewal rate, driven by improved population health data and care navigation.">Renewal Reduction (pp)</span><span class="roi-slider-val" id="roiValRenewal">1%</span></div>
             <input class="roi-slider" type="range" min="0" max="5" step="0.1" value="1" oninput="document.getElementById('roiValRenewal').textContent=this.value+'%'; updateROIInput('renewalReductionSI', this.value/100); updateROIInput('renewalReductionFI', this.value/100)" />
           </div>
           <div class="roi-subtotal"><span class="roi-subtotal-label">Clinical Subtotal</span><span class="roi-subtotal-val" id="roiSubClinical">—</span></div>
+        </div>
+
+        <!-- NEW: Preventive Care column -->
+        <div class="roi-lever-col">
+          <h4>Preventive Care</h4>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% of skin cancer cases caught at an earlier stage due to guided dermatology navigation. Early detection saves ~$75k per case vs. late-stage treatment.">Skin — Early Detection Lift</span><span class="roi-slider-val" id="roiValSkin">10%</span></div>
+            <input class="roi-slider" type="range" min="0" max="40" step="1" value="10" oninput="document.getElementById('roiValSkin').textContent=this.value+'%'; updateROIInput('skinCancerEarlyPct', this.value/100)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% increase in colonoscopy completion. Even a small lift converts to significant CRC cost avoidance — late-stage CRC costs ~$50k more than early-stage treatment.">Colorectal Screen Lift</span><span class="roi-slider-val" id="roiValCRC">15%</span></div>
+            <input class="roi-slider" type="range" min="0" max="40" step="1" value="15" oninput="document.getElementById('roiValCRC').textContent=this.value+'%'; updateROIInput('colorectalIncrease', this.value/100)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% more employees screened for pre-diabetes and enrolled in lifestyle programs. Preventing T2 diabetes saves ~$5k per case in avoided medications and downstream costs.">Diabetes Screen Lift</span><span class="roi-slider-val" id="roiValDiab">5%</span></div>
+            <input class="roi-slider" type="range" min="0" max="30" step="1" value="5" oninput="document.getElementById('roiValDiab').textContent=this.value+'%'; updateROIInput('diabetesScreeningInc', this.value/100)" />
+          </div>
+          <div class="roi-slider-row">
+            <div class="roi-slider-header"><span class="roi-slider-label" data-tip="% of at-risk employees engaged in blood pressure management programs. Uncontrolled hypertension is the #1 driver of cardiac events — each managed case avoids ~$4k in annual downstream costs.">Hypertension Intervention</span><span class="roi-slider-val" id="roiValHyper">6%</span></div>
+            <input class="roi-slider" type="range" min="0" max="30" step="1" value="6" oninput="document.getElementById('roiValHyper').textContent=this.value+'%'; updateROIInput('hypertensionInterventionPct', this.value/100)" />
+          </div>
+          <div class="roi-subtotal"><span class="roi-subtotal-label">Prevention Subtotal</span><span class="roi-subtotal-val" id="roiSubPrev">—</span></div>
         </div>
       </div>
     </div>
@@ -1940,7 +1980,8 @@
             <tr><td><span class="roi-ledger-var output">Skin Cancer</span></td><td class="roi-ledger-desc">Early detection savings</td><td><span class="roi-ledger-formula">(EEs/1000) × Rate × Early Pct × Savings/Case</span></td><td id="rof_skinSav">—</td></tr>
             <tr><td><span class="roi-ledger-var output">Colorectal</span></td><td class="roi-ledger-desc">Incremental colonoscopy value</td><td><span class="roi-ledger-formula">EEs × Screen Inc × CRC Rate × Savings/Case</span></td><td id="rof_crcSav">—</td></tr>
             <tr><td><span class="roi-ledger-var output">Diabetes Prev</span></td><td class="roi-ledger-desc">Pre-diabetes intervention</td><td><span class="roi-ledger-formula">EEs × Screen Inc × Savings/Case Prevented</span></td><td id="rof_diabSav">—</td></tr>
-            <tr><td><span class="roi-ledger-var final">Sub_Prevention</span></td><td class="roi-ledger-desc">Subtotal — preventive care module</td><td><span class="roi-ledger-formula">SUM(Skin + CRC + Diabetes) (if enabled)</span></td><td id="rof_subPrev">—</td></tr>
+            <tr><td><span class="roi-ledger-var output">Hypertension</span></td><td class="roi-ledger-desc">BP management program savings</td><td><span class="roi-ledger-formula">EEs × Intervention % × Savings/Case Managed</span></td><td id="rof_hyperSav">—</td></tr>
+            <tr><td><span class="roi-ledger-var final">Sub_Prevention</span></td><td class="roi-ledger-desc">Subtotal — preventive care module</td><td><span class="roi-ledger-formula">SUM(Skin + CRC + Diabetes + Hypertension) (if enabled)</span></td><td id="rof_subPrev">—</td></tr>
             <!-- MSK -->
             <tr class="roi-ledger-group"><td colspan="4">MSK Optimization</td></tr>
             <tr><td><span class="roi-ledger-var output">Digital MSK</span></td><td class="roi-ledger-desc">Digital PT program savings</td><td><span class="roi-ledger-formula">EEs × MSK Rate × Digital Rate × Savings/User</span></td><td id="rof_digitalMSK">—</td></tr>
@@ -4849,6 +4890,7 @@ const ROI_DEFAULTS = {
   skinCancerRate: 3, skinCancerEarlyPct: 0.1, skinCancerSavings: 75000,
   colorectalRate: 0.004, colorectalIncrease: 0.15, colorectalSavings: 50000,
   diabetesScreeningInc: 0.05, diabetesPreventSavings: 5000,
+  hypertensionInterventionPct: 0.06, hypertensionPreventSavings: 4000,
   mskIssueRate: 0.4, ptFirstRate: 0.02, surgeryAvoidSavings: 18000,
   digitalMSKRate: 0.03, digitalMSKSavings: 2025,
   glp1EligiblePct: 0.34, glp1MonthlyCost: 1000, glp1BaseAdherence: 0.14,
@@ -4885,10 +4927,11 @@ function calculateROI(inp) {
   const hrSav   = c_Users * inp.hrHoursPerUser * inp.hrHourlyCost;
   const subProd = inp.includeProductivity ? (prodVal + hrSav) : 0;
 
-  const skinSav = (employees / 1000) * inp.skinCancerRate * inp.skinCancerEarlyPct * inp.skinCancerSavings;
-  const crcSav  = (employees * inp.colorectalIncrease) * inp.colorectalRate * inp.colorectalSavings;
-  const diabSav = (employees * inp.diabetesScreeningInc) * inp.diabetesPreventSavings;
-  const subPrev = inp.includePreventiveCare ? (skinSav + crcSav + diabSav) : 0;
+  const skinSav  = (employees / 1000) * inp.skinCancerRate * inp.skinCancerEarlyPct * inp.skinCancerSavings;
+  const crcSav   = (employees * inp.colorectalIncrease) * inp.colorectalRate * inp.colorectalSavings;
+  const diabSav  = (employees * inp.diabetesScreeningInc) * inp.diabetesPreventSavings;
+  const hyperSav = (employees * inp.hypertensionInterventionPct) * inp.hypertensionPreventSavings;
+  const subPrev  = inp.includePreventiveCare ? (skinSav + crcSav + diabSav + hyperSav) : 0;
 
   const digitalMSK = (employees * inp.mskIssueRate * inp.digitalMSKRate) * inp.digitalMSKSavings;
   const surgSav    = (c_MedR * inp.ptFirstRate) * inp.surgeryAvoidSavings;
@@ -4915,7 +4958,7 @@ function calculateROI(inp) {
   return { gross, net, roi, payback, medRedux, c_Cost, c_Med, c_Users, c_Reqs, c_MedR,
            erSav, inNetSav, claimSav, careSav, largeSav, subClaims,
            subRenewal, prodVal, hrSav, subProd,
-           skinSav, crcSav, diabSav, subPrev,
+           skinSav, crcSav, diabSav, hyperSav, subPrev,
            digitalMSK, surgSav, subMSK,
            glpForm, glpLife, glpComor, subGLP1,
            retSav, subRet, recSav, subRec };
@@ -4976,7 +5019,8 @@ function renderROIView() {
   // Advanced lever subtotals
   document.getElementById('roiSubClaims').textContent   = fmt(r.subClaims);
   document.getElementById('roiSubRetRec').textContent   = fmt(r.subRet + r.subRec);
-  document.getElementById('roiSubClinical').textContent = fmt(r.subPrev + r.subMSK + r.subGLP1);
+  document.getElementById('roiSubClinical').textContent = fmt(r.subMSK + r.subGLP1);
+  document.getElementById('roiSubPrev').textContent     = fmt(r.subPrev);
 
   // Formula ledger — update live values (only if ledger is open)
   const fmtN = v => Math.round(v).toLocaleString();
@@ -4990,7 +5034,7 @@ function renderROIView() {
     rof_prodVal:    fmt(r.prodVal),     rof_hrSav:      fmt(r.hrSav),
     rof_subProd:    fmt(r.subProd),
     rof_skinSav:    fmt(r.skinSav),     rof_crcSav:     fmt(r.crcSav),
-    rof_diabSav:    fmt(r.diabSav),     rof_subPrev:    fmt(r.subPrev),
+    rof_diabSav:    fmt(r.diabSav),     rof_hyperSav:   fmt(r.hyperSav),    rof_subPrev:    fmt(r.subPrev),
     rof_digitalMSK: fmt(r.digitalMSK), rof_surgSav:    fmt(r.surgSav),
     rof_subMSK:     fmt(r.subMSK),
     rof_glpForm:    fmt(r.glpForm),     rof_glpLife:    fmt(r.glpLife),
