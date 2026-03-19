@@ -501,6 +501,10 @@
 
     [data-tip] { position: relative; }
     [data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--teal-dark); color: #fff; font-size: 11px; padding: 4px 10px; border-radius: 4px; white-space: nowrap; pointer-events: none; z-index: 999; font-family: var(--font-body); }
+    /* Multi-line tooltip variant for gap badges */
+    [data-tip-gap] { position: relative; cursor: help; }
+    [data-tip-gap]:hover::after { content: attr(data-tip-gap); position: absolute; bottom: calc(100% + 8px); right: 0; left: auto; transform: none; background: #1a2e35; color: #fff; font-size: 11.5px; line-height: 1.5; padding: 8px 12px; border-radius: 7px; white-space: normal; width: 240px; pointer-events: none; z-index: 9999; font-family: var(--font-body); box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+    [data-tip-gap]:hover::before { content: ''; position: absolute; bottom: calc(100% + 3px); right: 14px; border: 5px solid transparent; border-top-color: #1a2e35; pointer-events: none; z-index: 9999; }
 
     /* ── COLUMN TOGGLE: hide Exp. Score (6th col) by default ── */
     #analysisGrid.col-exp-hidden { --col: 28px 1fr 150px 130px 110px 100px 120px 100px 80px 32px; }
@@ -3756,7 +3760,7 @@ function renderItems(items, search, ci) {
         <div>${editableStars(item, 'exp', path)}</div>
         <div id="score_${path.replace(/,/g,'_')}">${scoreBarHTML(pct, sc)}</div>
         <div>${isNA ? '<span class="pill pill-na">N/A</span>' : '<span class="pill pill-overalls">★★★★★</span>'}</div>
-        <div id="gap_${path.replace(/,/g,'_')}">${gapBadgeHTML(gap)}</div>
+        <div id="gap_${path.replace(/,/g,'_')}">${gapBadgeHTML(gap, item.name)}</div>
         <div>${confBadgeHTML(item)}</div>
         <div>${hasTasks ? `<button class="expand-btn" onclick="toggleSub('${subId}',this)">${subColl?'▶':'▼'}</button>` : ''}</div>
       </div>`;
@@ -3782,7 +3786,7 @@ function renderItems(items, search, ci) {
             <div>${editableStars(task, 'exp', tpath)}</div>
             <div id="score_${tpath.replace(/,/g,'_')}">${scoreBarHTML(tp, tsc)}</div>
             <div>${task.overalls !== 'N/A' ? '<span class="pill pill-overalls" style="font-size:10px">★★★★★</span>' : '<span class="pill pill-na">N/A</span>'}</div>
-            <div id="gap_${tpath.replace(/,/g,'_')}">${gapBadgeHTML(tg)}</div>
+            <div id="gap_${tpath.replace(/,/g,'_')}">${gapBadgeHTML(tg, task.name)}</div>
             <div>${confBadgeHTML(task)}</div>
             <div></div>
           </div>`;
@@ -3959,7 +3963,7 @@ function updateScoreGap(path) {
   const pct = calcPct(item);
   const sc  = scoreClass(pct);
   if (scoreEl) scoreEl.innerHTML = scoreBarHTML(pct, sc);
-  if (gapEl)   gapEl.innerHTML   = gapBadgeHTML(gapType(item));
+  if (gapEl)   gapEl.innerHTML   = gapBadgeHTML(gapType(item), item.name);
   // Update parent category bar
   renderGrid(currentData); // simplest approach — full re-render
 }
@@ -3999,11 +4003,77 @@ function scoreBarHTML(pct, sc) {
   </div>`;
 }
 
-function gapBadgeHTML(gap) {
-  if (gap === 'na')          return '<span class="gap-badge gap-na">N/A</span>';
-  if (gap === 'critical')    return '<span class="gap-badge gap-critical">● Critical</span>';
-  if (gap === 'opportunity') return '<span class="gap-badge gap-opportunity">● Opportunity</span>';
-  return '<span class="gap-badge gap-covered">● Covered</span>';
+// Impact text shown on hover for each gap status, keyed by benefit item name
+const GAP_IMPACT = {
+  // Healthcare Navigation
+  'Healthcare Navigation':            { critical: 'No navigation support means employees misuse the ER for non-emergency care (~$1,800/avoidable visit) and overpay on medical bills due to billing errors.', opportunity: 'Partial navigation leaves employees struggling with denied claims, out-of-network costs, and prescription savings they never find.' },
+  'Medical Navigation':               { critical: 'Without guidance, employees default to high-cost care settings. Avoidable ER visits average $1,800 vs. $150 at urgent care.', opportunity: 'Employees have some support but still miss cost-saving alternatives and in-network provider options.' },
+  'Recommend a Doctor':               { critical: 'Employees spend hours searching for providers, often landing out-of-network — driving surprise bills and frustration.', opportunity: 'Some provider search exists but employees still frequently end up with out-of-network or mismatched providers.' },
+  'Book Doctors Appointment':         { critical: 'Employees delay care when booking is hard, turning manageable conditions into costly interventions.', opportunity: 'Booking exists but friction means appointments are delayed, leading to worsening conditions and more expensive treatment.' },
+  'Denied Claims':                    { critical: 'Denied claims go unchallenged. Employees lose thousands of dollars annually in claims that could be successfully appealed.', opportunity: 'Some help exists but most employees still don\'t know how to appeal denials effectively.' },
+  'Compare Healthcare Costs':         { critical: 'Employees can\'t compare costs before care, leading to 2–4× overpayment for the same procedure across different facilities.', opportunity: 'Limited cost transparency means employees often choose familiar providers over the most cost-effective ones.' },
+  'Review my Medical Bills':          { critical: 'Medical billing errors affect ~80% of bills. Without review support, employees overpay by an estimated $1,300/year on average.', opportunity: 'Some bill review exists but employees rarely use it, leaving systematic overcharges uncorrected.' },
+  'Check For Prescriptions (Rx) Savings': { critical: 'Employees pay retail prices for medications when generic or discount alternatives could save $500–$2,000/year per person.', opportunity: 'Rx savings tools exist but low awareness means most employees never access them.' },
+  'Find Generic Rx Options':          { critical: 'Brand-name medications cost 80–85% more than generics. Without guidance, employees default to brand names their doctor prescribes by habit.', opportunity: 'Generic guidance exists but isn\'t proactively surfaced when employees need it most.' },
+  'Connect With a Healthcare Concierge': { critical: 'No concierge support means every benefits question, claim issue, or care decision falls entirely on the employee — driving stress and costly mistakes.', opportunity: 'Concierge access exists but is underused, leaving most employees navigating complex healthcare alone.' },
+
+  // Mental Health
+  'Mental Health':                    { critical: 'Unaddressed mental health costs employers $1,500–$5,000/employee/year in lost productivity. It\'s the #1 driver of short-term disability claims.', opportunity: 'Partial mental health support still leaves most employees unable to access timely therapy, driving absenteeism and turnover.' },
+  'Find an In-Person Therapist':      { critical: 'Without help finding therapists, employees wait 6–8 weeks for care or pay out-of-pocket. Untreated conditions worsen and spread to team performance.', opportunity: 'Some therapist search exists but limited coverage means employees often can\'t find in-network options.' },
+  'Find a Virtual Therapist':         { critical: 'No virtual therapy access means employees in rural areas or with demanding schedules go without mental health support entirely.', opportunity: 'Virtual options exist but aren\'t well-integrated, leading to low uptake and continued unmet need.' },
+  'Improve my Sleep':                 { critical: 'Poor sleep costs employers ~$2,000/employee/year in reduced productivity and increased errors, accidents, and absenteeism.', opportunity: 'Some sleep resources exist but aren\'t personalized, limiting their effectiveness.' },
+  'Learn about Managing ADHD':        { critical: 'Undiagnosed or unmanaged ADHD reduces productivity by 20–30%. Without support, employees underperform and are at higher risk of involuntary turnover.', opportunity: 'Some ADHD resources exist but employees still struggle to get proper diagnosis and accommodations.' },
+
+  // Self Care & Preventive Care
+  'Self Care & Preventive Care':      { critical: 'Employees without preventive care guidance develop chronic conditions that drive up claims 3–5× over time. Prevention is 10× cheaper than treatment.', opportunity: 'Wellness programs exist but low engagement means chronic conditions still develop at above-average rates.' },
+  'Find a Personal Trainer':          { critical: 'Physical inactivity costs employers ~$1,000/employee/year in higher healthcare claims and reduced energy and output.', opportunity: 'Fitness benefits exist but without personalized guidance, most employees don\'t use them consistently.' },
+  'Learn about Weight Loss':          { critical: 'Obesity-related conditions cost employers $3,000–$6,000/year per affected employee in claims, absenteeism, and disability.', opportunity: 'Some weight management support exists but isn\'t comprehensive enough to drive meaningful outcomes.' },
+  'Learn about GLP-1s for Weight Loss': { critical: 'Without GLP-1 guidance, employees either go without effective treatment or pursue it unmanaged — driving cost and safety risk.', opportunity: 'GLP-1 coverage exists but employees lack the navigation support to use it responsibly and cost-effectively.' },
+
+  // Caregiving
+  'Childcare — Baby & Family Planning': { critical: 'Lack of childcare support is the #1 reason working parents — especially women — leave the workforce. Replacing one employee costs $15,000–$45,000.', opportunity: 'Some family support exists but gaps in childcare availability still force employees to miss work or reduce hours.' },
+  'Plan for Pregnancy':               { critical: 'Without pregnancy planning support, employees face unexpected leave gaps, FMLA confusion, and costly out-of-network prenatal care.', opportunity: 'Some pregnancy resources exist but coverage gaps and navigation complexity leave many employees underprepared.' },
+  'Fertility Navigation (IVF, Egg Freezing, IUI)': { critical: 'Fertility treatment costs $15,000–$30,000 per cycle out-of-pocket. Without navigation support, employees leave for competitors who offer it.', opportunity: 'Some fertility coverage exists but employees lack guidance on how to navigate it, driving costly mistakes and provider mismatches.' },
+  'Plan my Parental Leave':           { critical: 'Poorly planned parental leave leads to compliance risk, employee resentment, and 18–24% higher turnover among new parents.', opportunity: 'Parental leave exists but is confusing to navigate, causing employees to leave money and time on the table.' },
+  'Child & Teen Care':                { critical: 'Employees with no childcare support miss an average of 6 days/year and operate at significantly reduced productivity on days they do come in.', opportunity: 'Some childcare resources exist but insufficient coverage still drives absenteeism and work-life stress.' },
+  'Eldercare':                        { critical: 'Eldercare responsibilities affect 1 in 5 employees. Without support, it drives 8+ missed workdays/year and is a leading hidden cause of turnover.', opportunity: 'Some eldercare guidance exists but employees still struggle to find quality care, driving stress-related productivity loss.' },
+  'Family Support':                   { critical: 'Without holistic family support, employees face compounding stress that degrades performance, drives absenteeism, and ultimately leads to attrition.', opportunity: 'Some family resources exist but aren\'t integrated, leaving employees to piece together fragmented support on their own.' },
+
+  // Home Care
+  'Home Services':                    { critical: 'Home emergencies handled alone cost employees significant time and stress. Employees spend ~6 hours/year on average managing household issues during work hours.', opportunity: 'Some home services guidance exists but employees still lose work time managing vendors and home issues independently.' },
+  'Home Life':                        { critical: 'Without support for home life logistics, employees bring unresolved personal stress to work — a measurable drag on focus and output.', opportunity: 'Some home life support exists but coverage gaps mean employees still struggle with key life admin tasks.' },
+
+  // Life Care
+  'Car & Auto':                       { critical: 'Without auto assistance, employees dealing with car trouble miss work or arrive stressed — averaging 1–2 lost workdays per incident.', opportunity: 'Some auto support exists but employees still lose significant time handling vehicle issues alone.' },
+  'Pet Care':                         { critical: 'Pet emergencies and vet costs are a top financial stressor for younger employees. Unaddressed, this drives distraction and financial anxiety.', opportunity: 'Some pet benefits exist but high unexpected vet costs still drive employee financial stress.' },
+  'Travel':                           { critical: 'Without travel assistance, business and personal travel disruptions fall entirely on the employee — increasing stress and post-travel recovery time.', opportunity: 'Some travel support exists but gaps in coverage leave employees exposed to costly disruptions.' },
+
+  // Financial Wellness
+  'Financial Wellness':               { critical: 'Financially stressed employees lose 2–3 hours of productive work time per week. Financial stress is the #1 reported stressor for U.S. employees.', opportunity: 'Some financial guidance exists but doesn\'t address the range of issues employees face, leaving significant stress unresolved.' },
+
+  // Core Benefits
+  'Medical & Prescription Plans':     { critical: 'Without medical coverage, employees defer care until conditions become emergencies — massively increasing total claims cost and absenteeism.', opportunity: 'Medical coverage exists but gaps in plan design or navigation leave employees with high out-of-pocket exposure.' },
+  'Dental & Vision':                  { critical: 'Dental problems increase risk of heart disease, diabetes, and systemic illness. Without coverage, employees defer care with compounding health and productivity cost.', opportunity: 'Dental/vision coverage exists but benefit levels or network limitations drive employees to defer care.' },
+  'Retirement & 401k':                { critical: 'Employees without retirement guidance under-save, increasing financial anxiety and long-term reliance on the employer. Financial stress reduces daily output by 11–15%.', opportunity: 'Retirement plan exists but low contribution rates or confusing investment options mean employees aren\'t building adequate savings.' },
+  'Life, Disability & Accident':      { critical: 'Without life/disability coverage, a single health event can financially devastate an employee family — driving attrition as employees seek more protective employers.', opportunity: 'Some life/disability coverage exists but gaps in coverage amounts leave employees underinsured.' },
+  'Wellness Programs':                { critical: 'No wellness programs means missed prevention opportunities. Employees with unmanaged chronic conditions cost 3–5× more in annual claims.', opportunity: 'Wellness programs exist but low engagement limits their impact on population health and claims costs.' },
+  'EAP':                              { critical: 'Without an EAP, employees in crisis have nowhere to turn at work. This drives elevated short-term disability rates, absenteeism, and turnover.', opportunity: 'EAP exists but low utilization (typically 3–6% without promotion) means most employees in need don\'t access it.' },
+};
+
+const GAP_IMPACT_DEFAULTS = {
+  critical:    'No support exists for this need. Employees are left to manage entirely on their own, driving stress, absenteeism, and increased risk of turnover.',
+  opportunity: 'Partial support exists but gaps remain. Employees are underserved, which drives measurable productivity loss and leaves them vulnerable to seeking better benefits elsewhere.',
+  covered:     'This benefit is reasonably well covered.',
+};
+
+function gapBadgeHTML(gap, itemName) {
+  if (gap === 'na') return '<span class="gap-badge gap-na">N/A</span>';
+  const impacts = (itemName && GAP_IMPACT[itemName]) || GAP_IMPACT_DEFAULTS;
+  const tip = (gap === 'critical' ? impacts.critical : gap === 'opportunity' ? impacts.opportunity : impacts.covered) || '';
+  const attr = tip ? ` data-tip-gap="${tip.replace(/"/g,'&quot;')}"` : '';
+  if (gap === 'critical')    return `<span class="gap-badge gap-critical"${attr}>● Critical</span>`;
+  if (gap === 'opportunity') return `<span class="gap-badge gap-opportunity"${attr}>● Opportunity</span>`;
+  return `<span class="gap-badge gap-covered"${attr}>● Covered</span>`;
 }
 
 /* ═══════════════════════════════════════════
@@ -4089,7 +4159,7 @@ function renderSummary(data) {
             <div class="sp-gap-name">${escHtml(x.item.name)}</div>
             <div class="sp-gap-cat">${escHtml(x.catName)}${x.item.solutions ? ' · ' + escHtml(x.item.solutions) : ''}</div>
           </div>
-          <div class="sp-gap-badge">${gapBadgeHTML(g)}</div>
+          <div class="sp-gap-badge">${gapBadgeHTML(g, x.item.name)}</div>
         </div>`;
     }).join('');
   }
