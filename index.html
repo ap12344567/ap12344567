@@ -4808,6 +4808,171 @@ function exportPPTX() {
     });
   });
 
+  // ──────────────────────────────────────────
+  // ROI SLIDES
+  // ──────────────────────────────────────────
+  const roi    = calculateROI(roiInputs);
+  const fmtDlr = n => '$' + Math.round(n).toLocaleString();
+  const roiEmp = roiInputs.totalEmployees || 1000;
+
+  // ROI — Section Divider
+  const roiDiv = pptx.addSlide();
+  roiDiv.background = { color: TEAL_DARK };
+  roiDiv.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.18, h: '100%', fill: { color: TEAL } });
+  roiDiv.addText('ROI & Value Analysis', { x: 0.55, y: 2.5, w: 10, h: 1.0, fontSize: 42, bold: false, color: 'FFFFFF', fontFace: 'Georgia' });
+  roiDiv.addText(`${Number(roiEmp).toLocaleString()} employees  ·  ${company}`, { x: 0.55, y: 3.55, w: 9, h: 0.4, fontSize: 14, color: 'BCE7E8', fontFace: 'Open Sans' });
+  roiDiv.addText('Overalls investment vs measurable savings', { x: 0.55, y: 4.0, w: 9, h: 0.35, fontSize: 12, color: '7AABAF', fontFace: 'Open Sans', italic: true });
+
+  // ROI — KPI Summary slide
+  const roiSlide = pptx.addSlide();
+  roiSlide.background = { color: OFF_WHITE };
+  roiSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 1.0, fill: { color: TEAL_DARK } });
+  roiSlide.addText('ROI Summary', { x: 0.4, y: 0.15, w: 9, h: 0.52, fontSize: 22, bold: false, color: 'FFFFFF', fontFace: 'Georgia' });
+  roiSlide.addText(company.toUpperCase() + '  ·  RETURN ON INVESTMENT', { x: 0.4, y: 0.65, w: 12, h: 0.25, fontSize: 9, bold: true, color: 'BCE7E8', fontFace: 'Open Sans', charSpacing: 2 });
+
+  // 4 headline KPI cards
+  const roiKpiCards = [
+    { label: 'Gross Annual Savings',     value: fmtDlr(roi.gross),            sub: 'total identified value',    color: TEAL  },
+    { label: 'Net Savings',              value: fmtDlr(roi.net),              sub: 'after Overalls investment',  color: GREEN },
+    { label: 'Return on Investment',     value: roi.roi.toFixed(1) + 'x',     sub: 'net ROI multiplier',         color: TEAL  },
+    { label: 'Payback Period',           value: Math.round(roi.payback) + ' mo', sub: 'months to break even',   color: AMBER },
+  ];
+  roiKpiCards.forEach((card, ci) => {
+    const cx = 0.3 + ci * 3.18;
+    roiSlide.addShape(pptx.ShapeType.rect, { x: cx, y: 1.2, w: 2.95, h: 1.55, fill: { color: 'FFFFFF' }, line: { color: BORDER, pt: 1 }, shadow: { type: 'outer', blur: 4, offset: 2, color: '00000015' } });
+    roiSlide.addText(card.label.toUpperCase(), { x: cx+0.14, y: 1.32, w: 2.7, h: 0.22, fontSize: 7, bold: true, color: '5A7A80', fontFace: 'Open Sans', charSpacing: 1 });
+    roiSlide.addText(card.value, { x: cx+0.14, y: 1.54, w: 2.7, h: 0.68, fontSize: 30, bold: false, color: card.color, fontFace: 'Georgia' });
+    roiSlide.addText(card.sub, { x: cx+0.14, y: 2.24, w: 2.7, h: 0.25, fontSize: 9, color: '8AABAF', fontFace: 'Open Sans' });
+  });
+
+  // Lever breakdown horizontal bars
+  roiSlide.addText('SAVINGS BY LEVER', { x: 0.35, y: 3.0, w: 5, h: 0.3, fontSize: 8, bold: true, color: TEAL, fontFace: 'Open Sans', charSpacing: 2 });
+  const allLevers = [
+    { label: 'Direct Claims',      value: roi.subClaims,  on: true },
+    { label: 'Renewal Trend',      value: roi.subRenewal, on: true },
+    { label: 'Productivity & HR',  value: roi.subProd,    on: roiInputs.includeProductivity },
+    { label: 'Preventive Care',    value: roi.subPrev,    on: roiInputs.includePreventiveCare },
+    { label: 'MSK & Clinical',     value: roi.subMSK,     on: roiInputs.includeMSK },
+    { label: 'GLP-1 Navigation',   value: roi.subGLP1,    on: roiInputs.includeGLP1 },
+    { label: 'Retention',          value: roi.subRet,     on: roiInputs.includeRetention },
+    { label: 'Recruitment',        value: roi.subRec,     on: roiInputs.includeRecruitment },
+  ].filter(l => l.on && l.value > 0);
+  const maxLeverVal = Math.max(...allLevers.map(l => l.value), 1);
+  const LBAR_W = 5.8;
+  let lry = 3.35;
+  allLevers.forEach(lev => {
+    const fill = Math.max(0.04, LBAR_W * lev.value / maxLeverVal);
+    roiSlide.addText(lev.label, { x: 0.35, y: lry + 0.04, w: 2.8, h: 0.28, fontSize: 10, color: TEXT_BODY, fontFace: 'Open Sans' });
+    roiSlide.addShape(pptx.ShapeType.rect, { x: 3.25, y: lry + 0.08, w: LBAR_W, h: 0.13, fill: { color: BORDER }, line: { color: BORDER } });
+    roiSlide.addShape(pptx.ShapeType.rect, { x: 3.25, y: lry + 0.08, w: fill, h: 0.13, fill: { color: TEAL }, line: { color: TEAL } });
+    roiSlide.addText(fmtDlr(lev.value), { x: 9.2, y: lry + 0.04, w: 1.8, h: 0.28, fontSize: 10, bold: true, color: TEAL, fontFace: 'Open Sans', align: 'right' });
+    lry += 0.38;
+  });
+  // Footer cost vs savings bar
+  roiSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 7.15, w: '100%', h: 0.35, fill: { color: 'EAF5F5' }, line: { color: BORDER } });
+  roiSlide.addText(
+    `Overalls cost: ${fmtDlr(roi.c_Cost)}   ·   Gross savings: ${fmtDlr(roi.gross)}   ·   Net: ${fmtDlr(roi.net)}   ·   Medical spend reduction: ${Math.round(roi.medRedux * 100)}%`,
+    { x: 0.4, y: 7.19, w: 12.5, h: 0.26, fontSize: 9, color: '5A7A80', fontFace: 'Open Sans', align: 'center' }
+  );
+
+  // ──────────────────────────────────────────
+  // GLUE EXPLORER SLIDES
+  // ──────────────────────────────────────────
+
+  // GLUE — Section Divider
+  const glueDiv = pptx.addSlide();
+  glueDiv.background = { color: TEAL_DARK };
+  glueDiv.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.18, h: '100%', fill: { color: TEAL } });
+  glueDiv.addText('Benefits Explorer', { x: 0.55, y: 2.5, w: 10, h: 1.0, fontSize: 42, bold: false, color: 'FFFFFF', fontFace: 'Georgia' });
+  glueDiv.addText('GLUE — Your Complete Benefits Landscape', { x: 0.55, y: 3.55, w: 9, h: 0.4, fontSize: 14, color: 'BCE7E8', fontFace: 'Open Sans' });
+  glueDiv.addText('Current coverage by vendor and support level across all benefit categories', { x: 0.55, y: 4.0, w: 9, h: 0.35, fontSize: 12, color: '7AABAF', fontFace: 'Open Sans', italic: true });
+
+  // GLUE — One slide per category, 3-column card grid
+  const supLevelColor = sup => {
+    if (!sup || sup === 'No Support') return BERRY;
+    if (sup === 'Minimal')            return AMBER;
+    if (sup === 'Basic')              return '1565C0';
+    if (sup === 'Partial')            return '7A6000';
+    if (sup === 'Best-in-Class')      return GREEN;
+    return '8AABAF';
+  };
+  const supBg = sup => {
+    if (!sup || sup === 'No Support') return 'FDEEF3';
+    if (sup === 'Minimal')            return 'FFFBEE';
+    if (sup === 'Basic')              return 'EAF5F5';
+    if (sup === 'Partial')            return 'FEFBE8';
+    if (sup === 'Best-in-Class')      return 'E8F5F5';
+    return 'F5F5F5';
+  };
+
+  currentData.categories.forEach(cat => {
+    const glueSlide = pptx.addSlide();
+    glueSlide.background = { color: OFF_WHITE };
+
+    // Header
+    glueSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 0.9, fill: { color: TEAL_DARK } });
+    glueSlide.addText(cat.name, { x: 0.4, y: 0.1, w: 9.5, h: 0.52, fontSize: 20, bold: false, color: 'FFFFFF', fontFace: 'Georgia' });
+    glueSlide.addText(company.toUpperCase() + '  ·  BENEFITS EXPLORER', { x: 0.4, y: 0.6, w: 9.5, h: 0.22, fontSize: 8, bold: true, color: 'BCE7E8', fontFace: 'Open Sans', charSpacing: 2 });
+
+    // 3-column card grid
+    const CARD_W = 4.05;
+    const CARD_H = 0.72;
+    const GAP_X  = 0.12;
+    const GAP_Y  = 0.14;
+    const START_X = [0.3, 0.3 + CARD_W + GAP_X, 0.3 + (CARD_W + GAP_X) * 2];
+    const START_Y = 1.05;
+    const COLS    = 3;
+
+    cat.items.forEach((item, idx) => {
+      const col = idx % COLS;
+      const row = Math.floor(idx / COLS);
+      const cx  = START_X[col];
+      const cy  = START_Y + row * (CARD_H + GAP_Y);
+      if (cy + CARD_H > 7.4) return; // skip if overflow
+
+      const sup     = item.support || 'No Support';
+      const vendor  = (item.solutions || '').split(/[,\/]/)[0].trim() || '—';
+      const sc      = supLevelColor(sup);
+      const sbg     = supBg(sup);
+      const gap     = gapType(item);
+
+      // Card background
+      glueSlide.addShape(pptx.ShapeType.rect, {
+        x: cx, y: cy, w: CARD_W, h: CARD_H,
+        fill: { color: 'FFFFFF' }, line: { color: BORDER, pt: 1 },
+        shadow: { type: 'outer', blur: 3, offset: 1, color: '00000012' }
+      });
+      // Left accent bar (color by gap type)
+      const accentColor = gap === 'critical' ? BERRY : gap === 'opportunity' ? AMBER : TEAL;
+      glueSlide.addShape(pptx.ShapeType.rect, { x: cx, y: cy, w: 0.07, h: CARD_H, fill: { color: accentColor }, line: { color: accentColor } });
+
+      // Benefit name
+      glueSlide.addText(item.name, { x: cx+0.14, y: cy+0.06, w: CARD_W-0.2, h: 0.28, fontSize: 11, bold: true, color: TEAL_DARK, fontFace: 'Open Sans', valign: 'top' });
+      // Vendor name
+      glueSlide.addText(vendor, { x: cx+0.14, y: cy+0.32, w: CARD_W-1.2, h: 0.2, fontSize: 9, color: '5A7A80', fontFace: 'Open Sans', italic: false });
+      // Support pill
+      glueSlide.addShape(pptx.ShapeType.roundRect, { x: cx+CARD_W-1.4, y: cy+0.28, w: 1.28, h: 0.22, rectRadius: 0.04, fill: { color: sbg }, line: { color: sc, pt: 0.5 } });
+      glueSlide.addText(sup, { x: cx+CARD_W-1.4, y: cy+0.28, w: 1.28, h: 0.22, fontSize: 7, bold: true, color: sc, fontFace: 'Open Sans', align: 'center', valign: 'middle' });
+      // Solutions (if more than primary vendor)
+      const allVendors = (item.solutions || '').trim();
+      if (allVendors && allVendors !== vendor) {
+        glueSlide.addText(allVendors, { x: cx+0.14, y: cy+0.49, w: CARD_W-0.2, h: 0.16, fontSize: 7.5, color: '8AABAF', fontFace: 'Open Sans' });
+      }
+    });
+
+    // Legend at bottom of each GLUE slide
+    glueSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 7.15, w: '100%', h: 0.35, fill: { color: 'EAF5F5' }, line: { color: BORDER } });
+    const legend = [
+      { color: BERRY, label: 'Critical Gap' }, { color: AMBER, label: 'Opportunity' }, { color: TEAL, label: 'Covered' }
+    ];
+    legend.forEach((l, li) => {
+      const lx = 0.4 + li * 2.8;
+      glueSlide.addShape(pptx.ShapeType.rect, { x: lx, y: 7.23, w: 0.12, h: 0.12, fill: { color: l.color }, line: { color: l.color } });
+      glueSlide.addText(l.label, { x: lx+0.18, y: 7.2, w: 2.5, h: 0.2, fontSize: 8, color: TEXT_BODY, fontFace: 'Open Sans' });
+    });
+    glueSlide.addText(`${cat.items.length} benefit area${cat.items.length !== 1 ? 's' : ''}`, { x: 11.5, y: 7.19, w: 1.8, h: 0.26, fontSize: 8, bold: true, color: TEAL, fontFace: 'Open Sans', align: 'right' });
+  });
+
   // ── Write file
   const filename = `Overalls_Gap_${company.replace(/\s+/g,'_')}.pptx`;
   showToast('⏳ Building deck…', 0);
