@@ -1066,6 +1066,20 @@
     .roi-chart-wrap { position: relative; height: 220px; }
 
     .roi-config { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; display: flex; flex-direction: column; gap: 20px; }
+
+    /* Presenter Mode — hide PEPM and cost references */
+    .roi-presenter-toggle { display: flex; align-items: center; gap: 7px; margin-top: 2px; padding: 5px 10px; border-radius: 20px; border: 1.5px dashed var(--border); background: transparent; cursor: pointer; font-size: 11px; font-weight: 600; color: var(--text-muted); font-family: var(--font-body); transition: all .15s; width: 100%; }
+    .roi-presenter-toggle:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-50); }
+    .roi-presenter-toggle.active { border-color: var(--teal); color: var(--teal); background: var(--teal-50); border-style: solid; }
+    .roi-presenter-toggle .pt-icon { font-size: 14px; flex-shrink: 0; }
+    .roi-presenter-on  { display: none; }
+    .roi-presenter-off { display: inline; }
+    .roi-presenter-toggle.active .roi-presenter-on  { display: inline; }
+    .roi-presenter-toggle.active .roi-presenter-off { display: none; }
+    /* Items hidden in presenter mode */
+    #roiView.presenter-mode .roi-pepm-row,
+    #roiView.presenter-mode .roi-cost-ref,
+    #roiView.presenter-mode .roi-ledger-cost-row { display: none !important; }
     .roi-config-section .overline { margin-bottom: 10px; }
     .roi-input-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
     .roi-input-label { font-size: 12px; color: var(--text-body); font-weight: 600; }
@@ -1728,17 +1742,17 @@
       <div class="roi-kpi-card">
         <div class="roi-kpi-label"><span class="roi-kpi-dot" style="background:var(--teal)"></span>Annual Gross Savings</div>
         <div class="roi-kpi-value" id="roiKpiGross">—</div>
-        <div class="roi-kpi-sub">before program cost</div>
+        <div class="roi-kpi-sub roi-cost-ref">before program cost</div>
       </div>
       <div class="roi-kpi-card">
         <div class="roi-kpi-label"><span class="roi-kpi-dot" style="background:var(--teal-dark)"></span>Net Financial Benefit</div>
         <div class="roi-kpi-value" id="roiKpiNet">—</div>
-        <div class="roi-kpi-sub">gross savings minus cost</div>
+        <div class="roi-kpi-sub roi-cost-ref">gross savings minus cost</div>
       </div>
       <div class="roi-kpi-card">
         <div class="roi-kpi-label"><span class="roi-kpi-dot" style="background:var(--amber)"></span>ROI Multiple</div>
         <div class="roi-kpi-value" id="roiKpiROI">—</div>
-        <div class="roi-kpi-sub">net ÷ program cost</div>
+        <div class="roi-kpi-sub roi-cost-ref">net ÷ program cost</div>
       </div>
       <div class="roi-kpi-card">
         <div class="roi-kpi-label"><span class="roi-kpi-dot" style="background:var(--teal-mid)"></span>Medical Reduction</div>
@@ -1770,6 +1784,14 @@
       <!-- Config Panel -->
       <div class="roi-config">
 
+        <!-- Presenter Mode Toggle -->
+        <button class="roi-presenter-toggle" id="roiPresenterBtn" onclick="toggleROIPresenterMode()" title="Hide pricing from prospects">
+          <span class="pt-icon roi-presenter-off">🙈</span>
+          <span class="pt-icon roi-presenter-on">👁</span>
+          <span class="roi-presenter-off">Presenter Mode — hide PEPM from view</span>
+          <span class="roi-presenter-on">Presenter Mode active — PEPM hidden</span>
+        </button>
+
         <!-- Core ROI Inputs -->
         <div class="roi-config-section">
           <div class="overline">Core Assumptions</div>
@@ -1777,7 +1799,7 @@
             <span class="roi-input-label">Med Cost / EE ($/yr)</span>
             <input class="roi-input-num" type="number" id="roiMedCost" value="16000" oninput="updateROIInput('medCostPerEE', +this.value)" />
           </div>
-          <div class="roi-input-row">
+          <div class="roi-input-row roi-pepm-row">
             <span class="roi-input-label">Overalls PEPM ($)</span>
             <input class="roi-input-num" type="number" id="roiPEPM" value="4.5" step="0.25" oninput="updateROIInput('overallsPEPM', +this.value)" />
           </div>
@@ -1956,7 +1978,7 @@
             <!-- CORE -->
             <tr class="roi-ledger-group"><td colspan="4">Core Metrics</td></tr>
             <tr><td><span class="roi-ledger-var">c_MedSpend</span></td><td class="roi-ledger-desc">Total annual medical spend</td><td><span class="roi-ledger-formula">Employees × Med Cost/EE</span></td><td id="rof_medSpend">—</td></tr>
-            <tr><td><span class="roi-ledger-var">c_AnnualCost</span></td><td class="roi-ledger-desc">Annual Overalls program cost</td><td><span class="roi-ledger-formula">Employees × PEPM × 12</span></td><td id="rof_annualCost">—</td></tr>
+            <tr class="roi-ledger-cost-row"><td><span class="roi-ledger-var">c_AnnualCost</span></td><td class="roi-ledger-desc">Annual Overalls program cost</td><td><span class="roi-ledger-formula">Employees × PEPM × 12</span></td><td id="rof_annualCost">—</td></tr>
             <tr><td><span class="roi-ledger-var">c_ActiveUsers</span></td><td class="roi-ledger-desc">Engaged employees</td><td><span class="roi-ledger-formula">Employees × Adoption Rate</span></td><td id="rof_activeUsers">—</td></tr>
             <tr><td><span class="roi-ledger-var">c_MedRequests</span></td><td class="roi-ledger-desc">Medical-related requests per year</td><td><span class="roi-ledger-formula">Active Users × Req/User × Pct Med</span></td><td id="rof_medReqs">—</td></tr>
             <!-- DIRECT CLAIMS -->
@@ -5198,6 +5220,14 @@ function calculateROI(inp) {
 function updateROIInput(field, value) {
   roiInputs[field] = value;
   renderROIView();
+}
+
+function toggleROIPresenterMode() {
+  const view = document.getElementById('roiView');
+  const btn  = document.getElementById('roiPresenterBtn');
+  const on   = view.classList.toggle('presenter-mode');
+  btn.classList.toggle('active', on);
+  showToast(on ? '🙈 Presenter mode on — PEPM hidden from view' : '👁 Presenter mode off — all inputs visible', 3000);
 }
 
 function toggleROIModule(field, btn) {
