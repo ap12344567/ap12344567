@@ -2523,8 +2523,14 @@ const VENDORS = [
   'Nationwide Pet','Figo','Trupanion','Embrace','ASPCA Pet','Pumpkin','Lemonade Pet',
   // Legal / ID
   'LegalShield','ARAG','MetLaw','IdentityForce','LifeLock','Experian IdentityWorks',
+  'Norton LifeLock','NortonLifeLock','Allstate Identity Protection',
   // EAP specific
   'LifeWorks','ComPsych','Optum EAP','Magellan EAP','Beacon EAP','AllOne Health',
+  'UpriseHealth','Uprise Health',
+  // HSA / FSA admin
+  'HealthEquity','Health Equity','WEX Health','Further',
+  // Benefits navigation / secondary payer
+  'Benemax',
   // Commuter
   'WageWorks','Commuter Check','Edenred','TransitChek','Luum','Parkway',
   // ── From HR Tech Benefits Vendor Landscape spreadsheet ──────────────────
@@ -2878,13 +2884,34 @@ const GENERIC_CARRIERS = new Set([
   'Fidelity','Vanguard','T. Rowe Price','Empower','Nationwide','MassMutual','New York Life',
 ]);
 
-// Pick the single best vendor from a candidate list.
-// Prefers: (1) vendors with specific VENDOR_AFFINITY over generics, (2) non-carrier names.
+// Platform / admin tools that should NEVER appear as a benefit solution vendor.
+// These appear in documents because they're enrollment platforms, brokers, or admin tools.
+const PLATFORM_BLOCKLIST = new Set([
+  'adp','workday','bamboohr','rippling','gusto','paylocity','paycom',
+  'ukg','ceridian','justworks','zenefits','onedigital','one digital',
+  'guidanceresources','benefitfocus','plansource','employee navigator',
+]);
+
+// Wellness apps commonly offered as a pair — allow both instead of forcing one
+const WELLNESS_APP_PAIRS = new Set(['Calm','Headspace','BetterHelp','Talkspace']);
+
+// Pick the best vendor(s) from a candidate list.
+// - Blocks platform/admin tools entirely
+// - Allows up to 2 vendors if they are known wellness app pairs (e.g. Calm + Headspace)
+// - Otherwise picks the single most specific/relevant vendor
 function pickBestVendor(candidates) {
   if (!candidates || candidates.length === 0) return '';
-  if (candidates.length === 1) return candidates[0];
-  const scored = candidates.map(v => {
-    const hasAffinity = !!VENDOR_AFFINITY[v.trim()]; // specific affinity = not generic
+  // Strip platform tools — they're enrollment/admin software, not benefit vendors
+  const filtered = candidates.filter(v => !PLATFORM_BLOCKLIST.has(v.toLowerCase().trim()));
+  if (filtered.length === 0) return '';
+  if (filtered.length === 1) return filtered[0];
+
+  // Allow both vendors when they're a known wellness app pair (e.g. "Calm, Headspace")
+  const appPair = filtered.filter(v => WELLNESS_APP_PAIRS.has(v.trim()));
+  if (appPair.length >= 2) return appPair.slice(0, 2).join(', ');
+
+  const scored = filtered.map(v => {
+    const hasAffinity = !!VENDOR_AFFINITY[v.trim()];
     const isCarrier   = GENERIC_CARRIERS.has(v.trim());
     return { v, score: (hasAffinity ? 2 : 0) + (isCarrier ? 0 : 1) };
   });
@@ -2957,14 +2984,18 @@ const KEYWORD_MAP = [
                  'Health Advocate','Collective Health','Sharecare','Wellnecity','Healthee',
                  'Nava Benefits','Garner Health','Grand Rounds','Eden Health','Alight Solutions',
                  'GoodRx','RxSavings Solutions','Cost Plus Drugs','Amazon Pharmacy','Capsule Pharmacy',
-                 'CVS Caremark','Express Scripts','OptumRx','GoodRx (employer)','Rightway Rx'],
+                 'CVS Caremark','Express Scripts','OptumRx','GoodRx (employer)','Rightway Rx',
+                 'Benemax'],
     keys:['healthcare navigation','health navigation','nurse navigator','care navigator','care navigation',
           'concierge health','health concierge','clinical concierge','healthcare advocate','health advocate',
           'second opinion','second medical opinion','care coordinator','care management','utilization management',
           'cost transparency','price transparency','find a doctor','doctor finder','provider search',
           'prior authorization help','claims support','claims assistance','medical bill review','bill negotiation',
-          'rx savings','prescription savings','medication discount','drug pricing'],
-    strong:['dedicated navigator','24/7 nurse','dedicated care team','personal health advocate'],
+          'rx savings','prescription savings','medication discount','drug pricing',
+          'independent member advocate','member advocate','virtual benefit manager','claims connection',
+          'secondary payer','secondary plan','benemax'],
+    strong:['dedicated navigator','24/7 nurse','dedicated care team','personal health advocate',
+            'independent member advocate','one-on-one','licensed advocate'],
   },
   {
     names:['Mental Health','Find an In-Person Therapist','Find a Virtual Therapist','Learn to Meditate',
@@ -3014,9 +3045,13 @@ const KEYWORD_MAP = [
           'parental leave','maternity leave','paternity leave','paid leave','family leave','fmla','bonding leave',
           'lactation','breastfeeding','breast pump','nursing','postpartum','nicu','high-risk pregnancy',
           'ob/gyn','obstetrics','prenatal','pregnancy support','midwife','doula','birth center',
-          'carrot','progyny','maven','winfertility'],
+          'carrot','progyny','maven','winfertility',
+          'pregnancy and baby','maternity program','maternity journey','maternity care','prenatal program',
+          'pregnancy program','family grows','your family grows','pregnancy benefit','new baby',
+          'pregnancy resources','pregnancy care','newborn'],
     strong:['comprehensive fertility','unlimited ivf','full ivf coverage','full adoption reimbursement',
-            'paid parental leave','generous parental leave','16 weeks','20 weeks'],
+            'paid parental leave','generous parental leave','16 weeks','20 weeks',
+            'pregnancy program','maternity program','full range of maternity'],
   },
   {
     names:['Childcare — Child & Teen Care','Childcare Planning (Nanny, Daycare)',
@@ -3160,6 +3195,76 @@ function splitIntoSections(text) {
     sec.text = lines.slice(sec.start, end).join('\n');
   });
   return sections;
+}
+
+// ── Contacts section parser ─────────────────────────────────────────────────
+// Scans a structured "Contact Information" section at the end of benefits guides
+// (lines like "Pet Insurance  Nationwide  Call: 877-xxx-xxxx") and uses them as
+// high-confidence vendor corrections. Runs AFTER the KEYWORD_MAP loop so it can
+// fix mistakes (e.g. ADP from the enrollment URL appearing under Pet Care).
+//
+// Rules:
+//  • Only overrides solutions if the current value is empty or blocklisted.
+//  • Never downgrades support level — only sets vendor.
+function applyContactsSection(text, itemIndex) {
+  const contactLineRe = /\b\d{3}[-.\s]\d{3}[-.\s]\d{4}\b|@[\w.-]+\.\w{2,}|\b\w+\.\w{2,}\b/i;
+  const contactHeaderRe = /contact\s*(information|us|page|directory|list)?|who\s*to\s*call/i;
+  const lines = text.split('\n');
+
+  // Find start of contacts section
+  let contactStart = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (contactHeaderRe.test(lines[i])) { contactStart = i; break; }
+  }
+  // Fallback: find a dense block of contact lines (3+ of 5 consecutive lines have phone/email)
+  if (contactStart === -1) {
+    for (let i = 0; i < lines.length - 4; i++) {
+      if (lines.slice(i, i + 5).filter(l => contactLineRe.test(l)).length >= 3) {
+        contactStart = i; break;
+      }
+    }
+  }
+  if (contactStart === -1) return;
+
+  // Map patterns on a contacts line → which itemIndex keys to update
+  const CONTACT_CATEGORY_MAP = [
+    { re: /medical|health\s*(plan|insurance|coverage)/i,      names: ['Medical & Prescription Plans'] },
+    { re: /dental/i,                                           names: ['Dental & Vision'] },
+    { re: /vision/i,                                           names: ['Dental & Vision'] },
+    { re: /life\s*(and|&)?\s*disability|disability.*insur/i,   names: ['Life, Disability & Accident'] },
+    { re: /eap|employee\s*assistance/i,                        names: ['EAP','Mental Health'] },
+    { re: /pet\s*(insurance|benefit|care)/i,                   names: ['Pet Care'] },
+    { re: /identity\s*(theft|protection)/i,                    names: ['Financial Wellness'] },
+    { re: /401.?k|retirement/i,                                names: ['Retirement & 401k'] },
+    { re: /wellness|fitness/i,                                 names: ['Wellness Programs'] },
+    { re: /hsa|health\s*savings/i,                             names: [] }, // admin only — skip
+    { re: /fsa|flexible\s*spending/i,                          names: [] }, // admin only — skip
+  ];
+
+  const contactLines = lines.slice(contactStart, Math.min(contactStart + 80, lines.length));
+
+  contactLines.forEach(line => {
+    const vendorMatches = line.match(VENDOR_RE);
+    if (!vendorMatches || vendorMatches.length === 0) return;
+
+    for (const catMap of CONTACT_CATEGORY_MAP) {
+      if (!catMap.re.test(line) || catMap.names.length === 0) continue;
+      const vendor = vendorMatches[0].trim();
+      if (PLATFORM_BLOCKLIST.has(vendor.toLowerCase())) continue;
+
+      catMap.names.forEach(name => {
+        const item = itemIndex[name];
+        if (!item) return;
+        const currentSolution = (item.solutions || '').trim();
+        const currentIsBlocked = currentSolution && PLATFORM_BLOCKLIST.has(currentSolution.toLowerCase());
+        // Override if: empty, or currently holds a platform-blocklisted vendor
+        if (!currentSolution || currentIsBlocked) {
+          item.solutions = vendor;
+          item._contactConfirmed = true;
+        }
+      });
+    }
+  });
 }
 
 function parseBenefitsText(text) {
@@ -3336,6 +3441,9 @@ function parseBenefitsText(text) {
       }
     });
   });
+
+  // ── Apply contacts section corrections (vendor fixes after keyword pass)
+  applyContactsSection(text, itemIndex);
 
   data.company = companyName;
   return data;
