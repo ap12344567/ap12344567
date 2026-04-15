@@ -2870,6 +2870,28 @@ const STRONG_SIGNALS = [
 // Weak signals — presence alone is weak (like "information session", "learn about")
 const WEAK_SIGNALS = ['information','seminar','learn about','webinar','education','resource','guide','overview','faq','information session'];
 
+// Generic carrier/admin names that appear everywhere — deprioritized when picking a single vendor
+const GENERIC_CARRIERS = new Set([
+  'Aetna','Cigna','UnitedHealthcare','UHC','BCBS','Blue Cross Blue Shield','Blue Cross','Blue Shield',
+  'Humana','MetLife','Prudential','Guardian','Lincoln Financial','Sun Life','Unum','Principal',
+  'Anthem','Kaiser','Highmark','CVS Health','Optum','Express Scripts','WellMed',
+  'Fidelity','Vanguard','T. Rowe Price','Empower','Nationwide','MassMutual','New York Life',
+]);
+
+// Pick the single best vendor from a candidate list.
+// Prefers: (1) vendors with specific VENDOR_AFFINITY over generics, (2) non-carrier names.
+function pickBestVendor(candidates) {
+  if (!candidates || candidates.length === 0) return '';
+  if (candidates.length === 1) return candidates[0];
+  const scored = candidates.map(v => {
+    const hasAffinity = !!VENDOR_AFFINITY[v.trim()]; // specific affinity = not generic
+    const isCarrier   = GENERIC_CARRIERS.has(v.trim());
+    return { v, score: (hasAffinity ? 2 : 0) + (isCarrier ? 0 : 1) };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0].v;
+}
+
 // Keywords → which item name(s) to update, and which field
 const KEYWORD_MAP = [
   // ── Core Benefits Suite ──────────────────────────────────────────────────
@@ -3240,23 +3262,27 @@ function parseBenefitsText(text) {
     // Being in a matching section is itself a strong signal
     if (inSectionMatches > 0) strongCount += 1;
 
-    // ── Determine support level
+    // ── Determine support level (conservative — bias toward gaps)
     let support;
     const hasVendor = uniqueVendors.length > 0;
 
-    if (hasVendor && (strongCount >= 2 || ruleStrongGlobal)) {
+    // Best-in-Class: needs strong evidence AND a vendor AND breadth of keywords
+    if (hasVendor && strongCount >= 3 && distinctKeysMatched >= 2) {
       support = 'Best-in-Class';
+    // Partial: vendor present with at least one strong signal, OR very strong evidence without vendor
+    } else if (hasVendor && (strongCount >= 2 || ruleStrongGlobal)) {
+      support = 'Partial';
     } else if (hasVendor) {
+      support = 'Minimal';  // vendor found but weak evidence — not a strong benefit
+    } else if (strongCount >= 3 || (ruleStrongGlobal && distinctKeysMatched >= 3)) {
       support = 'Partial';
-    } else if (strongCount >= 2 || distinctKeysMatched >= 3) {
-      support = 'Partial';
-    } else if (distinctKeysMatched >= 2) {
+    } else if (distinctKeysMatched >= 4) {
       support = 'Basic';
     } else {
       support = 'Minimal';
     }
-    if (strongCount >= 4 && support !== 'Best-in-Class') support = 'Best-in-Class';
-    if (weakCount > strongCount && distinctKeysMatched === 1 && !hasVendor) support = 'Minimal';
+    // Weak-signal override: if mostly weak mentions, drop to Minimal
+    if (weakCount > strongCount * 2 && support !== 'Minimal') support = 'Minimal';
 
     // ── Compute parser confidence score (0–100) for display
     let confScore = 0;
@@ -3288,18 +3314,24 @@ function parseBenefitsText(text) {
           )
         : uniqueVendors;
 
+      // Cap support at Partial for items Overalls covers (★★★★★) — keeps gaps visible
+      let appliedSupport = support;
+      if (item.overalls === '★★★★★' && appliedSupport === 'Best-in-Class') {
+        appliedSupport = 'Partial';
+      }
+
       const currentLevel = supportLevel(item.support);
-      const newLevel     = supportLevel(support);
+      const newLevel     = supportLevel(appliedSupport);
       if (newLevel > currentLevel) {
-        item.support     = support;
-        item.solutions   = vendorsForItem.join(', ');
-        item.util        = utilMap[support];
-        item.exp         = expMap[support];
+        item.support     = appliedSupport;
+        item.solutions   = pickBestVendor(vendorsForItem);
+        item.util        = utilMap[appliedSupport];
+        item.exp         = expMap[appliedSupport];
         item._confScore  = confScore;
         item._confLabel  = confLabel;
         item._autoFilled = true;
       } else if (vendorsForItem.length && !item.solutions) {
-        item.solutions = vendorsForItem.join(', ');
+        item.solutions = pickBestVendor(vendorsForItem);
         if (!item._confScore) { item._confScore = confScore; item._confLabel = confLabel; item._autoFilled = true; }
       }
     });
