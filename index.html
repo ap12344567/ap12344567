@@ -244,13 +244,13 @@
     .sp-stat.accent-berry .sp-stat-value  { color: #F0809A; }
     .sp-stat.accent-green .sp-stat-value  { color: #6DDADC; }
 
-    /* Two-col body */
+    /* Three-col body */
     .sp-body {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;
       background: #fff;
     }
     .sp-col { padding: 24px 28px; }
-    .sp-col:first-child { border-right: 1px solid var(--border); }
+    .sp-col:not(:last-child) { border-right: 1px solid var(--border); }
     .sp-section-label {
       font-size: 9px; font-weight: 700; letter-spacing: .14em;
       text-transform: uppercase; color: var(--teal); margin-bottom: 14px;
@@ -316,9 +316,56 @@
     }
     .sp-lift-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
 
-    @media (max-width: 800px) {
+    /* Priority score badge in top gaps */
+    .sp-priority-badge {
+      min-width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0;
+      cursor: default;
+    }
+
+    /* Market position panel */
+    .sp-mp-stats {
+      display: flex; gap: 8px; margin-bottom: 14px;
+    }
+    .sp-mp-stat {
+      flex: 1; text-align: center; padding: 8px 6px;
+      border-radius: 10px; border: 1.5px solid var(--border);
+    }
+    .sp-mp-stat.bm-above { border-color: var(--teal); background: var(--teal-50); }
+    .sp-mp-stat.bm-below { border-color: var(--amber); background: #fffbf0; }
+    .sp-mp-stat.bm-at    { border-color: var(--border); background: var(--surface); }
+    .sp-mp-num  { display: block; font-size: 20px; font-weight: 800; line-height: 1.1; }
+    .sp-mp-stat.bm-above .sp-mp-num { color: var(--teal); }
+    .sp-mp-stat.bm-below .sp-mp-num { color: var(--amber); }
+    .sp-mp-stat.bm-at    .sp-mp-num { color: var(--text-muted); }
+    .sp-mp-lbl  { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+    .sp-mp-list-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing:.08em; margin-bottom: 8px; }
+    .sp-mp-row  {
+      display: flex; align-items: baseline; gap: 6px;
+      padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+    }
+    .sp-mp-row:last-child { border-bottom: none; }
+    .sp-mp-item-name  { font-weight: 600; color: var(--text-primary); flex: 1; }
+    .sp-mp-item-detail { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+
+    /* Benchmark indicator below support pill */
+    .bm-indicator {
+      display: block; font-size: 9.5px; font-weight: 700;
+      margin-top: 3px; letter-spacing: .02em;
+    }
+    .bm-above { color: var(--teal); }
+    .bm-at    { color: var(--text-muted); }
+    .bm-below { color: var(--amber); }
+
+    @media (max-width: 900px) {
+      .sp-body { grid-template-columns: 1fr 1fr; }
+      .sp-col:nth-child(2) { border-right: none; border-bottom: 1px solid var(--border); }
+      .sp-col:nth-child(3) { grid-column: span 2; border-right: none; }
+    }
+    @media (max-width: 600px) {
       .sp-body { grid-template-columns: 1fr; }
-      .sp-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+      .sp-col:not(:last-child) { border-right: none; border-bottom: 1px solid var(--border); }
       .sp-stats { grid-template-columns: repeat(3, 1fr); }
     }
 
@@ -1518,6 +1565,12 @@
       <div class="sp-col">
         <div class="sp-section-label">Priority Gaps</div>
         <div id="spTopGaps"></div>
+      </div>
+
+      <!-- Middle: Market Position -->
+      <div class="sp-col">
+        <div class="sp-section-label">Market Position</div>
+        <div id="spMarketPosition"></div>
       </div>
 
       <!-- Right: Category Breakdown -->
@@ -3152,6 +3205,33 @@ const KEYWORD_MAP = [
   },
 ];
 
+// ── Market benchmarks per subcategory ────────────────────────────────────────
+// Used to show "above / at / below market" indicators in the table and summary.
+// level = typical support level at mid-market employers
+// pct   = % of mid-market employers offering this benefit at that level
+// note  = tooltip text shown on hover
+const BENCHMARKS = {
+  'Medical & Prescription Plans':    { level:'Best-in-Class', pct:99, note:'99% of employers offer medical; comprehensive PPO with employer HSA contribution is the mid-market standard.' },
+  'Dental & Vision':                 { level:'Partial',       pct:85, note:'85% of mid-market employers offer dental & vision. Free employee-only vision is increasingly common.' },
+  'Retirement & 401k':               { level:'Partial',       pct:90, note:'90% offer a 401k. Median match is 3–4% of salary; immediate vesting is the modern standard.' },
+  'Life, Disability & Accident':     { level:'Partial',       pct:82, note:'82% offer basic life. 100% employer-paid STD and LTD is above the mid-market average.' },
+  'Wellness Programs':               { level:'Minimal',       pct:60, note:'60% offer gym/fitness reimbursement ($50–$150/mo). Digital wellness platforms are growing fast.' },
+  'EAP':                             { level:'Basic',         pct:78, note:'78% offer an EAP. Market average is 6–8 sessions per year; 3 sessions is below average.' },
+  'Healthcare Navigation':           { level:'Minimal',       pct:35, note:'Only 35% of employers offer dedicated navigation. An independent member advocate is rare and a strong differentiator.' },
+  'Mental Health':                   { level:'Basic',         pct:55, note:'55% offer mental health support beyond EAP. Dedicated platforms (Lyra, Spring Health) are growing to 30%.' },
+  'Self Care & Preventive Care':     { level:'Minimal',       pct:42, note:'42% offer structured preventive/self-care programs. GLP-1 navigation is an emerging gap.' },
+  'Childcare — Baby & Family Planning': { level:'Minimal',   pct:45, note:'45% offer maternity support. Dedicated fertility benefits (Carrot, Progyny) are now at 30% of large employers.' },
+  'Childcare — Child & Teen Care':   { level:'Minimal',       pct:32, note:'Only 32% offer childcare support beyond DCA. Backup care is increasingly expected at competitive employers.' },
+  'Adult & Eldercare':               { level:'Minimal',       pct:28, note:'28% offer eldercare support — one of the fastest-growing gaps. 1 in 5 employees has caregiving responsibilities.' },
+  'Common Family & Parenting Support':{ level:'No Support',   pct:18, note:'Fewer than 18% of employers offer life admin or parenting logistics support — a primary Overalls differentiator.' },
+  'Home Services':                   { level:'No Support',    pct:12, note:'Fewer than 12% of employers offer home services support. An almost universal gap.' },
+  'Home Life':                       { level:'No Support',    pct: 8, note:'Nearly no employers offer home life admin support.' },
+  'Car & Auto':                      { level:'No Support',    pct: 5, note:'Auto support is virtually non-existent as an employer benefit.' },
+  'Pet Care':                        { level:'Minimal',       pct:38, note:'38% of employers offer pet insurance. Pet services navigation is far rarer.' },
+  'Travel':                          { level:'No Support',    pct:10, note:'Travel planning support is rare outside of corporate travel programs.' },
+  'Financial Wellness':              { level:'Minimal',       pct:48, note:'48% offer some financial wellness support. HSA/FSA guidance is common but debt/budgeting tools are less so.' },
+};
+
 // ── Section header patterns → which KEYWORD_MAP rule indices they relate to
 // Used for section-aware parsing: vendor hits inside a matching document section
 // get a bonus; vendors from unrelated sections are discounted.
@@ -3195,6 +3275,66 @@ function splitIntoSections(text) {
     sec.text = lines.slice(sec.start, end).join('\n');
   });
   return sections;
+}
+
+// ── Table signal extraction ──────────────────────────────────────────────────
+// Scans the document line-by-line for patterns that only appear in structured
+// benefit plan tables (e.g. "100% Employer Paid", "2x annual salary").
+// Returns { itemName: additionalStrongCount } — applied as extra strongCount
+// in the KEYWORD_MAP loop so comprehensive plans score correctly.
+function extractTableSignals(text) {
+  const boosts = {};
+  const add = (names, n) => names.forEach(nm => { boosts[nm] = (boosts[nm] || 0) + n; });
+
+  const TABLE_RULES = [
+    // Life / Disability — 100% employer-paid, salary multiples
+    { re: /100%\s*employer[\s-]paid|plan\s*type\s*[\|:]\s*100%/i,
+      names: ['Life, Disability & Accident','Medical & Prescription Plans','EAP'], boost: 3 },
+    { re: /\d+x\s*(?:annual\s*)?salary|times\s*(?:your\s*)?(?:annual\s*)?salary/i,
+      names: ['Life, Disability & Accident'], boost: 3 },
+    { re: /60%\s*of\s*(?:your\s*)?(?:weekly|monthly)\s*(?:earnings|salary)/i,
+      names: ['Life, Disability & Accident'], boost: 3 },
+    // Retirement — match %
+    { re: /matches?\s*100%|100%\s*(?:of\s*your\s*)?(?:contributions?|match)|company\s*matches?\s*\d+%/i,
+      names: ['Retirement & 401k'], boost: 3 },
+    { re: /100%\s*vested|immediately\s*vested|instant\s*vest/i,
+      names: ['Retirement & 401k'], boost: 2 },
+    { re: /employer\s*(?:contribution|match|fund)/i,
+      names: ['Retirement & 401k'], boost: 1 },
+    // Medical — covered at 100%, $0 employee cost, preventive care
+    { re: /covered\s*at\s*100%|100%\s*covered|preventive\s*care\s*(?:covered|at\s*100%)/i,
+      names: ['Medical & Prescription Plans'], boost: 2 },
+    { re: /employee\s*only\s*\$0\.00|\$0\.00\s*employee\s*only/i,
+      names: ['Medical & Prescription Plans','Dental & Vision'], boost: 2 },
+    { re: /employer\s*fund(?:ing|ed)?\s*\$[\d,]+/i,
+      names: ['Medical & Prescription Plans'], boost: 2 },
+    // Wellness — reimbursement amounts
+    { re: /up\s*to\s*\$\d+\s*(?:in\s*savings|reimbursement|per\s*year|annually).*(?:fitness|gym|wellness|weight)/i,
+      names: ['Wellness Programs','Self Care & Preventive Care'], boost: 2 },
+    { re: /fitness\s*reimbursement|gym\s*reimbursement|wellness\s*reimbursement/i,
+      names: ['Wellness Programs','Self Care & Preventive Care'], boost: 2 },
+    // EAP — session counts, 24/7
+    { re: /\d+\s*face.to.face|up\s*to\s*\d+\s*(?:sessions?|visits?)\s*(?:per|a)\s*(?:year|issue)/i,
+      names: ['EAP'], boost: 3 },
+    { re: /24\/7(?:\/365)?\s*(?:access|support|counseling|care)/i,
+      names: ['EAP','Healthcare Navigation','Mental Health'], boost: 2 },
+    // HSA employer contribution
+    { re: /(?:employer|company)\s*(?:contributes?|funds?|deposit)\s*\$[\d,]+.*(?:hsa|health\s*savings)/i,
+      names: ['Financial Wellness'], boost: 2 },
+    // Dental — free preventive, ortho
+    { re: /preventive\s*(?:care\s*)?100%\s*covered|100%\s*covered.*preventive/i,
+      names: ['Dental & Vision'], boost: 2 },
+    { re: /orthodontic\s*(?:coverage|benefit)|braces\s*covered/i,
+      names: ['Dental & Vision'], boost: 1 },
+  ];
+
+  const lines = text.split('\n');
+  lines.forEach(line => {
+    TABLE_RULES.forEach(({ re, names, boost }) => {
+      if (re.test(line)) add(names, boost);
+    });
+  });
+  return boosts;
 }
 
 // ── Contacts section parser ─────────────────────────────────────────────────
@@ -3299,6 +3439,9 @@ function parseBenefitsText(text) {
     });
   });
 
+  // ── Pre-compute table signal boosts (strong signals found in plan tables)
+  const tableBoosts = extractTableSignals(text);
+
   // ── Run each keyword rule
   KEYWORD_MAP.forEach(rule => {
     // Find all keyword match positions in the full document
@@ -3352,6 +3495,22 @@ function parseBenefitsText(text) {
       uniqueVendors = [...windowSet];
     }
 
+    // ── Section isolation: sort vendors so ones found in relevant sections rank first
+    // Vendors that only appear in irrelevant sections (e.g. "Contacts" listing) get
+    // pushed down — prevents cross-contamination between benefit categories.
+    if (uniqueVendors.length > 1) {
+      const relevantSectionTexts = docSections
+        .filter(sec => sec.ruleNames && sec.ruleNames.some(rn => rule.names.includes(rn)))
+        .map(sec => sec.text.toLowerCase());
+      uniqueVendors.sort((a, b) => {
+        const aIn = relevantSectionTexts.some(t => t.includes(a.toLowerCase()));
+        const bIn = relevantSectionTexts.some(t => t.includes(b.toLowerCase()));
+        if (aIn && !bIn) return -1;
+        if (bIn && !aIn) return  1;
+        return 0;
+      });
+    }
+
     const bestVendors = uniqueVendors;
 
     // ── Count strong/weak signals
@@ -3366,6 +3525,9 @@ function parseBenefitsText(text) {
     if (ruleStrongGlobal) strongCount += 2;
     // Being in a matching section is itself a strong signal
     if (inSectionMatches > 0) strongCount += 1;
+    // Table signal boost: structured plan tables contain highly reliable strong signals
+    const tableBoost = Math.max(...rule.names.map(n => tableBoosts[n] || 0));
+    strongCount += tableBoost;
 
     // ── Determine support level (conservative — bias toward gaps)
     let support;
@@ -3983,8 +4145,17 @@ function editableSolutions(item, path) {
 }
 
 function editableSupport(item, path) {
-  const s = item.support || 'No Support';
-  return `<span class="editable-cell" onclick="activateSupportEdit(this,'${path}')" title="Click to change support level"><span class="pill ${pillClass(s)}">${s}</span></span>`;
+  const s  = item.support || 'No Support';
+  const bm = BENCHMARKS[item.name];
+  let bmTag = '';
+  if (bm) {
+    const sl  = supportLevel(s);
+    const bsl = supportLevel(bm.level);
+    if (sl > bsl)      bmTag = `<span class="bm-indicator bm-above" title="${bm.note}">↑ Above market</span>`;
+    else if (sl === bsl) bmTag = `<span class="bm-indicator bm-at"    title="${bm.note}">= At market</span>`;
+    else                 bmTag = `<span class="bm-indicator bm-below" title="${bm.note}">↓ Below market</span>`;
+  }
+  return `<span class="editable-cell" onclick="activateSupportEdit(this,'${path}')" title="Click to change support level"><span class="pill ${pillClass(s)}">${s}</span>${bmTag}</span>`;
 }
 
 function editableStars(item, field, path) {
@@ -4228,6 +4399,16 @@ const GAP_IMPACT_DEFAULTS = {
   covered:     'This benefit is reasonably well covered.',
 };
 
+// Priority score for a gap item (0–99). Higher = more urgent to address.
+// Weights: Overalls star strength (40%) + gap severity (40%) + coverage shortfall (20%)
+function gapPriorityScore(item) {
+  const stars   = (item.overalls || '').replace(/[^★]/g, '').length; // 0–5
+  const gap     = gapType(item);
+  const gapW    = gap === 'critical' ? 40 : gap === 'opportunity' ? 20 : 0;
+  const shortfall = Math.max(0, 100 - calcPct(item));
+  return Math.min(99, Math.round((stars / 5) * 40 + gapW + shortfall * 0.19));
+}
+
 function gapBadgeHTML(gap, itemName) {
   if (gap === 'na') return '<span class="gap-badge gap-na">N/A</span>';
   const impacts = (itemName && GAP_IMPACT[itemName]) || GAP_IMPACT_DEFAULTS;
@@ -4295,13 +4476,10 @@ function renderSummary(data) {
   // ── Footer lift badge
   document.getElementById('sumLift').textContent = '+' + lift + ' pts';
 
-  // ── Top Gaps (critical first, then opportunity; max 8)
-  const sortedGaps = [...gapItems].sort((a, b) => {
-    const ga = gapType(a.item), gb = gapType(b.item);
-    if (ga === 'critical' && gb !== 'critical') return -1;
-    if (gb === 'critical' && ga !== 'critical') return 1;
-    return calcPct(a.item) - calcPct(b.item); // lower score = higher priority
-  }).slice(0, 8);
+  // ── Top Gaps — sorted by priority score (Overalls fit × gap severity × coverage shortfall)
+  const sortedGaps = [...gapItems]
+    .sort((a, b) => gapPriorityScore(b.item) - gapPriorityScore(a.item))
+    .slice(0, 8);
 
   if (sortedGaps.length === 0) {
     document.getElementById('spTopGaps').innerHTML = `
@@ -4310,13 +4488,13 @@ function renderSummary(data) {
         <div>No critical gaps found.<br><span style="font-size:11px;color:var(--text-light)">Upload a benefits document to populate gaps.</span></div>
       </div>`;
   } else {
-    document.getElementById('spTopGaps').innerHTML = sortedGaps.map(x => {
-      const g   = gapType(x.item);
-      const pct = calcPct(x.item);
-      const sc  = scoreClass(pct);
+    document.getElementById('spTopGaps').innerHTML = sortedGaps.map((x, idx) => {
+      const g     = gapType(x.item);
+      const score = gapPriorityScore(x.item);
+      const scoreColor = score >= 75 ? 'var(--berry)' : score >= 50 ? 'var(--amber)' : 'var(--teal-200)';
       return `
         <div class="sp-gap-item">
-          <div class="sp-gap-dot ${g}"></div>
+          <div class="sp-priority-badge" style="background:${scoreColor}" title="Priority score: ${score}/99 — based on Overalls fit, gap severity, and coverage shortfall">${score}</div>
           <div style="flex:1;min-width:0">
             <div class="sp-gap-name">${escHtml(x.item.name)}</div>
             <div class="sp-gap-cat">${escHtml(x.catName)}${x.item.solutions ? ' · ' + escHtml(x.item.solutions) : ''}</div>
@@ -4324,6 +4502,41 @@ function renderSummary(data) {
           <div class="sp-gap-badge">${gapBadgeHTML(g, x.item.name)}</div>
         </div>`;
     }).join('');
+  }
+
+  // ── Market Position panel
+  const bmItems = [];
+  data.categories.forEach(cat => {
+    cat.items.forEach(item => {
+      const bm = BENCHMARKS[item.name];
+      if (!bm || item.overalls === 'N/A') return;
+      const sl  = supportLevel(item.support || 'No Support');
+      const bsl = supportLevel(bm.level);
+      bmItems.push({ item, catName: cat.name, sl, bsl, bm });
+    });
+  });
+  const aboveMarket = bmItems.filter(x => x.sl > x.bsl);
+  const belowMarket = bmItems.filter(x => x.sl < x.bsl);
+  const atMarket    = bmItems.filter(x => x.sl === x.bsl);
+  const mpEl = document.getElementById('spMarketPosition');
+  if (mpEl) {
+    mpEl.innerHTML = `
+      <div class="sp-mp-stats">
+        <div class="sp-mp-stat bm-above"><span class="sp-mp-num">${aboveMarket.length}</span><span class="sp-mp-lbl">Above Market</span></div>
+        <div class="sp-mp-stat bm-at"><span class="sp-mp-num">${atMarket.length}</span><span class="sp-mp-lbl">At Market</span></div>
+        <div class="sp-mp-stat bm-below"><span class="sp-mp-num">${belowMarket.length}</span><span class="sp-mp-lbl">Below Market</span></div>
+      </div>
+      ${belowMarket.length ? `
+      <div class="sp-mp-list">
+        <div class="sp-mp-list-label">Below market — Overalls opportunity:</div>
+        ${belowMarket.slice(0, 5).map(x => `
+          <div class="sp-mp-row">
+            <span class="bm-indicator bm-below">↓</span>
+            <span class="sp-mp-item-name">${escHtml(x.item.name)}</span>
+            <span class="sp-mp-item-detail">Market: ${x.bm.level} · You: ${x.item.support || 'No Support'}</span>
+          </div>`).join('')}
+        ${belowMarket.length > 5 ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px">+${belowMarket.length - 5} more</div>` : ''}
+      </div>` : '<div style="font-size:12px;color:var(--teal);padding:8px 0">✓ No benefits below market benchmark</div>'}`;
   }
 
   // ── Category Breakdown
